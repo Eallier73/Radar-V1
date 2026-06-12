@@ -1,0 +1,5 @@
+# Entornos virtuales locales de Conda
+.conda_envs/
+
+# Archivo de variables de entorno
+.env
