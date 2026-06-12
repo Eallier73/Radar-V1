@@ -3,3 +3,6 @@
 
 # Archivo de variables de entorno
 .env
+
+# Carpeta de datos (excluida del repositorio remoto)
+data/
