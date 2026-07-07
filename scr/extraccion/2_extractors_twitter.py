@@ -20,11 +20,17 @@ import sys
 import json
 import os
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote
 
-from output_naming import build_report_tag
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SHARED_DIR = REPO_ROOT / "scr" / "compartido"
+if str(SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(SHARED_DIR))
+
+from output_naming import build_source_filename, build_week_folder_name
+from radar_paths import EXTRACTED_DATA_DIR, STATE_DIR
 
 try:
     from playwright.async_api import async_playwright
@@ -36,11 +42,10 @@ except Exception as exc:
 # =========================
 # CONFIGURACIÓN CDMX
 # =========================
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_OUTPUT_BASE_DIR = REPO_ROOT / "Twitter"
-DEFAULT_STATE_PATH = REPO_ROOT / "state" / "x_state.json"
-CONFIG_START_DATE_STR = "2026-03-15"
-CONFIG_END_DATE_STR = "2026-03-31"
+DEFAULT_OUTPUT_BASE_DIR = EXTRACTED_DATA_DIR
+DEFAULT_STATE_PATH = STATE_DIR / "x_state.json"
+CONFIG_START_DATE_STR = ""
+CONFIG_END_DATE_STR = ""
 DEFAULT_MAX_TWEETS = 3000
 
 # Usuarios objetivo y términos principales
@@ -82,6 +87,7 @@ class TwitterExtractorIAD:
         max_replies_per_tweet: int = MAX_REPLIES_PER_TWEET,
         max_reply_scrolls: int = MAX_REPLY_SCROLLS,
         headless: bool = True,
+        create_output_dir: bool = True,
     ):
         """
         fecha_inicio_str: string en formato YYYY-MM-DD (fecha de inicio)
@@ -101,13 +107,19 @@ class TwitterExtractorIAD:
         self.output_dir = base_dir / self.nombre_semana
         
         # Crear directorio si no existe (normalmente ya debe existir por el main)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        if create_output_dir:
+            self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Archivos de salida segmentados por tipo de contenido
-        self.output_posts_institucionales_csv = self.output_dir / f"{self.nombre_semana}_post_institucionales.csv"
-        self.output_posts_institucionales_txt = self.output_dir / f"{self.nombre_semana}_post_institucionales.txt"
-        self.output_comentarios_csv = self.output_dir / f"{self.nombre_semana}_comentarios.csv"
-        self.output_comentarios_txt = self.output_dir / f"{self.nombre_semana}_comentarios.txt"
+        # CSV canónico histórico y archivos auxiliares segmentados.
+        canonical_base = build_source_filename(self.nombre_semana, "twitter")
+        posts_base = build_source_filename(self.nombre_semana, "twitter", "post_institucionales")
+        comments_base = build_source_filename(self.nombre_semana, "twitter", "comentarios")
+        self.output_csv = self.output_dir / f"{canonical_base}.csv"
+        self.output_txt = self.output_dir / f"{canonical_base}.txt"
+        self.output_posts_institucionales_csv = self.output_dir / f"{posts_base}.csv"
+        self.output_posts_institucionales_txt = self.output_dir / f"{posts_base}.txt"
+        self.output_comentarios_csv = self.output_dir / f"{comments_base}.csv"
+        self.output_comentarios_txt = self.output_dir / f"{comments_base}.txt"
         
         # Configuraciones
         self.max_tweets = max_tweets
@@ -117,7 +129,9 @@ class TwitterExtractorIAD:
         
         # Queries optimizadas con fechas
         fecha_inicio_str = self.fecha_inicio.strftime("%Y-%m-%d")
-        fecha_fin_str = self.fecha_fin.strftime("%Y-%m-%d")
+        # El operador `until` de X es exclusivo; se suma un día para incluir
+        # por completo la fecha final solicitada.
+        fecha_fin_str = (self.fecha_fin + timedelta(days=1)).strftime("%Y-%m-%d")
         
         base_queries = custom_queries if custom_queries else SEARCH_QUERIES
         self.search_queries = []
@@ -129,13 +143,14 @@ class TwitterExtractorIAD:
         
         print(f"📅 Período: {self.fecha_inicio.date()} a {self.fecha_fin.date()}")
         print(f"📁 Carpeta: {self.nombre_semana}")
+        print(f"📂 Salida canónica: {self.output_csv}")
         print(f"📂 Salida institucional: {self.output_posts_institucionales_csv}")
         print(f"📂 Salida comentarios: {self.output_comentarios_csv}")
         print(f"🔎 Queries base: {len(base_queries)}")
     
     def calcular_nombre_semana(self):
         """Calcula el nombre de la carpeta de salida."""
-        return build_report_tag(self.fecha_inicio, "Twitter")
+        return build_week_folder_name(self.fecha_inicio, self.fecha_fin)
     
     def clean_text(self, text: str) -> str:
         """Limpiar texto eliminando espacios extras"""
@@ -456,7 +471,7 @@ class TwitterExtractorIAD:
         return collected
     
     def save_to_csv(self, all_tweets):
-        """Guardar tweets en dos CSV: posts institucionales y comentarios."""
+        """Guarda el CSV canónico y dos vistas auxiliares segmentadas."""
         if not all_tweets:
             print("⚠️  No hay tweets para guardar")
             return
@@ -474,6 +489,18 @@ class TwitterExtractorIAD:
 
         posts_institucionales = [tweet for tweet in all_tweets if _es_post_institucional(tweet)]
         comentarios = [tweet for tweet in all_tweets if not _es_post_institucional(tweet)]
+
+        with open(self.output_csv, "w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for tweet in all_tweets:
+                writer.writerow({field: tweet.get(field, "") for field in fieldnames})
+
+        with open(self.output_txt, "w", encoding="utf-8") as text_file:
+            for tweet in all_tweets:
+                clean = self.clean_text(tweet.get("text", ""))
+                if clean:
+                    text_file.write(clean + "\n")
 
         with open(self.output_posts_institucionales_csv, "w", newline="", encoding="utf-8") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -502,6 +529,7 @@ class TwitterExtractorIAD:
                     f.write(clean + "\n")
 
         print(f"✅ Twitter: {len(all_tweets)} tweets guardados")
+        print(f"   📄 CSV canónico: {self.output_csv}")
         print(f"   🏛️ Posts institucionales: {len(posts_institucionales)} -> {self.output_posts_institucionales_csv}")
         print(f"   💬 Comentarios públicos: {len(comentarios)} -> {self.output_comentarios_csv}")
     
@@ -582,8 +610,8 @@ def main():
     )
     parser.add_argument("fecha_inicio", nargs="?", help="Fecha inicio YYYY-MM-DD")
     parser.add_argument("fecha_fin", nargs="?", help="Fecha fin YYYY-MM-DD")
-    parser.add_argument("--since", dest="since", required=True, help="Fecha inicio YYYY-MM-DD (heredado del orquestador)")
-    parser.add_argument("--before", dest="before", required=True, help="Fecha fin YYYY-MM-DD (heredado del orquestador)")
+    parser.add_argument("--since", dest="since", help="Fecha inicio YYYY-MM-DD")
+    parser.add_argument("--before", dest="before", help="Fecha fin YYYY-MM-DD")
     parser.add_argument(
         "--query",
         dest="queries",
@@ -591,8 +619,8 @@ def main():
         default=[],
         help="Query de búsqueda base (repite --query para varias)"
     )
-    parser.add_argument("--output-dir", required=True,
-                        help="Directorio base de salida (heredado del orquestador)")
+    parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_BASE_DIR),
+                        help="Directorio base de salida. Default: %(default)s")
     parser.add_argument("--state-path", default=str(DEFAULT_STATE_PATH),
                         help="Ruta al storage_state de X/Twitter")
     parser.add_argument("--max-tweets", type=int, default=DEFAULT_MAX_TWEETS,
@@ -605,6 +633,8 @@ def main():
                         help="Ejecuta el navegador en modo headless")
     parser.add_argument("--no-headless", dest="headless", action="store_false",
                         help="Ejecuta el navegador con interfaz")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Muestra consultas y rutas sin abrir Playwright")
     args = parser.parse_args()
 
     if (args.since or args.before) and (args.fecha_inicio or args.fecha_fin):
@@ -663,7 +693,12 @@ def main():
         max_replies_per_tweet=args.max_replies_per_tweet,
         max_reply_scrolls=args.max_reply_scrolls,
         headless=args.headless,
+        create_output_dir=not args.dry_run,
     )
+    if args.dry_run:
+        print(f"🔐 Estado del navegador: {extractor.state_path}")
+        print("🧪 Dry-run: no se crearon carpetas ni se abrió Playwright.")
+        return
     success = asyncio.run(extractor.run_extraction())
     
     if success:

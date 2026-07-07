@@ -72,7 +72,7 @@ DOMINIOS_PLAYWRIGHT_PRIORITARIO = [
 # --- General ---
 OMITIR_SEMANAS_EXISTENTES = True
 CARPETA_BASE_SEMANAL = None
-NOMBRE_ARCHIVO_BASE = "noticias_cdmx"
+NOMBRE_ARCHIVO_BASE = "medios"
 PAUSA = 2.0            # segundos entre requests de trafilatura
 PAUSA_ENTRE_QUERIES = 3.0   # segundos entre queries RSS (para no ser bloqueado)
 
@@ -91,6 +91,7 @@ import hashlib
 import json
 import random
 import re
+import sys
 import time
 import unicodedata
 import xml.etree.ElementTree as ET
@@ -100,15 +101,35 @@ from html import unescape
 from pathlib import Path
 from urllib.parse import quote_plus, urlparse, parse_qs, unquote
 
-import requests
-import cloudscraper
-import trafilatura
-import pandas as pd
+try:
+    import requests
+except ImportError:
+    requests = None
 
-from output_naming import build_report_tag
+try:
+    import cloudscraper
+except ImportError:
+    cloudscraper = None
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-CARPETA_BASE_SEMANAL = str(REPO_ROOT / "Medios")
+try:
+    import trafilatura
+except ImportError:
+    trafilatura = None
+
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SHARED_DIR = REPO_ROOT / "scr" / "compartido"
+if str(SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(SHARED_DIR))
+
+from output_naming import build_source_filename, build_week_folder_name
+from radar_paths import EXTRACTED_DATA_DIR
+
+CARPETA_BASE_SEMANAL = str(EXTRACTED_DATA_DIR)
 
 # Intentar importar googlenewsdecoder como fallback
 TIENE_GNEWS_DECODER = False
@@ -142,7 +163,27 @@ PLAYWRIGHT_DESCARGAS_OK = 0
 PLAYWRIGHT_DESCARGAS_FAIL = 0
 
 # Scraper global para bypass de Cloudflare (Milenio, etc.)
-SCRAPER = cloudscraper.create_scraper(browser={'browser': 'firefox', 'platform': 'linux'})
+SCRAPER = (
+    cloudscraper.create_scraper(browser={'browser': 'firefox', 'platform': 'linux'})
+    if cloudscraper is not None
+    else None
+)
+
+
+def verificar_dependencias_ejecucion():
+    faltantes = []
+    if requests is None:
+        faltantes.append("requests")
+    if cloudscraper is None:
+        faltantes.append("cloudscraper")
+    if trafilatura is None:
+        faltantes.append("trafilatura")
+    if pd is None:
+        faltantes.append("pandas")
+    if faltantes:
+        raise SystemExit(
+            "❌ Faltan dependencias para ejecutar Medios: " + ", ".join(faltantes)
+        )
 
 
 # ============================================================
@@ -919,8 +960,7 @@ def iterar_semanas(fecha_inicio, fecha_fin):
 
 
 def nombre_carpeta_semana(fecha_inicio, fecha_fin):
-    del fecha_fin
-    return build_report_tag(fecha_inicio, "Medios")
+    return build_week_folder_name(fecha_inicio, fecha_fin)
 
 
 def rutas_salida_semana(fecha_inicio_semana, fecha_fin_semana):
@@ -928,8 +968,9 @@ def rutas_salida_semana(fecha_inicio_semana, fecha_fin_semana):
         fecha_inicio_semana, fecha_fin_semana
     )
     carpeta_semana = Path(CARPETA_BASE_SEMANAL) / report_tag
-    archivo_salida = carpeta_semana / f"{report_tag}_{NOMBRE_ARCHIVO_BASE}.csv"
-    archivo_txt = carpeta_semana / f"{report_tag}_{NOMBRE_ARCHIVO_BASE}.txt"
+    output_base = build_source_filename(report_tag, NOMBRE_ARCHIVO_BASE)
+    archivo_salida = carpeta_semana / f"{output_base}.csv"
+    archivo_txt = carpeta_semana / f"{output_base}.txt"
     return carpeta_semana, archivo_salida, archivo_txt
 
 
@@ -993,8 +1034,8 @@ def parse_args():
     parser.add_argument(
         "-o",
         "--output-dir",
-        required=True,
-        help="Carpeta base donde se guardan las semanas (heredada del orquestador)",
+        default=CARPETA_BASE_SEMANAL,
+        help="Carpeta base donde se guardan las semanas. Default: %(default)s",
     )
     parser.add_argument(
         "--nombre-archivo-base",
@@ -1037,6 +1078,11 @@ def parse_args():
         type=float,
         default=PAUSA_ENTRE_QUERIES,
         help="Segundos de pausa entre queries RSS.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Muestra consultas y rutas sin descargar noticias.",
     )
     return parser.parse_args()
 
@@ -1191,6 +1237,13 @@ def main():
     print("#" * 60)
 
     _, archivo_salida, _ = rutas_salida_semana(fecha_inicio_global, fecha_fin_global)
+    if args.dry_run:
+        print(f"CSV canónico: {archivo_salida}")
+        print("🧪 Dry-run: no se crearon carpetas ni se hicieron solicitudes HTTP.")
+        return None
+
+    verificar_dependencias_ejecucion()
+
     if OMITIR_SEMANAS_EXISTENTES and archivo_salida.exists():
         print(f"↷ Rango omitido (ya existe CSV): {archivo_salida}")
         df = pd.read_csv(archivo_salida, encoding="utf-8-sig")

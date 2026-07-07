@@ -41,13 +41,18 @@ from urllib.request import Request, urlopen
 
 import pandas as pd
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SHARED_DIR = REPO_ROOT / "scr" / "compartido"
+if str(SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(SHARED_DIR))
+
 from output_naming import build_prefixed_name, build_report_tag
+from radar_paths import EXTRACTED_DATA_DIR
 
 
 ACTOR_COMMENTS = "apify/facebook-comments-scraper"
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_OUTPUT_BASE_DIR = str(REPO_ROOT / "Facebook")
-DEFAULT_URLS_BASE_DIR = str(REPO_ROOT / "Facebook")
+DEFAULT_OUTPUT_BASE_DIR = str(EXTRACTED_DATA_DIR)
+DEFAULT_URLS_BASE_DIR = str(EXTRACTED_DATA_DIR)
 DEFAULT_PAGES = ["GobiernoCDMX", "ClaraBrugadaM"]
 
 
@@ -881,8 +886,8 @@ Uso:
                         help="URLs por batch (default: 25)")
     parser.add_argument("--token", default=None,
                         help="Apify API token (o variable APIFY_TOKEN)")
-    parser.add_argument("--output-dir", required=True,
-                        help="Directorio base de salida (heredado del orquestador)")
+    parser.add_argument("--output-dir", default=DEFAULT_OUTPUT_BASE_DIR,
+                        help="Directorio base de salida. Default: %(default)s")
     parser.add_argument("--prompt", action="store_true",
                         help="Fuerza modo interactivo (preguntas en consola)")
     parser.add_argument("--no-prompt", action="store_true",

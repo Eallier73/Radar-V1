@@ -11,15 +11,13 @@
 ║                                                                           ║
 ║   Uso Modo A (directo):                                                  ║
 ║   python 4_extractors_facebook_posts.py \\                               ║
-║     --pages GobiernoCDMX ClaraBrugadaM \\                                ║
+║     --pages TampicoGob monicavtampico \\                                 ║
 ║     --since 2026-03-01 --before 2026-03-12 \\                            ║
-║     --output-dir ./Facebook                                              ║
 ║                                                                           ║
 ║   Uso Modo B (desde URLs):                                               ║
 ║   python 4_extractors_facebook_posts.py \\                               ║
-║     --input-csv ./Facebook/2026-03-01_Facebook/2026-03-01_posts.csv \\  ║
+║     --input-csv ./datos/radar_semanal_extraido/SEMANA/SEMANA_facebook_posts.csv \\ ║
 ║     --since 2026-03-01 --before 2026-03-12 \\                            ║
-║     --output-dir ./Facebook                                              ║
 ║                                                                           ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 """
@@ -39,15 +37,30 @@ from urllib.parse import urlparse
 
 import pandas as pd
 
-from output_naming import build_report_tag
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SHARED_DIR = REPO_ROOT / "scr" / "compartido"
+if str(SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(SHARED_DIR))
+
+from dotenv import load_dotenv
+from output_naming import build_source_filename, build_week_folder_name
+from radar_paths import EXTRACTED_DATA_DIR
 
 
 ACTOR_POSTS = "apify/facebook-posts-scraper"
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_OUTPUT_BASE_DIR = str(REPO_ROOT / "Facebook")
-DEFAULT_PAGES = ["GobiernoCDMX", "ClaraBrugadaM"]
+DEFAULT_OUTPUT_BASE_DIR = str(EXTRACTED_DATA_DIR)
+DEFAULT_PAGES = [
+    "TampicoGob",
+    "monicavtampico",
+    "servpublicostampico",
+    "ProteccionCivilTampico",
+    "DireccionDeportesTampico",
+]
 DEFAULT_RESULTS_LIMIT_PER_PAGE = 100
 DEFAULT_BATCH_SIZE = 10
+
+load_dotenv(REPO_ROOT / ".env")
+load_dotenv(REPO_ROOT / ".env.local")
 
 
 def valid_date(value: str) -> str:
@@ -391,15 +404,13 @@ def parse_args() -> argparse.Namespace:
         epilog="""
 Modo A - Descarga directa desde páginas:
   python 4_extractors_facebook_posts.py \\
-    --pages GobiernoCDMX ClaraBrugadaM \\
-    --since 2026-03-01 --before 2026-03-12 \\
-    --output-dir ./Facebook
+    --pages TampicoGob monicavtampico \\
+    --since 2026-03-01 --before 2026-03-12
 
 Modo B - Desde URLs preexistentes (recomendado, más eficiente):
   python 4_extractors_facebook_posts.py \\
-        --input-csv ./Facebook/2026-03-01_Facebook/2026-03-01_posts.csv \
-    --since 2026-03-01 --before 2026-03-12 \\
-    --output-dir ./Facebook
+    --input-csv ./datos/radar_semanal_extraido/SEMANA/SEMANA_facebook_posts.csv \\
+    --since 2026-03-01 --before 2026-03-12
         """,
     )
     parser.add_argument("--pages", nargs="+", default=None,
@@ -407,9 +418,9 @@ Modo B - Desde URLs preexistentes (recomendado, más eficiente):
     parser.add_argument("--input-csv", default=None,
                         help="CSV con columna post_url/url/URL (Modo B)")
     parser.add_argument("--since", required=True, type=valid_date,
-                        help="Fecha inicio YYYY-MM-DD (heredada del orquestador)")
+                        help="Fecha inicio YYYY-MM-DD")
     parser.add_argument("--before", required=True, type=valid_date,
-                        help="Fecha fin YYYY-MM-DD (heredada del orquestador)")
+                        help="Fecha fin YYYY-MM-DD")
     parser.add_argument("--max-posts", type=int, default=DEFAULT_RESULTS_LIMIT_PER_PAGE,
                         help="Maximo de posts por pagina target en el actor")
     parser.add_argument("--max-pages", type=int, default=None,
@@ -424,12 +435,14 @@ Modo B - Desde URLs preexistentes (recomendado, más eficiente):
                         help="Paginas/URLs por batch de ejecucion (default: 10)")
     parser.add_argument("--token", default=None,
                         help="Apify API token (o variable APIFY_TOKEN)")
-    parser.add_argument("--output-dir", required=True,
-                        help="Directorio base de salida (heredado del orquestador)")
+    parser.add_argument("--output-dir", default=DEFAULT_OUTPUT_BASE_DIR,
+                        help="Directorio base de salida. Default: %(default)s")
     parser.add_argument("--prompt", action="store_true",
                         help="Forzar modo interactivo")
     parser.add_argument("--no-prompt", action="store_true",
                         help="Desactivar modo interactivo")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Muestra páginas y rutas sin llamar a Apify")
     return parser.parse_args()
 
 
@@ -454,6 +467,23 @@ def main() -> None:
     if since_dt > before_dt:
         print("Fecha invalida: --since no puede ser mayor a --before.")
         sys.exit(1)
+
+    week_name = build_week_folder_name(since_dt, before_dt)
+    output_dir = Path(args.output_dir).expanduser() / week_name
+    posts_base = build_source_filename(week_name, "facebook", "posts")
+    csv_path = output_dir / f"{posts_base}.csv"
+    txt_path = output_dir / f"{posts_base}.txt"
+
+    if args.dry_run:
+        print(f"Actor: {ACTOR_POSTS}")
+        print(f"Rango: {args.since} -> {args.before}")
+        if use_csv_mode:
+            print(f"Entrada CSV: {Path(args.input_csv).expanduser()}")
+        else:
+            print(f"Páginas: {', '.join(args.pages)}")
+        print(f"CSV de posts: {csv_path}")
+        print("🧪 Dry-run: no se crearon carpetas ni se llamó a Apify.")
+        return
 
     token = args.token or os.environ.get("APIFY_TOKEN")
     if not token:
@@ -570,16 +600,8 @@ def main() -> None:
         "reacciones_post",
     ])
 
-    # Preparar salida
-    since_label = args.since or "sin_inicio"
-    before_label = args.before or "sin_fin"
-    report_tag = build_report_tag(since_label, "Facebook")
-    output_dir = os.path.join(args.output_dir, report_tag)
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Nombre simplificado: [tag]_posts.csv
-    csv_path = os.path.join(output_dir, f"{report_tag}_posts.csv")
-    txt_path = os.path.join(output_dir, f"{report_tag}_posts.txt")
+    # Preparar salida semanal de Radar.
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     df_posts.to_csv(csv_path, index=False, encoding="utf-8-sig")
     with open(txt_path, "w", encoding="utf-8") as f:

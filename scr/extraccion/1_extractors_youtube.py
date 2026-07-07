@@ -24,7 +24,13 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Sequence
 
-from output_naming import build_report_tag
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SHARED_DIR = REPO_ROOT / "scr" / "compartido"
+if str(SHARED_DIR) not in sys.path:
+    sys.path.insert(0, str(SHARED_DIR))
+
+from output_naming import build_source_filename, build_week_folder_name
+from radar_paths import EXTRACTED_DATA_DIR
 
 try:
     import googleapiclient.discovery as google_discovery
@@ -72,8 +78,7 @@ DEFAULT_SEARCH_QUERIES = [
 
 DEFAULT_CHANNEL_HANDLES = ["GobCDMX", "ClaraBrugadaM"]
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_OUTPUT_BASE_DIR = str(REPO_ROOT / "Youtube")
+DEFAULT_OUTPUT_BASE_DIR = str(EXTRACTED_DATA_DIR)
 DEFAULT_API_KEY = ""
 
 
@@ -100,8 +105,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--before", type=valid_date, required=True,
                         help="Fecha fin YYYY-MM-DD (heredado del orquestador)")
 
-    parser.add_argument("--output-dir", required=True,
-                        help="Directorio base de salida (heredado del orquestador)")
+    parser.add_argument("--output-dir", default=DEFAULT_OUTPUT_BASE_DIR,
+                        help="Directorio base de salida. Default: %(default)s")
     parser.add_argument("--api-key", default=os.getenv("YOUTUBE_API_KEY", DEFAULT_API_KEY),
                         help="API key de YouTube Data API")
 
@@ -124,6 +129,8 @@ def parse_args() -> argparse.Namespace:
                         help="Fuerza modo interactivo para seleccionar que descargar")
     parser.add_argument("--no-prompt", action="store_true",
                         help="Desactiva preguntas interactivas y usa solo CLI/defaults")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Muestra periodo y rutas de salida sin consultar YouTube")
     parser.add_argument("--proxy-http", default=os.getenv("YT_PROXY_HTTP", ""),
                         help="Proxy HTTP para transcripciones (http://user:pass@host:port)")
     parser.add_argument("--proxy-https", default=os.getenv("YT_PROXY_HTTPS", ""),
@@ -757,12 +764,16 @@ def main() -> None:
         print("❌ No puedes usar --prompt y --no-prompt al mismo tiempo.")
         sys.exit(1)
     run_comments, run_transcripts = resolver_modo_descarga(args)
-    verificar_dependencias(run_comments, run_transcripts)
     start_date, end_date = resolver_rango_fechas(args.since, args.before)
 
-    report_tag = build_report_tag(start_date, "Youtube")
-    output_dir = os.path.join(args.output_dir, report_tag)
-    os.makedirs(output_dir, exist_ok=True)
+    week_name = build_week_folder_name(start_date, end_date)
+    output_dir = Path(args.output_dir).expanduser() / week_name
+    comments_base = build_source_filename(week_name, "youtube")
+    transcripts_base = build_source_filename(week_name, "youtube", "transcripciones")
+    comments_csv = output_dir / f"{comments_base}.csv"
+    comments_txt = output_dir / f"{comments_base}.txt"
+    transcripts_csv = output_dir / f"{transcripts_base}.csv"
+    transcripts_txt = output_dir / f"{transcripts_base}.txt"
 
     print("🚀 Iniciando extracción de YouTube...")
     print(f"📅 Periodo: {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}")
@@ -776,6 +787,17 @@ def main() -> None:
     if run_transcripts and (args.proxy_http or args.proxy_https):
         print("🌐 Proxy de transcripciones: activado")
 
+    if run_comments:
+        print(f"📄 Comentarios CSV: {comments_csv}")
+    if run_transcripts:
+        print(f"📄 Transcripciones CSV: {transcripts_csv}")
+    if args.dry_run:
+        print("🧪 Dry-run: no se crearon carpetas ni se consultó la API.")
+        return
+
+    verificar_dependencias(run_comments, run_transcripts)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     if not args.api_key:
         print("❌ No hay API key de YouTube. Usa --api-key o exporta YOUTUBE_API_KEY")
         sys.exit(1)
@@ -785,15 +807,6 @@ def main() -> None:
     except Exception as exc:
         print(f"❌ Error configurando YouTube API: {exc}")
         sys.exit(1)
-
-    comentarios_base = f"{report_tag}_comentarios"
-    scripts_base = f"{report_tag}_scripts"
-
-    comments_csv = os.path.join(output_dir, f"{comentarios_base}.csv")
-    comments_txt = os.path.join(output_dir, f"{comentarios_base}.txt")
-
-    transcripts_csv = os.path.join(output_dir, f"{scripts_base}.csv")
-    transcripts_txt = os.path.join(output_dir, f"{scripts_base}.txt")
 
     total_videos_comments = 0
     total_videos_transcripts = 0

@@ -3,3 +3,6 @@
 
 # Archivo de variables de entorno
 .env
+
+# Sesiones autenticadas locales (Playwright/Twitter)
+/state/*.json
