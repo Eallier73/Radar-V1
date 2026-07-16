@@ -40,7 +40,7 @@ except Exception as exc:
     PLAYWRIGHT_IMPORT_ERROR = f"{type(exc).__name__}: {exc}"
 
 # =========================
-# CONFIGURACIÓN CDMX
+# CONFIGURACION TAMPICO
 # =========================
 DEFAULT_OUTPUT_BASE_DIR = EXTRACTED_DATA_DIR
 DEFAULT_STATE_PATH = STATE_DIR / "x_state.json"
@@ -48,24 +48,25 @@ CONFIG_START_DATE_STR = ""
 CONFIG_END_DATE_STR = ""
 DEFAULT_MAX_TWEETS = 3000
 
-# Usuarios objetivo y términos principales
-TARGET_HANDLES = ["@ClaraBrugadaM", "@GobCDMX"]
+# Usuarios objetivo y terminos principales
+TARGET_HANDLES = ["@MonicaVTampico", "@TampicoGob"]
 
 INSTITUTIONAL_POST_QUERIES = {
-    "from:GobCDMX",
-    "from:ClaraBrugadaM",
+    "from:MonicaVTampico",
+    "from:TampicoGob",
 }
 
 # Consultas base (sin rango de fechas)
 SEARCH_QUERIES = [
-    "from:ClaraBrugadaM",
-    "from:GobCDMX",
-    "jefa de gobierno",
-    "clara brugada",
-    "cdmx",
-    "ciudad de mexico",
-    "gobierno de CDMX",
-    "gobierno de la ciudad de mexico",
+    "to:MonicaVTampico",
+    "from:MonicaVTampico",
+    "to:TampicoGob",
+    "from:TampicoGob",
+    "@TampicoGob",
+    "@MonicaVTampico",
+    "monica villarreal",
+    "gobierno de tampico",
+    "tampico",
 ]
 
 # Respuestas
@@ -110,16 +111,9 @@ class TwitterExtractorIAD:
         if create_output_dir:
             self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # CSV canónico histórico y archivos auxiliares segmentados.
+        # Único CSV canónico semanal.
         canonical_base = build_source_filename(self.nombre_semana, "twitter")
-        posts_base = build_source_filename(self.nombre_semana, "twitter", "post_institucionales")
-        comments_base = build_source_filename(self.nombre_semana, "twitter", "comentarios")
         self.output_csv = self.output_dir / f"{canonical_base}.csv"
-        self.output_txt = self.output_dir / f"{canonical_base}.txt"
-        self.output_posts_institucionales_csv = self.output_dir / f"{posts_base}.csv"
-        self.output_posts_institucionales_txt = self.output_dir / f"{posts_base}.txt"
-        self.output_comentarios_csv = self.output_dir / f"{comments_base}.csv"
-        self.output_comentarios_txt = self.output_dir / f"{comments_base}.txt"
         
         # Configuraciones
         self.max_tweets = max_tweets
@@ -144,8 +138,6 @@ class TwitterExtractorIAD:
         print(f"📅 Período: {self.fecha_inicio.date()} a {self.fecha_fin.date()}")
         print(f"📁 Carpeta: {self.nombre_semana}")
         print(f"📂 Salida canónica: {self.output_csv}")
-        print(f"📂 Salida institucional: {self.output_posts_institucionales_csv}")
-        print(f"📂 Salida comentarios: {self.output_comentarios_csv}")
         print(f"🔎 Queries base: {len(base_queries)}")
     
     def calcular_nombre_semana(self):
@@ -471,7 +463,7 @@ class TwitterExtractorIAD:
         return collected
     
     def save_to_csv(self, all_tweets):
-        """Guarda el CSV canónico y dos vistas auxiliares segmentadas."""
+        """Guarda el único CSV canónico semanal."""
         if not all_tweets:
             print("⚠️  No hay tweets para guardar")
             return
@@ -483,55 +475,14 @@ class TwitterExtractorIAD:
             "views", "query_used", "is_reply", "in_reply_to_url"
         ]
         
-        def _es_post_institucional(tweet: dict) -> bool:
-            query_used = str(tweet.get("query_used", "") or "")
-            return any(q in query_used for q in INSTITUTIONAL_POST_QUERIES)
-
-        posts_institucionales = [tweet for tweet in all_tweets if _es_post_institucional(tweet)]
-        comentarios = [tweet for tweet in all_tweets if not _es_post_institucional(tweet)]
-
         with open(self.output_csv, "w", newline="", encoding="utf-8") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for tweet in all_tweets:
                 writer.writerow({field: tweet.get(field, "") for field in fieldnames})
 
-        with open(self.output_txt, "w", encoding="utf-8") as text_file:
-            for tweet in all_tweets:
-                clean = self.clean_text(tweet.get("text", ""))
-                if clean:
-                    text_file.write(clean + "\n")
-
-        with open(self.output_posts_institucionales_csv, "w", newline="", encoding="utf-8") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for tweet in posts_institucionales:
-                row = {field: tweet.get(field, "") for field in fieldnames}
-                writer.writerow(row)
-
-        with open(self.output_posts_institucionales_txt, "w", encoding="utf-8") as f:
-            for tweet in posts_institucionales:
-                clean = self.clean_text(tweet.get("text", ""))
-                if clean:
-                    f.write(clean + "\n")
-
-        with open(self.output_comentarios_csv, "w", newline="", encoding="utf-8") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for tweet in comentarios:
-                row = {field: tweet.get(field, "") for field in fieldnames}
-                writer.writerow(row)
-
-        with open(self.output_comentarios_txt, "w", encoding="utf-8") as f:
-            for tweet in comentarios:
-                clean = self.clean_text(tweet.get("text", ""))
-                if clean:
-                    f.write(clean + "\n")
-
         print(f"✅ Twitter: {len(all_tweets)} tweets guardados")
         print(f"   📄 CSV canónico: {self.output_csv}")
-        print(f"   🏛️ Posts institucionales: {len(posts_institucionales)} -> {self.output_posts_institucionales_csv}")
-        print(f"   💬 Comentarios públicos: {len(comentarios)} -> {self.output_comentarios_csv}")
     
     async def run_extraction(self):
         """Ejecutar extracción completa"""

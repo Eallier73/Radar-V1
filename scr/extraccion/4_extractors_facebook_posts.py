@@ -472,7 +472,6 @@ def main() -> None:
     output_dir = Path(args.output_dir).expanduser() / week_name
     posts_base = build_source_filename(week_name, "facebook", "posts")
     csv_path = output_dir / f"{posts_base}.csv"
-    txt_path = output_dir / f"{posts_base}.txt"
 
     if args.dry_run:
         print(f"Actor: {ACTOR_POSTS}")
@@ -604,11 +603,6 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     df_posts.to_csv(csv_path, index=False, encoding="utf-8-sig")
-    with open(txt_path, "w", encoding="utf-8") as f:
-        for text in df_posts["post_texto"].fillna("").astype(str).tolist():
-            clean = re.sub(r"\s+", " ", text).strip()
-            if clean:
-                f.write(clean + "\n")
 
     print("\n" + "=" * 70)
     print("✅ EXTRACCIÓN COMPLETADA")
@@ -616,7 +610,6 @@ def main() -> None:
     print(f"Posts raw del actor: {len(all_items)}")
     print(f"Posts finales: {len(df_posts)}")
     print(f"CSV: {csv_path}")
-    print(f"TXT: {txt_path}")
     print("\n⚠️ IMPORTANTE: Este extractor SOLO descarga posts (sin comentarios).")
     print("Para comentarios, usa: 5_extractors_facebook_comentarios.py")
 

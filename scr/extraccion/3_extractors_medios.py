@@ -23,16 +23,15 @@ que requieren JavaScript rendering.
 # CONFIGURACIÓN — solo edita esta sección
 # ============================================================
 MEDIOS = [
-    "site:www.milenio.com",
-    "site:www.jornada.com.mx",
+    "site:oem.com.mx",
+    "site:milenio.com",
     
 ]
 
 TERMINOS = [
-    '"clara brugada"',
-    '"jefa de gobierno"',
-    '"gobierno de cdmx"',
-    '"ciudad de mexico"',
+    '"Monica Villarreal"',
+    '"gobierno de tampico"',
+    '"tampico"',
 ]
 
 ANIO_INICIO = 2025
@@ -65,8 +64,7 @@ PLAYWRIGHT_PAUSA_ENTRE_PAGINAS = 1.5  # seg entre cada página (anti rate-limit)
 # y si fallan Y el dominio está en esta lista, usará Playwright.
 # Si no está en la lista, Playwright se usa como último recurso universal.
 DOMINIOS_PLAYWRIGHT_PRIORITARIO = [
-    "www.milenio.com",
-    "www.jornada.com.mx",
+    "noticiasdetampico.mx",
 ]
 
 # --- General ---
@@ -1130,8 +1128,6 @@ def procesar_semana(fecha_inicio_semana, fecha_fin_semana):
     if not todos:
         print("  (sin resultados para esta semana)")
         pd.DataFrame().to_csv(archivo_salida, index=False, encoding="utf-8-sig")
-        with open(archivo_txt, "w", encoding="utf-8") as f:
-            f.write("")
         return pd.DataFrame()
 
     todos = resolver_urls(todos)
@@ -1153,9 +1149,6 @@ def procesar_semana(fecha_inicio_semana, fecha_fin_semana):
 
     df.to_csv(archivo_salida, index=False, encoding="utf-8-sig")
     print(f"\n✓ CSV guardado en: {archivo_salida}")
-
-    guardar_txt_noticias(todos, archivo_txt)
-    print(f"✓ TXT guardado en: {archivo_txt}")
 
     print("\n--- NOTICIAS ---")
     for i, r in enumerate(todos, 1):

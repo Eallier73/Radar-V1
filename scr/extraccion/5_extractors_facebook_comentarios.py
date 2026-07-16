@@ -46,7 +46,12 @@ SHARED_DIR = REPO_ROOT / "scr" / "compartido"
 if str(SHARED_DIR) not in sys.path:
     sys.path.insert(0, str(SHARED_DIR))
 
-from output_naming import build_prefixed_name, build_report_tag
+from output_naming import (
+    build_prefixed_name,
+    build_report_tag,
+    build_source_filename,
+    build_week_folder_name,
+)
 from radar_paths import EXTRACTED_DATA_DIR
 
 
@@ -524,6 +529,8 @@ def run_pipeline(
     batch_size: int,
     modo: str,
 ):
+    if modo != "ambos":
+        raise ValueError("Radar requiere modo 'ambos' para generar un único CSV combinado.")
     want_posts = modo in {"posts", "ambos"}
     want_comments = modo in {"comentarios", "ambos"}
     max_comments_eff = max_comments if want_comments else 0
@@ -606,8 +613,6 @@ def run_pipeline(
     # Conservar un posible calificador del CSV de entrada para distinguir subsets.
     report_tag = os.path.basename(os.path.normpath(output_dir))
 
-    csv_posts = None
-    csv_comentarios = None
     csv_mixto = None
 
     columnas_posts = ["post_url", "post_texto", "fecha_post", "num_comentarios_post"]
@@ -631,21 +636,11 @@ def run_pipeline(
                 "num_comentarios_post": "",
             }))
         df_posts = pd.DataFrame(filas_posts, columns=columnas_posts)
-        csv_posts = os.path.join(
-            output_dir,
-            f"{build_pipeline_dataset_name(input_csv, report_tag, 'posts')}.csv",
-        )
-        df_posts.to_csv(csv_posts, index=False, encoding="utf-8-sig")
     else:
         df_posts = pd.DataFrame(columns=columnas_posts)
 
     if want_comments:
         df_comments = pd.DataFrame(todas_las_filas_comentarios, columns=columnas_comentarios)
-        csv_comentarios = os.path.join(
-            output_dir,
-            f"{build_pipeline_dataset_name(input_csv, report_tag, 'comentarios')}.csv",
-        )
-        df_comments.to_csv(csv_comentarios, index=False, encoding="utf-8-sig")
     else:
         df_comments = pd.DataFrame(columns=columnas_comentarios)
 
@@ -672,7 +667,7 @@ def run_pipeline(
 
         csv_mixto = os.path.join(
             output_dir,
-            f"{build_pipeline_dataset_name(input_csv, report_tag, 'posts_comentarios')}.csv",
+            f"{build_source_filename(report_tag, 'facebook')}.csv",
         )
         pd.DataFrame(filas_mixtas).to_csv(csv_mixto, index=False, encoding="utf-8-sig")
 
@@ -683,15 +678,13 @@ def run_pipeline(
     print(f"  📊 Posts procesados:  {len(urls)}")
     if want_posts:
         print(f"  📝 Posts:             {len(df_posts)}")
-        print(f"  📁 Posts:             {csv_posts}")
         sin_texto = (df_posts["post_texto"].fillna("").str.len() < 5).sum()
         if sin_texto > 0:
             print(f"  ⚠️ Posts sin texto:    {sin_texto} (puede depender del actor/fuente)")
     if want_comments:
         print(f"  💬 Comentarios:       {len(df_comments)}")
-        print(f"  📁 Comentarios:       {csv_comentarios}")
     if csv_mixto:
-        print(f"  📁 Mixto (post+com):  {csv_mixto}")
+        print(f"  📁 Facebook combinado: {csv_mixto}")
 
     if want_comments and not df_comments.empty:
         por_post = df_comments.groupby("post_url").size()
@@ -896,9 +889,46 @@ Uso:
     return parser.parse_args()
 
 
+def construir_facebook_canonico(input_csv: str, df_comentarios: pd.DataFrame) -> pd.DataFrame:
+    """Combina el CSV intermedio de posts y los comentarios en un solo dataset."""
+    df_posts = pd.read_csv(input_csv, encoding="utf-8-sig").fillna("")
+    filas = []
+    for _, row in df_posts.iterrows():
+        filas.append({
+            "tipo": "POST",
+            "url": row.get("post_url", row.get("url", "")),
+            "post_url_padre": "",
+            "fecha": row.get("fecha_post", row.get("fecha", "")),
+            "texto": row.get("post_texto", row.get("texto", "")),
+            "num_comentarios": row.get(
+                "num_comentarios_post",
+                row.get("num_comentarios", ""),
+            ),
+        })
+
+    for _, row in df_comentarios.fillna("").iterrows():
+        filas.append({
+            "tipo": "COMENTARIO",
+            "url": row.get("url_comentario", ""),
+            "post_url_padre": row.get("post_url", ""),
+            "fecha": row.get("fecha_comentario", ""),
+            "texto": row.get("comentario_texto", ""),
+            "num_comentarios": "",
+        })
+
+    columnas = ["tipo", "url", "post_url_padre", "fecha", "texto", "num_comentarios"]
+    return pd.DataFrame(filas, columns=columnas)
+
+
 def main():
     """Ejecuta descarga de SOLO comentarios desde CSV de URLs."""
     args = parse_args()
+
+    since_dt = datetime.strptime(args.since, "%Y-%m-%d")
+    before_dt = datetime.strptime(args.before, "%Y-%m-%d")
+    if since_dt > before_dt:
+        print("❌ --since no puede ser posterior a --before.")
+        sys.exit(1)
 
     # Validar token
     token = args.token or os.environ.get("APIFY_TOKEN")
@@ -951,12 +981,8 @@ def main():
         print(f"✂️  Limitado a {args.max_urls} URLs")
 
     # Preparar directorio de salida
-    since_label = args.since or "sin_inicio"
-    before_label = args.before or "sin_fin"
-    output_dir = os.path.join(
-        args.output_dir,
-        build_report_tag(since_label, "Facebook")
-    )
+    week_name = build_week_folder_name(since_dt, before_dt)
+    output_dir = os.path.join(args.output_dir, week_name)
     os.makedirs(output_dir, exist_ok=True)
 
     print("\n" + "=" * 70)
@@ -992,35 +1018,24 @@ def main():
     # Crear DataFrame y guardar
     df_comentarios = pd.DataFrame(all_comments)
 
-    since_label = args.since or "sin_inicio"
-    report_tag = build_report_tag(since_label, "Facebook")
-    csv_path = os.path.join(
-        output_dir,
-        f"{build_output_variant_name(input_csv, report_tag, 'comentarios')}.csv",
-    )
-    txt_path = os.path.join(
-        output_dir,
-        f"{build_output_variant_name(input_csv, report_tag, 'comentarios')}.txt",
-    )
+    canonical_name = build_source_filename(week_name, "facebook")
+    csv_path = os.path.join(output_dir, f"{canonical_name}.csv")
+    df_canonico = construir_facebook_canonico(input_csv, df_comentarios)
+    df_canonico.to_csv(csv_path, index=False, encoding="utf-8-sig")
 
-    if len(df_comentarios) > 0:
-        df_comentarios.to_csv(csv_path, index=False, encoding="utf-8-sig")
-        with open(txt_path, "w", encoding="utf-8") as f:
-            for text in df_comentarios["comentario_texto"].fillna("").astype(str).tolist():
-                clean = re.sub(r"\s+", " ", text).strip()
-                if clean:
-                    f.write(clean + "\n")
+    input_path = Path(input_csv).resolve()
+    if (
+        input_path.parent == Path(output_dir).resolve()
+        and input_path.name.endswith("_facebook_posts.csv")
+        and input_path != Path(csv_path).resolve()
+    ):
+        input_path.unlink()
 
     print("\n" + "=" * 70)
     print("✅ EXTRACCIÓN COMPLETADA")
     print("=" * 70)
     print(f"Comentarios descargados: {len(all_comments)}")
-    if len(df_comentarios) > 0:
-        print(f"CSV: {csv_path}")
-        print(f"TXT: {txt_path}")
-    else:
-        print("⚠️  No se encontraron comentarios.")
-    print("\n⚠️  IMPORTANTE: Este extractor SOLO descarga comentarios (sin posts).")
+    print(f"CSV combinado: {csv_path}")
 
 
 if __name__ == "__main__":
