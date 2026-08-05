@@ -9,3 +9,6 @@
 
 # Checkpoints y lotes temporales del backfill reanudable de Facebook.
 /state/facebook_chucho_nader/
+
+# Checkpoints y artículos temporales del backfill reanudable de medios.
+/state/medios_chucho_nader/
