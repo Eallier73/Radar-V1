@@ -23,6 +23,12 @@ if str(SHARED_DIR) not in sys.path:
 
 from output_naming import build_source_filename, build_week_folder_name
 from radar_paths import EXTRACTED_DATA_DIR
+from youtube_data_contract import (
+    YOUTUBE_OUTPUT_COLUMNS,
+    deduplicate_youtube_rows,
+    filter_youtube_rows_to_interval,
+    project_youtube_rows,
+)
 
 try:
     import googleapiclient.discovery as google_discovery
@@ -136,7 +142,8 @@ def setup_youtube_api(api_key: str):
 
 def search_videos_by_query(youtube, query: str, start_date: datetime, end_date: datetime) -> List[str]:
     start_date_str = start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
-    end_date_str = end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    week_before = end_date + timedelta(seconds=1)
+    end_date_str = week_before.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     video_ids: List[str] = []
     search_response = youtube.search().list(
@@ -264,20 +271,6 @@ def extraer_comentarios_busquedas(
     start_date: datetime,
     end_date: datetime,
 ) -> tuple[pd.DataFrame, int]:
-    columnas = [
-        "video_id",
-        "comment_id",
-        "author",
-        "comment_text",
-        "published_at",
-        "like_count",
-        "query",
-        "video_title",
-        "channel_title",
-        "video_published_at",
-        "fecha_extraccion",
-    ]
-
     all_comments = []
     total_videos = 0
 
@@ -317,11 +310,24 @@ def extraer_comentarios_busquedas(
         print(f"   ✅ Total query: {query_comments} comentarios")
         print()
 
-    if all_comments:
-        df = pd.DataFrame(all_comments)
-        df["fecha_extraccion"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    else:
-        df = pd.DataFrame(columns=columnas)
+    week_before = end_date + timedelta(seconds=1)
+    comments_in_week, date_counters = filter_youtube_rows_to_interval(
+        all_comments,
+        week_start=start_date,
+        week_before=week_before,
+    )
+    projected_comments = project_youtube_rows(comments_in_week)
+    unique_comments, duplicates_removed = deduplicate_youtube_rows(projected_comments)
+
+    print("🧹 Contrato semanal YouTube:")
+    print(f"   Comentarios descargados: {len(all_comments)}")
+    print(f"   Fuera antes de semana:   {date_counters['before']}")
+    print(f"   Fuera después de semana: {date_counters['after']}")
+    print(f"   Fecha inválida:          {date_counters['invalid']}")
+    print(f"   Duplicados eliminados:   {duplicates_removed}")
+    print(f"   Comentarios finales:     {len(unique_comments)}")
+
+    df = pd.DataFrame(unique_comments, columns=list(YOUTUBE_OUTPUT_COLUMNS))
 
     return df, total_videos
 

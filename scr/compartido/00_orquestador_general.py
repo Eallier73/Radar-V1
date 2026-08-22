@@ -123,8 +123,18 @@ STAGES = PIPELINES
 STAGES_BY_CODE = PIPELINES_BY_CODE
 STAGES_BY_KEY = PIPELINES_BY_KEY
 
-_today_iso = date.today().isocalendar()
-DEFAULT_GLOBAL_ISO_WEEK = f"{_today_iso.year}-W{_today_iso.week:02d}"
+EXTRACTION_SOURCES = (
+    ("youtube", "YouTube"),
+    ("twitter", "Twitter/X"),
+    ("medios", "Medios"),
+    ("facebook", "Facebook (posts y comentarios)"),
+)
+EXTRACTION_SOURCE_KEYS = tuple(key for key, _label in EXTRACTION_SOURCES)
+
+_today = date.today()
+_last_completed_sunday = _today - timedelta(days=_today.weekday() + 1)
+_default_iso = _last_completed_sunday.isocalendar()
+DEFAULT_GLOBAL_ISO_WEEK = f"{_default_iso.year}-W{_default_iso.week:02d}"
 
 
 class MissingStageRunner(FileNotFoundError):
@@ -198,6 +208,34 @@ def stage_status(stage: PipelineSpec) -> tuple[bool, str]:
     return False, f"runner pendiente: {stage.relative_runner}"
 
 
+def normalize_extraction_sources(
+    raw_sources: Sequence[str] | None,
+) -> tuple[str, ...]:
+    if not raw_sources:
+        return EXTRACTION_SOURCE_KEYS
+    requested: list[str] = []
+    for raw in raw_sources:
+        requested.extend(
+            token.strip().lower()
+            for token in str(raw).split(",")
+            if token.strip()
+        )
+    if any(token in {"all", "todas", "*"} for token in requested):
+        return EXTRACTION_SOURCE_KEYS
+    unknown = sorted(set(requested) - set(EXTRACTION_SOURCE_KEYS))
+    if unknown:
+        raise ValueError(
+            "Fuentes de extracción desconocidas: "
+            + ", ".join(unknown)
+            + ". Opciones: "
+            + ", ".join(EXTRACTION_SOURCE_KEYS)
+        )
+    selected = tuple(key for key in EXTRACTION_SOURCE_KEYS if key in requested)
+    if not selected:
+        raise ValueError("Selecciona al menos una fuente de extracción.")
+    return selected
+
+
 def _python_command(stage: PipelineSpec) -> list[str]:
     return [str(PYTHON_EXECUTABLE), str(stage.runner)]
 
@@ -208,6 +246,8 @@ def build_pipeline(
     before: str,
     *,
     require_runner: bool = True,
+    extraction_sources: Sequence[str] | None = None,
+    continue_on_error: bool = False,
 ) -> tuple[list[str], dict[str, str]]:
     """Construye el comando de una etapa con el contrato de Radar."""
     since, before = validate_date_range(since, before)
@@ -218,7 +258,12 @@ def build_pipeline(
         )
 
     cmd = _python_command(stage)
-    if stage.key == "preprocesamiento":
+    if stage.key == "extraccion":
+        sources = normalize_extraction_sources(extraction_sources)
+        cmd.extend(["--since", since, "--before", before, "--sources", *sources])
+        if continue_on_error:
+            cmd.append("--continue-on-error")
+    elif stage.key == "preprocesamiento":
         cmd.extend(
             [
                 "--datos-radar-dir",
@@ -240,8 +285,19 @@ def build_stage_commands(
     before: str,
     *,
     require_runner: bool = True,
+    extraction_sources: Sequence[str] | None = None,
+    continue_on_error: bool = False,
 ) -> list[tuple[list[str], dict[str, str]]]:
-    return [build_pipeline(stage, since, before, require_runner=require_runner)]
+    return [
+        build_pipeline(
+            stage,
+            since,
+            before,
+            require_runner=require_runner,
+            extraction_sources=extraction_sources,
+            continue_on_error=continue_on_error,
+        )
+    ]
 
 
 def render_command(cmd: Sequence[str]) -> str:
@@ -255,6 +311,7 @@ def execute_stages(
     *,
     dry_run: bool = False,
     continue_on_error: bool = False,
+    extraction_sources: Sequence[str] | None = None,
 ) -> int:
     since, before = validate_date_range(since, before)
     failures = 0
@@ -266,6 +323,8 @@ def execute_stages(
                 since,
                 before,
                 require_runner=not dry_run,
+                extraction_sources=extraction_sources,
+                continue_on_error=continue_on_error,
             )
         except MissingStageRunner as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
@@ -317,6 +376,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--week", default=None, help="Semana ISO YYYY-Www")
     parser.add_argument("--since", default=None, help="Fecha inicial YYYY-MM-DD")
     parser.add_argument("--before", default=None, help="Fecha final YYYY-MM-DD")
+    parser.add_argument(
+        "--sources",
+        nargs="+",
+        default=None,
+        help="Fuentes de Extracción: youtube twitter medios facebook.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Muestra comandos sin ejecutarlos")
     parser.add_argument("--continue-on-error", action="store_true")
     parser.add_argument("--list", action="store_true", help="Lista las seis etapas y su disponibilidad")
@@ -342,6 +407,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         since, before = iso_week_to_range(DEFAULT_GLOBAL_ISO_WEEK)
 
     stages = parse_pipeline_selection(args.stages) if args.stages else _prompt_selection()
+    if args.sources and not any(stage.key == "extraccion" for stage in stages):
+        raise SystemExit("--sources solo aplica cuando se selecciona Extracción.")
+    extraction_sources = normalize_extraction_sources(args.sources)
 
     print(f"\nRepositorio: {REPO_ROOT}")
     print(f"Periodo:     {since} -> {before}")
@@ -352,6 +420,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         before,
         dry_run=args.dry_run,
         continue_on_error=args.continue_on_error,
+        extraction_sources=extraction_sources,
     )
 
 

@@ -38,9 +38,9 @@ PIPELINES = ORQUESTADOR.PIPELINES
 class OrquestadorGUI:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
-        self.root.title("Radar - Orquestador de etapas")
-        self.root.geometry("920x760")
-        self.root.minsize(780, 650)
+        self.root.title("Radar V1 - Control del pipeline")
+        self.root.geometry("1020x860")
+        self.root.minsize(860, 720)
 
         self.venv_python = self.detect_venv_python()
         self.log_queue: Queue[tuple[str, str]] = Queue()
@@ -54,10 +54,16 @@ class OrquestadorGUI:
         self.before_var = tk.StringVar(value=default_before)
         self.continue_on_error_var = tk.BooleanVar(value=False)
         self.stage_vars = {
-            stage.code: tk.BooleanVar(value=True)
+            stage.code: tk.BooleanVar(value=(stage.key == "extraccion"))
             for stage in PIPELINES
         }
+        self.extraction_source_vars = {
+            key: tk.BooleanVar(value=True)
+            for key, _label in ORQUESTADOR.EXTRACTION_SOURCES
+        }
         self.status_labels: dict[str, ttk.Label] = {}
+        self.stage_checks: dict[str, ttk.Checkbutton] = {}
+        self.source_run_buttons: dict[str, ttk.Button] = {}
 
         self.build_ui()
         self.refresh_stage_status()
@@ -71,17 +77,20 @@ class OrquestadorGUI:
         container = ttk.Frame(self.root, padding=12)
         container.pack(fill=tk.BOTH, expand=True)
         container.columnconfigure(0, weight=1)
-        container.rowconfigure(4, weight=1)
+        container.rowconfigure(5, weight=1)
 
         title = ttk.Label(
             container,
-            text="Pipeline Radar",
+            text="Radar V1 · Control del pipeline",
             font=("TkDefaultFont", 16, "bold"),
         )
         title.grid(row=0, column=0, sticky="w")
         ttk.Label(
             container,
-            text=f"Repositorio: {REPO_ROOT}",
+            text=(
+                "Extracción operativa; las etapas futuras permanecen visibles "
+                "con su disponibilidad real."
+            ),
         ).grid(row=1, column=0, sticky="w", pady=(2, 10))
 
         config_frame = ttk.LabelFrame(container, text="Periodo semanal", padding=10)
@@ -115,6 +124,7 @@ class OrquestadorGUI:
                 variable=self.stage_vars[stage.code],
             )
             check.grid(row=row, column=0, sticky="w", pady=2)
+            self.stage_checks[stage.code] = check
             ttk.Label(stages_frame, text=stage.description).grid(
                 row=row, column=1, sticky="w", padx=(12, 8)
             )
@@ -124,11 +134,16 @@ class OrquestadorGUI:
 
         stage_actions = ttk.Frame(stages_frame)
         stage_actions.grid(row=len(PIPELINES), column=0, columnspan=3, sticky="ew", pady=(8, 0))
-        ttk.Button(stage_actions, text="Seleccionar todas", command=self.select_all).pack(
+        ttk.Button(stage_actions, text="Seleccionar disponibles", command=self.select_all).pack(
             side=tk.LEFT
         )
+        ttk.Button(
+            stage_actions,
+            text="Solo extracción",
+            command=self.select_extraction_only,
+        ).pack(side=tk.LEFT, padx=6)
         ttk.Button(stage_actions, text="Limpiar", command=self.select_none).pack(
-            side=tk.LEFT, padx=6
+            side=tk.LEFT
         )
         ttk.Button(stage_actions, text="Revalidar", command=self.refresh_stage_status).pack(
             side=tk.LEFT
@@ -139,26 +154,74 @@ class OrquestadorGUI:
             variable=self.continue_on_error_var,
         ).pack(side=tk.RIGHT)
 
-        log_frame = ttk.LabelFrame(container, text="Ejecución", padding=8)
-        log_frame.grid(row=4, column=0, sticky="nsew")
+        extraction_frame = ttk.LabelFrame(
+            container,
+            text="Fuentes de la etapa 1 · Extracción",
+            padding=10,
+        )
+        extraction_frame.grid(row=4, column=0, sticky="ew", pady=(0, 10))
+        for column, (key, label) in enumerate(ORQUESTADOR.EXTRACTION_SOURCES):
+            ttk.Checkbutton(
+                extraction_frame,
+                text=label,
+                variable=self.extraction_source_vars[key],
+            ).grid(row=0, column=column, sticky="w", padx=(0, 18))
+            source_button = ttk.Button(
+                extraction_frame,
+                text=f"Ejecutar solo {label.split(' (', 1)[0]}",
+                command=lambda source=key: self.start_single_source(source),
+            )
+            source_button.grid(
+                row=1,
+                column=column,
+                sticky="ew",
+                padx=(0, 18),
+                pady=(6, 0),
+            )
+            self.source_run_buttons[key] = source_button
+            extraction_frame.columnconfigure(column, weight=1)
+        ttk.Label(
+            extraction_frame,
+            text=(
+                "Facebook se procesa como una sola fuente: primero posts y "
+                "después comentarios. Cada fuente conserva un CSV canónico semanal."
+            ),
+            foreground="#555555",
+        ).grid(
+            row=2,
+            column=0,
+            columnspan=len(ORQUESTADOR.EXTRACTION_SOURCES),
+            sticky="w",
+            pady=(6, 0),
+        )
+
+        log_frame = ttk.LabelFrame(container, text="Consola de ejecución", padding=8)
+        log_frame.grid(row=5, column=0, sticky="nsew")
         log_frame.rowconfigure(0, weight=1)
         log_frame.columnconfigure(0, weight=1)
         self.log = scrolledtext.ScrolledText(
             log_frame,
             wrap=tk.WORD,
-            height=16,
+            height=14,
             state=tk.DISABLED,
             font=("TkFixedFont", 10),
+            background="#101820",
+            foreground="#c7f9cc",
+            insertbackground="#ffffff",
         )
         self.log.grid(row=0, column=0, sticky="nsew")
-        self.log.tag_configure("error", foreground="#b00020")
-        self.log.tag_configure("success", foreground="#087f23")
-        self.log.tag_configure("command", foreground="#2457a6")
+        self.log.tag_configure("error", foreground="#ff7b72")
+        self.log.tag_configure("success", foreground="#7ee787")
+        self.log.tag_configure("command", foreground="#79c0ff")
 
         actions = ttk.Frame(container)
-        actions.grid(row=5, column=0, sticky="ew", pady=(10, 0))
+        actions.grid(row=6, column=0, sticky="ew", pady=(10, 0))
         ttk.Button(actions, text="Mostrar comandos", command=self.show_commands).pack(side=tk.LEFT)
-        self.run_button = ttk.Button(actions, text="Ejecutar", command=self.start_execution)
+        self.run_button = ttk.Button(
+            actions,
+            text="▶ Ejecutar seleccionadas",
+            command=self.start_execution,
+        )
         self.run_button.pack(side=tk.LEFT, padx=6)
         self.stop_button = ttk.Button(
             actions,
@@ -172,7 +235,7 @@ class OrquestadorGUI:
         interpreter = Path(self.venv_python)
         ttk.Label(
             actions,
-            text=f"Python: {interpreter}",
+            text=f"Entorno: {interpreter}",
         ).pack(side=tk.RIGHT, padx=12)
 
     def apply_week(self) -> None:
@@ -185,8 +248,13 @@ class OrquestadorGUI:
         self.before_var.set(before)
 
     def select_all(self) -> None:
-        for variable in self.stage_vars.values():
-            variable.set(True)
+        for stage in PIPELINES:
+            available, _message = ORQUESTADOR.stage_status(stage)
+            self.stage_vars[stage.code].set(available)
+
+    def select_extraction_only(self) -> None:
+        for stage in PIPELINES:
+            self.stage_vars[stage.code].set(stage.key == "extraccion")
 
     def select_none(self) -> None:
         for variable in self.stage_vars.values():
@@ -199,6 +267,25 @@ class OrquestadorGUI:
             if self.stage_vars[stage.code].get()
         ]
 
+    def selected_extraction_sources(self) -> tuple[str, ...]:
+        return tuple(
+            key
+            for key, _label in ORQUESTADOR.EXTRACTION_SOURCES
+            if self.extraction_source_vars[key].get()
+        )
+
+    def start_single_source(self, source: str) -> None:
+        if self.worker is not None and self.worker.is_alive():
+            messagebox.showwarning(
+                "Ejecución activa",
+                "Espera a que termine la ejecución actual o detenla primero.",
+            )
+            return
+        self.select_extraction_only()
+        for key, variable in self.extraction_source_vars.items():
+            variable.set(key == source)
+        self.start_execution()
+
     def validated_period(self) -> tuple[str, str]:
         return ORQUESTADOR.validate_date_range(
             self.since_var.get().strip(),
@@ -210,13 +297,19 @@ class OrquestadorGUI:
             available, message = ORQUESTADOR.stage_status(stage)
             label = self.status_labels[stage.code]
             label.configure(
-                text="Disponible" if available else "Runner pendiente",
+                text="Disponible" if available else "Próximamente",
                 foreground="#087f23" if available else "#9a6700",
             )
+            check = self.stage_checks[stage.code]
+            if available:
+                check.state(["!disabled"])
+            else:
+                self.stage_vars[stage.code].set(False)
+                check.state(["disabled"])
             label.bind("<Enter>", lambda _event, text=message: self.root.title(text))
             label.bind(
                 "<Leave>",
-                lambda _event: self.root.title("Radar - Orquestador de etapas"),
+                lambda _event: self.root.title("Radar V1 - Control del pipeline"),
             )
 
     def validate_selection(self, *, require_runners: bool) -> tuple[list, str, str] | None:
@@ -229,6 +322,14 @@ class OrquestadorGUI:
         except ValueError as exc:
             messagebox.showerror("Periodo inválido", str(exc))
             return None
+
+        if any(stage.key == "extraccion" for stage in stages):
+            if not self.selected_extraction_sources():
+                messagebox.showwarning(
+                    "Sin fuentes",
+                    "Selecciona al menos una fuente para la etapa de Extracción.",
+                )
+                return None
 
         if require_runners:
             missing = [stage for stage in stages if not stage.runner.is_file()]
@@ -255,6 +356,7 @@ class OrquestadorGUI:
         if validated is None:
             return
         stages, since, before = validated
+        extraction_sources = self.selected_extraction_sources()
         self.append_log(f"Periodo: {since} -> {before}\n")
         for stage in stages:
             self.append_log(f"\n[{stage.code}/6] {stage.label}\n")
@@ -263,6 +365,8 @@ class OrquestadorGUI:
                 since,
                 before,
                 require_runner=False,
+                extraction_sources=extraction_sources,
+                continue_on_error=self.continue_on_error_var.get(),
             )
             for cmd, _env in plans:
                 self.append_log(
@@ -275,13 +379,16 @@ class OrquestadorGUI:
         if validated is None:
             return
         stages, since, before = validated
+        extraction_sources = self.selected_extraction_sources()
         self.stop_requested = False
         continue_on_error = self.continue_on_error_var.get()
         self.run_button.configure(state=tk.DISABLED)
+        for button in self.source_run_buttons.values():
+            button.configure(state=tk.DISABLED)
         self.stop_button.configure(state=tk.NORMAL)
         self.worker = threading.Thread(
             target=self.run_stages,
-            args=(stages, since, before, continue_on_error),
+            args=(stages, since, before, continue_on_error, extraction_sources),
             daemon=True,
         )
         self.worker.start()
@@ -292,6 +399,7 @@ class OrquestadorGUI:
         since: str,
         before: str,
         continue_on_error: bool,
+        extraction_sources: tuple[str, ...],
     ) -> None:
         failures = 0
         self.log_queue.put(("normal", f"Periodo: {since} -> {before}\n"))
@@ -300,7 +408,13 @@ class OrquestadorGUI:
                 break
             self.log_queue.put(("normal", f"\n[{stage.code}/6] {stage.label}\n"))
             try:
-                plans = ORQUESTADOR.build_stage_commands(stage, since, before)
+                plans = ORQUESTADOR.build_stage_commands(
+                    stage,
+                    since,
+                    before,
+                    extraction_sources=extraction_sources,
+                    continue_on_error=continue_on_error,
+                )
             except Exception as exc:
                 failures += 1
                 self.log_queue.put(("error", f"ERROR: {exc}\n"))
@@ -315,6 +429,7 @@ class OrquestadorGUI:
                 )
                 env = os.environ.copy()
                 env.update(env_updates)
+                env["PYTHONUNBUFFERED"] = "1"
                 try:
                     self.running_process = subprocess.Popen(
                         prepared,
@@ -370,6 +485,8 @@ class OrquestadorGUI:
                 tag, text = self.log_queue.get_nowait()
                 if tag == "finished":
                     self.run_button.configure(state=tk.NORMAL)
+                    for button in self.source_run_buttons.values():
+                        button.configure(state=tk.NORMAL)
                     self.stop_button.configure(state=tk.DISABLED)
                 else:
                     self.append_log(text, tag)
