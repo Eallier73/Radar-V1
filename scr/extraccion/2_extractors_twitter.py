@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-03_twitter_extractor.py - Extractor de Twitter/X
+2_extractors_twitter.py - Extractor de Twitter/X
 ================================================
 
 Este script extrae tweets de Twitter/X y los guarda en la carpeta indicada.
@@ -8,7 +8,7 @@ Este script extrae tweets de Twitter/X y los guarda en la carpeta indicada.
 Uso:
     - Sin argumentos: usa las fechas configuradas en CONFIG_START_DATE_STR/CONFIG_END_DATE_STR
     - Con fechas: python 03_twitter_extractor.py YYYY-MM-DD YYYY-MM-DD
-    - Con queries: python 03_twitter_extractor.py --query "naucalpan" --query "from:GobNau"
+    - La query es fija por contrato; ``--query`` solamente acepta ``tampico``.
 
 Autor: Emilio
 """
@@ -20,7 +20,7 @@ import sys
 import json
 import os
 import argparse
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import quote
 
@@ -31,6 +31,14 @@ if str(SHARED_DIR) not in sys.path:
 
 from output_naming import build_source_filename, build_week_folder_name
 from radar_paths import EXTRACTED_DATA_DIR, STATE_DIR
+from twitter_data_contract import (
+    TWITTER_OUTPUT_COLUMNS,
+    deduplicate_twitter_rows,
+    fold_text,
+    parse_twitter_datetime,
+    project_twitter_row,
+    text_contains_tampico,
+)
 
 try:
     from playwright.async_api import async_playwright
@@ -48,29 +56,13 @@ CONFIG_START_DATE_STR = ""
 CONFIG_END_DATE_STR = ""
 DEFAULT_MAX_TWEETS = 3000
 
-# Usuarios objetivo y terminos principales
-TARGET_HANDLES = ["@MonicaVTampico", "@TampicoGob"]
-
-INSTITUTIONAL_POST_QUERIES = {
-    "from:MonicaVTampico",
-    "from:TampicoGob",
-}
-
-# Consultas base (sin rango de fechas)
-SEARCH_QUERIES = [
-    "to:MonicaVTampico",
-    "from:MonicaVTampico",
-    "to:TampicoGob",
-    "from:TampicoGob",
-    "@TampicoGob",
-    "@MonicaVTampico",
-    "monica villarreal",
-    "gobierno de tampico",
-    "tampico",
-]
+# La única consulta compatible con la regla histórica uniforme. La salida se
+# vuelve a filtrar por contenido; la query de X no sustituye esa validación.
+UNIFORM_BASE_QUERY = "tampico"
+SEARCH_QUERIES = [UNIFORM_BASE_QUERY]
 
 # Respuestas
-INCLUDE_REPLIES = True
+INCLUDE_REPLIES = False
 MAX_REPLIES_PER_TWEET = 200
 MAX_REPLY_SCROLLS = 8
 NAV_TIMEOUT_MS = 90000
@@ -96,6 +88,10 @@ class TwitterExtractorIAD:
         """
         self.fecha_inicio = datetime.strptime(fecha_inicio_str, "%Y-%m-%d")
         self.fecha_fin = datetime.strptime(fecha_fin_str, "%Y-%m-%d")
+        self.week_start_utc = self.fecha_inicio.replace(tzinfo=timezone.utc)
+        self.week_before_utc = (self.fecha_fin + timedelta(days=1)).replace(
+            tzinfo=timezone.utc
+        )
         
         # Calcular nombre de carpeta de semana
         self.nombre_semana = self.calcular_nombre_semana()
@@ -128,17 +124,19 @@ class TwitterExtractorIAD:
         fecha_fin_str = (self.fecha_fin + timedelta(days=1)).strftime("%Y-%m-%d")
         
         base_queries = custom_queries if custom_queries else SEARCH_QUERIES
-        self.search_queries = []
-        for query in base_queries:
-            query_token = f'"{query}"'
-            self.search_queries.append(
-                f"{query_token} since:{fecha_inicio_str} until:{fecha_fin_str}"
+        if len(base_queries) != 1 or fold_text(base_queries[0]).strip() != UNIFORM_BASE_QUERY:
+            raise ValueError(
+                "El contrato uniforme de Twitter solo admite la query 'tampico'."
             )
+        self.search_queries = []
+        self.search_queries.append(
+            f"{UNIFORM_BASE_QUERY} since:{fecha_inicio_str} until:{fecha_fin_str}"
+        )
         
         print(f"📅 Período: {self.fecha_inicio.date()} a {self.fecha_fin.date()}")
         print(f"📁 Carpeta: {self.nombre_semana}")
         print(f"📂 Salida canónica: {self.output_csv}")
-        print(f"🔎 Queries base: {len(base_queries)}")
+        print(f"🔎 Query uniforme: {UNIFORM_BASE_QUERY}")
     
     def calcular_nombre_semana(self):
         """Calcula el nombre de la carpeta de salida."""
@@ -154,14 +152,7 @@ class TwitterExtractorIAD:
     
     def parse_datetime(self, dt_str: str):
         """Parsear datetime de Twitter"""
-        if not dt_str:
-            return None
-        if dt_str.endswith("Z"):
-            dt_str = dt_str.replace("Z", "+00:00")
-        try:
-            return datetime.fromisoformat(dt_str)
-        except Exception:
-            return None
+        return parse_twitter_datetime(dt_str)
 
     async def expand_tweet_text(self, article) -> None:
         """Intenta expandir tweets truncados en el timeline."""
@@ -462,26 +453,48 @@ class TwitterExtractorIAD:
         print(f"   ↳ Respuestas encontradas: {len(collected)}")
         return collected
     
-    def save_to_csv(self, all_tweets):
-        """Guarda el único CSV canónico semanal."""
-        if not all_tweets:
-            print("⚠️  No hay tweets para guardar")
-            return
-        
-        # Definir columnas del CSV
-        fieldnames = [
-            "fecha_semana", "nombre_semana", "author", "datetime", "datetime_parsed_utc", 
-            "url", "text", "replies", "retweets", "likes", "bookmarks", 
-            "views", "query_used", "is_reply", "in_reply_to_url"
+    def apply_output_contract(self, all_tweets):
+        """Aplica exactamente el contrato usado por el histórico uniforme."""
+        projected = [
+            project_twitter_row(tweet, schema="radar_15_columns")
+            for tweet in all_tweets
         ]
-        
-        with open(self.output_csv, "w", newline="", encoding="utf-8") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for tweet in all_tweets:
-                writer.writerow({field: tweet.get(field, "") for field in fieldnames})
+        counters = {
+            "before": 0,
+            "after": 0,
+            "invalid_date": 0,
+            "empty_text": 0,
+            "outside_content_rule": 0,
+            "duplicates": 0,
+        }
+        eligible = []
+        for row in projected:
+            published_at = parse_twitter_datetime(row["published_at"])
+            if published_at is None:
+                counters["invalid_date"] += 1
+            elif published_at < self.week_start_utc:
+                counters["before"] += 1
+            elif published_at >= self.week_before_utc:
+                counters["after"] += 1
+            elif not row["text"].strip():
+                counters["empty_text"] += 1
+            elif not text_contains_tampico(row["text"]):
+                counters["outside_content_rule"] += 1
+            else:
+                eligible.append(row)
 
-        print(f"✅ Twitter: {len(all_tweets)} tweets guardados")
+        unique_rows, removed = deduplicate_twitter_rows(eligible)
+        counters["duplicates"] = removed
+        return unique_rows, counters
+
+    def save_to_csv(self, canonical_rows):
+        """Guarda siempre el CSV semanal, incluso si solamente tiene encabezado."""
+        with open(self.output_csv, "w", newline="", encoding="utf-8-sig") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=list(TWITTER_OUTPUT_COLUMNS))
+            writer.writeheader()
+            writer.writerows(canonical_rows)
+
+        print(f"✅ Twitter: {len(canonical_rows)} tweets guardados")
         print(f"   📄 CSV canónico: {self.output_csv}")
     
     async def run_extraction(self):
@@ -528,25 +541,23 @@ class TwitterExtractorIAD:
                             replies = await self.extract_replies_for_tweet(page, url)
                             all_tweets.extend(replies)
                 
-                # Remover duplicados finales por URL
-                seen_urls = set()
-                unique_tweets = []
-                for tweet in all_tweets:
-                    if tweet["url"] and tweet["url"] not in seen_urls:
-                        seen_urls.add(tweet["url"])
-                        unique_tweets.append(tweet)
-                    elif not tweet["url"]:  # Tweets sin URL
-                        unique_tweets.append(tweet)
-                
-                # Guardar resultados
-                self.save_to_csv(unique_tweets)
+                canonical_rows, contract_counters = self.apply_output_contract(all_tweets)
+                self.save_to_csv(canonical_rows)
                 
                 await context.close()
                 await browser.close()
                 
                 print(f"\n✅ EXTRACCIÓN COMPLETADA")
                 print(f"📁 Carpeta: {self.nombre_semana}")
-                print(f"📊 Total de tweets únicos: {len(unique_tweets)}")
+                print("🧹 Contrato uniforme Twitter:")
+                print(f"   Descargados:             {len(all_tweets)}")
+                print(f"   Antes de semana:         {contract_counters['before']}")
+                print(f"   Después de semana:       {contract_counters['after']}")
+                print(f"   Fecha inválida:          {contract_counters['invalid_date']}")
+                print(f"   Sin texto:               {contract_counters['empty_text']}")
+                print(f"   Sin palabra Tampico:     {contract_counters['outside_content_rule']}")
+                print(f"   Duplicados eliminados:   {contract_counters['duplicates']}")
+                print(f"📊 Total de tweets uniformes: {len(canonical_rows)}")
                 
                 return True
                 
@@ -568,7 +579,7 @@ def main():
         dest="queries",
         action="append",
         default=[],
-        help="Query de búsqueda base (repite --query para varias)"
+        help="Solo se admite 'tampico' para conservar el contrato uniforme"
     )
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_BASE_DIR),
                         help="Directorio base de salida. Default: %(default)s")
@@ -628,6 +639,12 @@ def main():
         sys.exit(1)
 
     custom_queries = [q.strip() for q in args.queries if q and q.strip()]
+    if custom_queries and (
+        len(custom_queries) != 1
+        or fold_text(custom_queries[0]).strip() != UNIFORM_BASE_QUERY
+    ):
+        print("❌ El contrato uniforme solo admite --query tampico.")
+        sys.exit(1)
     if custom_queries:
         print(f"🧩 Usando queries personalizadas: {custom_queries}")
     else:
