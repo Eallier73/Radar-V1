@@ -125,6 +125,7 @@ if str(SHARED_DIR) not in sys.path:
     sys.path.insert(0, str(SHARED_DIR))
 
 from output_naming import build_source_filename, build_week_folder_name
+from medios_data_contract import MEDIOS_OUTPUT_COLUMNS
 from radar_paths import EXTRACTED_DATA_DIR
 
 CARPETA_BASE_SEMANAL = str(EXTRACTED_DATA_DIR)
@@ -1127,7 +1128,11 @@ def procesar_semana(fecha_inicio_semana, fecha_fin_semana):
 
     if not todos:
         print("  (sin resultados para esta semana)")
-        pd.DataFrame().to_csv(archivo_salida, index=False, encoding="utf-8-sig")
+        pd.DataFrame(columns=MEDIOS_OUTPUT_COLUMNS).to_csv(
+            archivo_salida,
+            index=False,
+            encoding="utf-8-sig",
+        )
         return pd.DataFrame()
 
     todos = resolver_urls(todos)
@@ -1136,10 +1141,7 @@ def procesar_semana(fecha_inicio_semana, fecha_fin_semana):
 
     todos = descargar_textos(todos)
 
-    df = pd.DataFrame(todos, columns=[
-        "titulo", "fecha", "iso_date", "fuente",
-        "autor", "url", "url_google", "thumbnail", "texto", "origen"
-    ])
+    df = pd.DataFrame(todos, columns=MEDIOS_OUTPUT_COLUMNS)
 
     try:
         df["_sort"] = pd.to_datetime(df["iso_date"], errors="coerce")

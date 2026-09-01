@@ -52,6 +52,24 @@ class RunExtraccionTests(unittest.TestCase):
         self.assertIn(str(posts_csv), plans[0].commands[1].command)
         self.assertTrue(plans[0].commands[1].skip_when_posts_empty)
 
+    def test_medios_plan_extracts_then_processes_csv_and_txt(self):
+        output_dir = Path("/tmp/radar-test-output")
+        processed_dir = Path("/tmp/radar-test-processed-medios")
+        plans = RUNNER.build_source_plans(
+            ["medios"],
+            "2026-08-10",
+            "2026-08-16",
+            output_dir,
+            python_executable="python-test",
+            processed_medios_dir=processed_dir,
+        )
+        self.assertEqual(len(plans), 1)
+        self.assertEqual(len(plans[0].commands), 2)
+        self.assertIn("3_extractors_medios.py", plans[0].commands[0].command[1])
+        self.assertIn("procesar_medios_semanal.py", plans[0].commands[1].command[1])
+        self.assertIn(str(output_dir), plans[0].commands[1].command)
+        self.assertIn(str(processed_dir), plans[0].commands[1].command)
+
     def test_empty_facebook_week_keeps_only_canonical_csv(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             output_dir = Path(temp_dir)

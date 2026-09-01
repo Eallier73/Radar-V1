@@ -28,7 +28,7 @@ if str(SHARED_DIR) not in sys.path:
     sys.path.insert(0, str(SHARED_DIR))
 
 from output_naming import build_source_filename, build_week_folder_name
-from radar_paths import EXTRACTED_DATA_DIR
+from radar_paths import EXTRACTED_DATA_DIR, PROCESSED_DATA_DIR
 
 
 SOURCE_ORDER = ("youtube", "twitter", "medios", "facebook")
@@ -45,6 +45,8 @@ EXTRACTOR_FILES = {
     "facebook_posts": "4_extractors_facebook_posts.py",
     "facebook_comments": "5_extractors_facebook_comentarios.py",
 }
+MEDIOS_PROCESSOR = REPO_ROOT / "scr" / "preprocesamiento" / "procesar_medios_semanal.py"
+DEFAULT_PROCESSED_MEDIOS_DIR = PROCESSED_DATA_DIR / "medios_semanal_procesado"
 FACEBOOK_COLUMNS = (
     "tipo",
     "url",
@@ -143,6 +145,7 @@ def build_source_plans(
     output_dir: Path,
     *,
     python_executable: str | Path | None = None,
+    processed_medios_dir: Path = DEFAULT_PROCESSED_MEDIOS_DIR,
 ) -> list[SourcePlan]:
     since, before = validate_date_range(since, before)
     selected = normalize_sources(sources)
@@ -152,7 +155,7 @@ def build_source_plans(
     plans: list[SourcePlan] = []
     for source in selected:
         common = ("--since", since, "--before", before, "--output-dir", output)
-        if source in {"youtube", "twitter", "medios"}:
+        if source in {"youtube", "twitter"}:
             command = (
                 python,
                 str(EXTRACTION_DIR / EXTRACTOR_FILES[source]),
@@ -163,6 +166,32 @@ def build_source_plans(
                     source,
                     SOURCE_LABELS[source],
                     (CommandPlan(SOURCE_LABELS[source], command),),
+                )
+            )
+            continue
+
+        if source == "medios":
+            extractor_command = (
+                python,
+                str(EXTRACTION_DIR / EXTRACTOR_FILES[source]),
+                *common,
+            )
+            processor_command = (
+                python,
+                str(MEDIOS_PROCESSOR),
+                "--since", since,
+                "--before", before,
+                "--input-dir", output,
+                "--output-dir", str(processed_medios_dir),
+            )
+            plans.append(
+                SourcePlan(
+                    source,
+                    SOURCE_LABELS[source],
+                    (
+                        CommandPlan("Medios: extracción CSV", extractor_command),
+                        CommandPlan("Medios: CSV y TXT procesados", processor_command),
+                    ),
                 )
             )
             continue
@@ -299,6 +328,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="Fuentes: youtube twitter medios facebook (acepta comas o 'all').",
     )
     parser.add_argument(
+        "--processed-medios-dir",
+        type=Path,
+        default=DEFAULT_PROCESSED_MEDIOS_DIR,
+        help="Raíz de salida para el CSV y TXT procesados de Medios.",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=EXTRACTED_DATA_DIR,
@@ -333,7 +368,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     os.environ.setdefault("PYTHONUNBUFFERED", "1")
 
     output_dir = args.output_dir.expanduser().resolve()
-    plans = build_source_plans(sources, since, before, output_dir)
+    plans = build_source_plans(
+        sources,
+        since,
+        before,
+        output_dir,
+        processed_medios_dir=args.processed_medios_dir.expanduser().resolve(),
+    )
     print("=" * 72)
     print("EXTRACCIÓN RADAR V1")
     print("=" * 72)
