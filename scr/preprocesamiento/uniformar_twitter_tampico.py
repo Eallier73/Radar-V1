@@ -23,7 +23,7 @@ from twitter_data_contract import TWITTER_OUTPUT_COLUMNS, text_contains_tampico
 
 
 DEFAULT_INPUT_DIR = PROCESSED_DATA_DIR / "twitter_semanal_limpio"
-DEFAULT_OUTPUT_DIR = PROCESSED_DATA_DIR / "twitter_semanal_uniforme_tampico"
+DEFAULT_OUTPUT_DIR = PROCESSED_DATA_DIR / "twitter_semanal_procesado"
 OUTPUT_COLUMNS = list(TWITTER_OUTPUT_COLUMNS)
 
 
