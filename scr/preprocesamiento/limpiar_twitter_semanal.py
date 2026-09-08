@@ -35,13 +35,19 @@ from twitter_data_contract import (
     detect_twitter_schema,
     parse_twitter_datetime,
     project_twitter_row,
+    text_contains_tampico,
 )
 
 
 DEFAULT_INPUT_DIR = EXTRACTED_DATA_DIR
-DEFAULT_OUTPUT_DIR = PROCESSED_DATA_DIR / "twitter_semanal_limpio"
+DEFAULT_OUTPUT_DIR = PROCESSED_DATA_DIR / "twitter_semanal_procesado"
 WEEK_DIR_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})_semana_.+$")
 OUTPUT_COLUMNS = list(TWITTER_OUTPUT_COLUMNS)
+KNOWN_INCOMPATIBLE_INPUTS = {
+    "2025-11-10_semana_10noviembre_16noviembre_25": (
+        "e7202d27fac7acfa9da15d579ef6494985437664ecef62fda05d9ea93aeafa19"
+    ),
+}
 
 
 @dataclass
@@ -63,6 +69,7 @@ class WeekCleaningResult:
     rows_removed_after_week: int = 0
     rows_removed_invalid_date: int = 0
     rows_removed_empty_text: int = 0
+    rows_removed_outside_content_rule: int = 0
     rows_removed_duplicates: int = 0
     status: str = "pending"
     error: str = ""
@@ -74,6 +81,7 @@ class WeekCleaningResult:
             + self.rows_removed_after_week
             + self.rows_removed_invalid_date
             + self.rows_removed_empty_text
+            + self.rows_removed_outside_content_rule
             + self.rows_removed_duplicates
         )
 
@@ -168,6 +176,9 @@ def clean_week_file(
         if schema is None:
             result.incompatible_nonempty_lines = count_nonempty_lines(input_path)
             result.error = "El archivo no contiene un esquema estructurado de Twitter."
+            if KNOWN_INCOMPATIBLE_INPUTS.get(week_name) != result.input_sha256:
+                result.status = "error_incompatible_schema"
+                return result
             if dry_run:
                 result.status = "success_empty_incompatible_dry_run"
                 return result
@@ -197,7 +208,13 @@ def clean_week_file(
 
         with_text = [row for row in in_week if row["text"].strip()]
         result.rows_removed_empty_text = len(in_week) - len(with_text)
-        unique_rows, removed_duplicates = deduplicate_twitter_rows(with_text)
+        matching_content = [
+            row for row in with_text if text_contains_tampico(row["text"])
+        ]
+        result.rows_removed_outside_content_rule = (
+            len(with_text) - len(matching_content)
+        )
+        unique_rows, removed_duplicates = deduplicate_twitter_rows(matching_content)
         result.rows_removed_duplicates = removed_duplicates
         result.rows_kept = len(unique_rows)
 
@@ -260,6 +277,9 @@ def build_summary(results: Sequence[WeekCleaningResult]) -> dict[str, int]:
         "rows_removed_empty_text": sum(
             result.rows_removed_empty_text for result in results
         ),
+        "rows_removed_outside_content_rule": sum(
+            result.rows_removed_outside_content_rule for result in results
+        ),
         "rows_removed_duplicates": sum(
             result.rows_removed_duplicates for result in results
         ),
@@ -319,6 +339,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 {
                     "rule": "published_at pertenece a [lunes UTC, lunes siguiente UTC)",
                     "empty_text_policy": "se elimina el registro sin texto",
+                    "content_rule": "text contiene la palabra completa Tampico",
                     "deduplication_key": {
                         "primary": ["tweet_id"],
                         "fallback": ["author", "published_at", "text_normalizado"],

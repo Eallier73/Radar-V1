@@ -174,7 +174,7 @@ class LimpiarYoutubeSemanalTests(unittest.TestCase):
                     ],
                 )
 
-    def test_incompatible_text_disguised_as_csv_is_reported(self):
+    def test_new_incompatible_file_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             week = root / "2026-04-06_semana_06abril_12abril_26"
@@ -184,11 +184,12 @@ class LimpiarYoutubeSemanalTests(unittest.TestCase):
             result = MODULE.clean_week_file(
                 source,
                 root / "salida.csv",
-                dry_run=True,
+                dry_run=False,
                 overwrite=False,
             )
-            self.assertEqual(result.status, "error_incompatible_csv")
+            self.assertEqual(result.status, "error_incompatible_schema")
             self.assertIn("published_at", result.error)
+            self.assertFalse(Path(result.output_path).exists())
 
 
 if __name__ == "__main__":

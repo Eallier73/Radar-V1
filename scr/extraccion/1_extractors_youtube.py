@@ -25,6 +25,7 @@ from output_naming import build_source_filename, build_week_folder_name
 from radar_paths import EXTRACTED_DATA_DIR
 from youtube_data_contract import (
     YOUTUBE_OUTPUT_COLUMNS,
+    YOUTUBE_SEARCH_QUERIES,
     deduplicate_youtube_rows,
     filter_youtube_rows_to_interval,
     project_youtube_rows,
@@ -49,12 +50,7 @@ DEFAULT_START_DATE_STR = "2026-03-15"
 DEFAULT_END_DATE_STR = "2026-03-31"
 DEFAULT_RANGE_DAYS = 15
 
-DEFAULT_SEARCH_QUERIES = [
-    "presidenta municipal de Tampico",
-    "Presidenta municipal de Tampico",
-    "Gobierno de Tampico",
-    "gobierno de Tampico",
-]
+DEFAULT_SEARCH_QUERIES = list(YOUTUBE_SEARCH_QUERIES)
 
 DEFAULT_OUTPUT_BASE_DIR = str(EXTRACTED_DATA_DIR)
 DEFAULT_API_KEY = ""
@@ -334,6 +330,12 @@ def extraer_comentarios_busquedas(
 
 def main() -> None:
     args = parse_args()
+    if tuple(args.queries) != tuple(DEFAULT_SEARCH_QUERIES):
+        print(
+            "❌ El contrato uniforme de YouTube requiere exactamente las seis "
+            "consultas históricas configuradas."
+        )
+        sys.exit(1)
     start_date, end_date = resolver_rango_fechas(args.since, args.before)
 
     week_name = build_week_folder_name(start_date, end_date)

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import os
 import re
 
@@ -77,15 +77,30 @@ def _as_date(value: str | date | datetime) -> date:
     return datetime.strptime(value, "%Y-%m-%d").date()
 
 
+def validate_week_range(
+    since: str | date | datetime,
+    before: str | date | datetime,
+) -> tuple[date, date]:
+    """Valida el contrato semanal inclusivo: lunes a domingo."""
+    start = _as_date(since)
+    end = _as_date(before)
+    if start.weekday() != 0:
+        raise ValueError("La fecha inicial semanal debe ser lunes.")
+    expected_end = start + timedelta(days=6)
+    if end != expected_end:
+        raise ValueError(
+            "El rango debe cubrir exactamente una semana inclusiva "
+            f"(lunes a domingo): {start.isoformat()} a {expected_end.isoformat()}."
+        )
+    return start, end
+
+
 def build_week_folder_name(
     since: str | date | datetime,
     before: str | date | datetime,
 ) -> str:
     """Construye el nombre semanal usado en ``datos/radar_semanal_extraido``."""
-    start = _as_date(since)
-    end = _as_date(before)
-    if start > end:
-        raise ValueError("La fecha inicial no puede ser posterior a la fecha final.")
+    start, end = validate_week_range(since, before)
     start_label = f"{start.day:02d}{MONTH_NAMES[start.month - 1]}"
     end_label = f"{end.day:02d}{MONTH_NAMES[end.month - 1]}_{end.year % 100:02d}"
     return f"{start.isoformat()}_semana_{start_label}_{end_label}"

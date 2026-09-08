@@ -30,6 +30,22 @@ class RunExtraccionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Fuentes desconocidas"):
             RUNNER.normalize_sources(["instagram"])
 
+    def test_non_weekly_range_is_rejected_before_building_commands(self):
+        with self.assertRaisesRegex(ValueError, "lunes a domingo"):
+            RUNNER.build_source_plans(
+                ["youtube"],
+                "2026-08-10",
+                "2026-08-17",
+                Path("/tmp/radar-test-output"),
+            )
+        with self.assertRaisesRegex(ValueError, "debe ser lunes"):
+            RUNNER.build_source_plans(
+                ["youtube"],
+                "2026-08-11",
+                "2026-08-17",
+                Path("/tmp/radar-test-output"),
+            )
+
     def test_list_does_not_require_dates(self):
         self.assertEqual(RUNNER.main(["--list"]), 0)
 
@@ -43,7 +59,7 @@ class RunExtraccionTests(unittest.TestCase):
             python_executable="python-test",
         )
         self.assertEqual(len(plans), 1)
-        self.assertEqual(len(plans[0].commands), 2)
+        self.assertEqual(len(plans[0].commands), 4)
         posts_csv, _canonical_csv = RUNNER.facebook_paths(
             output_dir,
             "2026-08-10",
@@ -51,6 +67,33 @@ class RunExtraccionTests(unittest.TestCase):
         )
         self.assertIn(str(posts_csv), plans[0].commands[1].command)
         self.assertTrue(plans[0].commands[1].skip_when_posts_empty)
+        self.assertIn(
+            "procesar_facebook_semanal.py",
+            plans[0].commands[2].command[1],
+        )
+        self.assertIn(
+            "validar_homogeneidad_semanal.py",
+            plans[0].commands[3].command[1],
+        )
+
+    def test_youtube_and_twitter_plans_finish_in_processed_directories(self):
+        output_dir = Path("/tmp/radar-test-output")
+        youtube_dir = Path("/tmp/radar-test-processed-youtube")
+        twitter_dir = Path("/tmp/radar-test-processed-twitter")
+        plans = RUNNER.build_source_plans(
+            ["youtube", "twitter"],
+            "2026-08-10",
+            "2026-08-16",
+            output_dir,
+            python_executable="python-test",
+            processed_youtube_dir=youtube_dir,
+            processed_twitter_dir=twitter_dir,
+        )
+        self.assertEqual([len(plan.commands) for plan in plans], [3, 3])
+        self.assertIn("limpiar_youtube_semanal.py", plans[0].commands[1].command[1])
+        self.assertIn(str(youtube_dir), plans[0].commands[1].command)
+        self.assertIn("limpiar_twitter_semanal.py", plans[1].commands[1].command[1])
+        self.assertIn(str(twitter_dir), plans[1].commands[1].command)
 
     def test_medios_plan_extracts_then_processes_csv_and_txt(self):
         output_dir = Path("/tmp/radar-test-output")
@@ -64,7 +107,7 @@ class RunExtraccionTests(unittest.TestCase):
             processed_medios_dir=processed_dir,
         )
         self.assertEqual(len(plans), 1)
-        self.assertEqual(len(plans[0].commands), 2)
+        self.assertEqual(len(plans[0].commands), 3)
         self.assertIn("3_extractors_medios.py", plans[0].commands[0].command[1])
         self.assertIn("procesar_medios_semanal.py", plans[0].commands[1].command[1])
         self.assertIn(str(output_dir), plans[0].commands[1].command)

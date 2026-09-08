@@ -8,6 +8,14 @@ from typing import Mapping, Sequence
 
 
 YOUTUBE_OUTPUT_COLUMNS = ("comment_text", "published_at", "query")
+YOUTUBE_SEARCH_QUERIES = (
+    "presidenta municipal de Tampico",
+    "Presidenta municipal de Tampico",
+    "Gobierno de Tampico",
+    "gobierno de Tampico",
+    "presidenta municipal Tampico",
+    "municipio Tampico",
+)
 
 
 def parse_youtube_datetime(value: str) -> datetime | None:

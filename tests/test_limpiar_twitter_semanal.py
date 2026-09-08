@@ -86,10 +86,11 @@ class LimpiarTwitterSemanalTests(unittest.TestCase):
                     "likes": "0", "bookmarks": "", "views": "0",
                     "is_reply": "False",
                 }
-                writer.writerow({**base, "datetime": "2026-04-06T00:00:00Z", "url": "https://x.com/cuenta/status/1", "text": "conservar", "query_used": "q1"})
-                writer.writerow({**base, "datetime": "2026-04-06T00:00:00Z", "url": "https://x.com/cuenta/status/1", "text": "conservar", "query_used": "q2"})
-                writer.writerow({**base, "datetime": "2026-04-13T00:00:00Z", "url": "https://x.com/cuenta/status/2", "text": "fuera", "query_used": "q"})
+                writer.writerow({**base, "datetime": "2026-04-06T00:00:00Z", "url": "https://x.com/cuenta/status/1", "text": "conservar Tampico", "query_used": "q1"})
+                writer.writerow({**base, "datetime": "2026-04-06T00:00:00Z", "url": "https://x.com/cuenta/status/1", "text": "conservar Tampico", "query_used": "q2"})
+                writer.writerow({**base, "datetime": "2026-04-13T00:00:00Z", "url": "https://x.com/cuenta/status/2", "text": "fuera de Tampico", "query_used": "q"})
                 writer.writerow({**base, "datetime": "2026-04-10T12:00:00Z", "url": "https://x.com/cuenta/status/3", "text": "", "query_used": "q"})
+                writer.writerow({**base, "datetime": "2026-04-10T12:00:00Z", "url": "https://x.com/cuenta/status/4", "text": "sin la palabra requerida", "query_used": "q"})
 
             result = MODULE.clean_week_file(
                 source, output, dry_run=False, overwrite=False
@@ -97,6 +98,7 @@ class LimpiarTwitterSemanalTests(unittest.TestCase):
             self.assertEqual(result.status, "success")
             self.assertEqual(result.rows_removed_after_week, 1)
             self.assertEqual(result.rows_removed_empty_text, 1)
+            self.assertEqual(result.rows_removed_outside_content_rule, 1)
             self.assertEqual(result.rows_removed_duplicates, 1)
             self.assertEqual(result.rows_kept, 1)
             with output.open("r", encoding="utf-8-sig", newline="") as handle:
@@ -123,7 +125,7 @@ class LimpiarTwitterSemanalTests(unittest.TestCase):
         self.assertEqual(removed, 1)
         self.assertEqual(len(unique), 1)
 
-    def test_incompatible_week_writes_header_only_output(self):
+    def test_new_incompatible_file_is_rejected_even_with_historical_week_name(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             week = root / "2025-11-10_semana_10noviembre_16noviembre_25"
@@ -134,12 +136,9 @@ class LimpiarTwitterSemanalTests(unittest.TestCase):
             result = MODULE.clean_week_file(
                 source, output, dry_run=False, overwrite=False
             )
-            self.assertEqual(result.status, "success_empty_incompatible")
+            self.assertEqual(result.status, "error_incompatible_schema")
             self.assertEqual(result.incompatible_nonempty_lines, 2)
-            with output.open("r", encoding="utf-8-sig", newline="") as handle:
-                reader = csv.DictReader(handle)
-                self.assertEqual(reader.fieldnames, MODULE.OUTPUT_COLUMNS)
-                self.assertEqual(list(reader), [])
+            self.assertFalse(output.exists())
 
 
 if __name__ == "__main__":

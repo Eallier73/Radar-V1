@@ -22,17 +22,18 @@ que requieren JavaScript rendering.
 # ============================================================
 # CONFIGURACIÓN — solo edita esta sección
 # ============================================================
-MEDIOS = [
+UNIFORM_MEDIA_SITES = (
     "site:oem.com.mx",
     "site:milenio.com",
-    
-]
+)
+MEDIOS = list(UNIFORM_MEDIA_SITES)
 
-TERMINOS = [
+UNIFORM_SEARCH_TERMS = (
     '"Monica Villarreal"',
     '"gobierno de tampico"',
     '"tampico"',
-]
+)
+TERMINOS = list(UNIFORM_SEARCH_TERMS)
 
 ANIO_INICIO = 2025
 MES_INICIO = 1
@@ -1175,8 +1176,24 @@ def main():
 
     args = parse_args()
 
-    MEDIOS = args.medios if args.medios else MEDIOS
-    TERMINOS = args.terminos if args.terminos else TERMINOS
+    requested_media = args.medios if args.medios else list(UNIFORM_MEDIA_SITES)
+    requested_terms = args.terminos if args.terminos else list(UNIFORM_SEARCH_TERMS)
+    if tuple(requested_media) != UNIFORM_MEDIA_SITES:
+        raise SystemExit(
+            "❌ El contrato uniforme de Medios requiere exactamente "
+            f"{', '.join(UNIFORM_MEDIA_SITES)}."
+        )
+    if tuple(requested_terms) != UNIFORM_SEARCH_TERMS:
+        raise SystemExit(
+            "❌ El contrato uniforme de Medios requiere exactamente los tres "
+            "términos históricos configurados."
+        )
+    if args.modo_queries != "combinado":
+        raise SystemExit("❌ El contrato uniforme de Medios requiere --modo-queries combinado.")
+    if args.nombre_archivo_base != "medios":
+        raise SystemExit("❌ El contrato uniforme de Medios requiere --nombre-archivo-base medios.")
+    MEDIOS = requested_media
+    TERMINOS = requested_terms
     ANIO_INICIO = args.anio_inicio
     MES_INICIO = args.mes_inicio
     FECHA_INICIO_EXACTA = args.fecha_inicio

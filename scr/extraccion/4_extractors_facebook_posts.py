@@ -30,7 +30,7 @@ import random
 import re
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 from urllib.parse import urlparse
@@ -52,9 +52,6 @@ DEFAULT_OUTPUT_BASE_DIR = str(EXTRACTED_DATA_DIR)
 DEFAULT_PAGES = [
     "TampicoGob",
     "monicavtampico",
-    "servpublicostampico",
-    "ProteccionCivilTampico",
-    "DireccionDeportesTampico",
 ]
 DEFAULT_RESULTS_LIMIT_PER_PAGE = 100
 DEFAULT_BATCH_SIZE = 10
@@ -148,7 +145,7 @@ def parse_item_datetime(item: dict) -> Optional[datetime]:
                 ts = float(raw)
                 if ts > 10_000_000_000:  # milisegundos
                     ts = ts / 1000.0
-                return datetime.fromtimestamp(ts)
+                return datetime.fromtimestamp(ts, tz=timezone.utc)
         except Exception:
             continue
 
@@ -166,7 +163,10 @@ def parse_item_datetime(item: dict) -> Optional[datetime]:
         try:
             if text.endswith("Z"):
                 text = text.replace("Z", "+00:00")
-            return datetime.fromisoformat(text).replace(tzinfo=None)
+            parsed = datetime.fromisoformat(text)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed.astimezone(timezone.utc)
         except Exception:
             pass
         for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%Y-%m-%d %H:%M:%S"):
@@ -222,7 +222,16 @@ def normalize_post_item(item: dict) -> dict:
 
     # apify/facebook-posts-scraper usa "url" para post y "facebookUrl" para página
     post_url = str(item.get("url") or item.get("facebookUrl") or "").strip()
-    page_url = str(item.get("facebookUrl") or item.get("inputUrl") or "").strip()
+    page_url = str(item.get("inputUrl") or item.get("facebookUrl") or "").strip()
+
+    page_handle = ""
+    for candidate in (item.get("inputUrl"), page_url, post_url):
+        handle = extract_handle_from_url(str(candidate or ""))
+        if handle and handle not in {"reel", "watch", "photo.php", "permalink.php"}:
+            page_handle = handle
+            break
+    if not page_handle:
+        page_handle = normalize_target(str(item.get("pageName") or ""))
 
     dt = parse_item_datetime(item)
     dt_iso = dt.isoformat(sep=" ") if dt else ""
@@ -230,7 +239,7 @@ def normalize_post_item(item: dict) -> dict:
     return {
         "post_url": post_url,
         "page_url": page_url,
-        "page_handle": str(item.get("pageName") or extract_handle_from_url(page_url) or "").strip().lower(),
+        "page_handle": page_handle,
         "post_texto": str(item.get("text") or "").strip(),
         "fecha_post": dt_iso,
         "fecha_post_date": dt.date().isoformat() if dt else "",
@@ -532,6 +541,19 @@ def main() -> None:
         target_handles = [h for h in target_handles if h]
         if not target_handles:
             print("❌ No se pudieron normalizar páginas target.")
+            sys.exit(1)
+        required_handles = {normalize_target(page) for page in DEFAULT_PAGES}
+        if set(target_handles) != required_handles:
+            print(
+                "❌ El contrato uniforme de Facebook requiere exactamente "
+                "TampicoGob y monicavtampico."
+            )
+            sys.exit(1)
+        if args.sample_percent is not None or args.max_pages or args.max_urls:
+            print(
+                "❌ El contrato uniforme de Facebook no permite muestrear ni "
+                "recortar las páginas base."
+            )
             sys.exit(1)
 
         page_urls = [target_to_page_url(p) for p in args.pages if str(p).strip()]

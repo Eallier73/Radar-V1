@@ -43,10 +43,15 @@ from youtube_data_contract import (
 
 
 DEFAULT_INPUT_DIR = EXTRACTED_DATA_DIR
-DEFAULT_OUTPUT_DIR = PROCESSED_DATA_DIR / "youtube_semanal_limpio"
+DEFAULT_OUTPUT_DIR = PROCESSED_DATA_DIR / "youtube_semanal_procesado"
 WEEK_DIR_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})_semana_.+$")
 REQUIRED_COLUMNS = {"comment_text", "published_at"}
 OUTPUT_COLUMNS = list(YOUTUBE_OUTPUT_COLUMNS)
+KNOWN_INCOMPATIBLE_INPUTS = {
+    "2025-11-10_semana_10noviembre_16noviembre_25": (
+        "1de30ab5d6f52d993cebe202a3fe281b0e2bb5d445041eee92343fac45238385"
+    ),
+}
 
 
 @dataclass
@@ -60,6 +65,7 @@ class WeekCleaningResult:
     contract_columns: list[str]
     output_columns: list[str]
     rows_read: int = 0
+    incompatible_nonempty_lines: int = 0
     rows_after_week_filter: int = 0
     rows_kept: int = 0
     rows_removed_before_week: int = 0
@@ -196,8 +202,26 @@ def clean_week_file(
         result.rows_read = len(rows)
         missing_columns = sorted(REQUIRED_COLUMNS.difference(fieldnames))
         if missing_columns:
-            result.status = "error_incompatible_csv"
+            with input_path.open("r", encoding="utf-8-sig", errors="replace") as handle:
+                result.incompatible_nonempty_lines = sum(
+                    bool(line.strip()) for line in handle
+                )
             result.error = f"Faltan columnas requeridas: {', '.join(missing_columns)}"
+            if KNOWN_INCOMPATIBLE_INPUTS.get(week_name) != result.input_sha256:
+                result.status = "error_incompatible_schema"
+                return result
+            if dry_run:
+                result.status = "success_empty_incompatible_dry_run"
+                return result
+            if output_path.exists() and not overwrite:
+                result.status = "skip_existing"
+                return result
+            write_csv_atomic(
+                output_path,
+                fieldnames=OUTPUT_COLUMNS,
+                rows=[],
+            )
+            result.status = "success_empty_incompatible"
             return result
 
         kept, counters = filter_rows_to_week(
@@ -255,9 +279,15 @@ def build_summary(results: Sequence[WeekCleaningResult]) -> dict[str, object]:
     return {
         "weeks_discovered": len(results),
         "weeks_success": sum(result.status.startswith("success") for result in results),
+        "weeks_empty_incompatible": sum(
+            "empty_incompatible" in result.status for result in results
+        ),
         "weeks_skipped": sum(result.status.startswith("skip") for result in results),
         "weeks_error": sum(result.status.startswith("error") for result in results),
         "rows_read": sum(result.rows_read for result in results),
+        "incompatible_nonempty_lines": sum(
+            result.incompatible_nonempty_lines for result in results
+        ),
         "rows_after_week_filter": sum(
             result.rows_after_week_filter for result in results
         ),

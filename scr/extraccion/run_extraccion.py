@@ -27,7 +27,12 @@ SHARED_DIR = REPO_ROOT / "scr" / "compartido"
 if str(SHARED_DIR) not in sys.path:
     sys.path.insert(0, str(SHARED_DIR))
 
-from output_naming import build_source_filename, build_week_folder_name
+from facebook_data_contract import FACEBOOK_RAW_COLUMNS
+from output_naming import (
+    build_source_filename,
+    build_week_folder_name,
+    validate_week_range,
+)
 from radar_paths import EXTRACTED_DATA_DIR, PROCESSED_DATA_DIR
 
 
@@ -46,15 +51,17 @@ EXTRACTOR_FILES = {
     "facebook_comments": "5_extractors_facebook_comentarios.py",
 }
 MEDIOS_PROCESSOR = REPO_ROOT / "scr" / "preprocesamiento" / "procesar_medios_semanal.py"
-DEFAULT_PROCESSED_MEDIOS_DIR = PROCESSED_DATA_DIR / "medios_semanal_procesado"
-FACEBOOK_COLUMNS = (
-    "tipo",
-    "url",
-    "post_url_padre",
-    "fecha",
-    "texto",
-    "num_comentarios",
+FACEBOOK_PROCESSOR = REPO_ROOT / "scr" / "preprocesamiento" / "procesar_facebook_semanal.py"
+YOUTUBE_PROCESSOR = REPO_ROOT / "scr" / "preprocesamiento" / "limpiar_youtube_semanal.py"
+TWITTER_PROCESSOR = REPO_ROOT / "scr" / "preprocesamiento" / "limpiar_twitter_semanal.py"
+HOMOGENEITY_VALIDATOR = (
+    REPO_ROOT / "scr" / "preprocesamiento" / "validar_homogeneidad_semanal.py"
 )
+DEFAULT_PROCESSED_MEDIOS_DIR = PROCESSED_DATA_DIR / "medios_semanal_procesado"
+DEFAULT_PROCESSED_FACEBOOK_DIR = PROCESSED_DATA_DIR / "facebook_semanal_procesado"
+DEFAULT_PROCESSED_YOUTUBE_DIR = PROCESSED_DATA_DIR / "youtube_semanal_procesado"
+DEFAULT_PROCESSED_TWITTER_DIR = PROCESSED_DATA_DIR / "twitter_semanal_procesado"
+FACEBOOK_COLUMNS = FACEBOOK_RAW_COLUMNS
 
 
 @dataclass(frozen=True)
@@ -96,8 +103,7 @@ def validate_date_range(since: str, before: str) -> tuple[str, str]:
         end = datetime.strptime(before, "%Y-%m-%d").date()
     except ValueError as exc:
         raise ValueError("Las fechas deben usar el formato YYYY-MM-DD.") from exc
-    if start > end:
-        raise ValueError("--since no puede ser posterior a --before.")
+    validate_week_range(start, end)
     return start.isoformat(), end.isoformat()
 
 
@@ -145,27 +151,84 @@ def build_source_plans(
     output_dir: Path,
     *,
     python_executable: str | Path | None = None,
+    processed_youtube_dir: Path = DEFAULT_PROCESSED_YOUTUBE_DIR,
+    processed_twitter_dir: Path = DEFAULT_PROCESSED_TWITTER_DIR,
     processed_medios_dir: Path = DEFAULT_PROCESSED_MEDIOS_DIR,
+    processed_facebook_dir: Path = DEFAULT_PROCESSED_FACEBOOK_DIR,
 ) -> list[SourcePlan]:
     since, before = validate_date_range(since, before)
     selected = normalize_sources(sources)
     python = str(python_executable or sys.executable)
     output = str(output_dir)
 
+    def validation_command(source: str, source_dir: Path) -> tuple[str, ...]:
+        return (
+            python,
+            str(HOMOGENEITY_VALIDATOR),
+            "--sources", source,
+            "--source-dir", str(source_dir),
+            "--weeks", since,
+        )
+
     plans: list[SourcePlan] = []
     for source in selected:
         common = ("--since", since, "--before", before, "--output-dir", output)
-        if source in {"youtube", "twitter"}:
-            command = (
+        if source == "youtube":
+            extractor_command = (
                 python,
                 str(EXTRACTION_DIR / EXTRACTOR_FILES[source]),
                 *common,
+            )
+            processor_command = (
+                python,
+                str(YOUTUBE_PROCESSOR),
+                "--input-dir", output,
+                "--output-dir", str(processed_youtube_dir),
+                "--weeks", since,
+                "--overwrite",
             )
             plans.append(
                 SourcePlan(
                     source,
                     SOURCE_LABELS[source],
-                    (CommandPlan(SOURCE_LABELS[source], command),),
+                    (
+                        CommandPlan("YouTube: extracción CSV", extractor_command),
+                        CommandPlan("YouTube: CSV procesado", processor_command),
+                        CommandPlan(
+                            "YouTube: validar contrato",
+                            validation_command(source, processed_youtube_dir),
+                        ),
+                    ),
+                )
+            )
+            continue
+
+        if source == "twitter":
+            extractor_command = (
+                python,
+                str(EXTRACTION_DIR / EXTRACTOR_FILES[source]),
+                *common,
+            )
+            processor_command = (
+                python,
+                str(TWITTER_PROCESSOR),
+                "--input-dir", output,
+                "--output-dir", str(processed_twitter_dir),
+                "--weeks", since,
+                "--overwrite",
+            )
+            plans.append(
+                SourcePlan(
+                    source,
+                    SOURCE_LABELS[source],
+                    (
+                        CommandPlan("Twitter/X: extracción CSV", extractor_command),
+                        CommandPlan("Twitter/X: CSV procesado", processor_command),
+                        CommandPlan(
+                            "Twitter/X: validar contrato",
+                            validation_command(source, processed_twitter_dir),
+                        ),
+                    ),
                 )
             )
             continue
@@ -191,6 +254,10 @@ def build_source_plans(
                     (
                         CommandPlan("Medios: extracción CSV", extractor_command),
                         CommandPlan("Medios: CSV y TXT procesados", processor_command),
+                        CommandPlan(
+                            "Medios: validar contrato",
+                            validation_command(source, processed_medios_dir),
+                        ),
                     ),
                 )
             )
@@ -211,6 +278,14 @@ def build_source_plans(
             *common,
             "--no-prompt",
         )
+        processor_command = (
+            python,
+            str(FACEBOOK_PROCESSOR),
+            "--since", since,
+            "--before", before,
+            "--input-dir", output,
+            "--output-dir", str(processed_facebook_dir),
+        )
         plans.append(
             SourcePlan(
                 "facebook",
@@ -221,6 +296,11 @@ def build_source_plans(
                         "Facebook comentarios",
                         comments_command,
                         skip_when_posts_empty=True,
+                    ),
+                    CommandPlan("Facebook: CSV y TXT procesados", processor_command),
+                    CommandPlan(
+                        "Facebook: validar contrato",
+                        validation_command("facebook", processed_facebook_dir),
                     ),
                 ),
             )
@@ -328,10 +408,28 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="Fuentes: youtube twitter medios facebook (acepta comas o 'all').",
     )
     parser.add_argument(
+        "--processed-youtube-dir",
+        type=Path,
+        default=DEFAULT_PROCESSED_YOUTUBE_DIR,
+        help="Raíz de salida para el CSV procesado de YouTube.",
+    )
+    parser.add_argument(
+        "--processed-twitter-dir",
+        type=Path,
+        default=DEFAULT_PROCESSED_TWITTER_DIR,
+        help="Raíz de salida para el CSV procesado de Twitter/X.",
+    )
+    parser.add_argument(
         "--processed-medios-dir",
         type=Path,
         default=DEFAULT_PROCESSED_MEDIOS_DIR,
         help="Raíz de salida para el CSV y TXT procesados de Medios.",
+    )
+    parser.add_argument(
+        "--processed-facebook-dir",
+        type=Path,
+        default=DEFAULT_PROCESSED_FACEBOOK_DIR,
+        help="Raíz de salida para el CSV y TXT procesados de Facebook.",
     )
     parser.add_argument(
         "--output-dir",
@@ -373,7 +471,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         since,
         before,
         output_dir,
+        processed_youtube_dir=args.processed_youtube_dir.expanduser().resolve(),
+        processed_twitter_dir=args.processed_twitter_dir.expanduser().resolve(),
         processed_medios_dir=args.processed_medios_dir.expanduser().resolve(),
+        processed_facebook_dir=args.processed_facebook_dir.expanduser().resolve(),
     )
     print("=" * 72)
     print("EXTRACCIÓN RADAR V1")

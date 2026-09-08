@@ -33,7 +33,7 @@ import random
 import re
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Optional
 from urllib.parse import urlparse, urlunparse
@@ -52,13 +52,20 @@ from output_naming import (
     build_source_filename,
     build_week_folder_name,
 )
+from facebook_data_contract import (
+    FACEBOOK_RAW_COLUMNS,
+    account_from_url,
+    normalize_account,
+    normalize_facebook_comment_url,
+    normalize_facebook_url,
+)
 from radar_paths import EXTRACTED_DATA_DIR
 
 
 ACTOR_COMMENTS = "apify/facebook-comments-scraper"
 DEFAULT_OUTPUT_BASE_DIR = str(EXTRACTED_DATA_DIR)
 DEFAULT_URLS_BASE_DIR = str(EXTRACTED_DATA_DIR)
-DEFAULT_PAGES = ["GobiernoCDMX", "ClaraBrugadaM"]
+DEFAULT_PAGES = ["TampicoGob", "monicavtampico"]
 
 
 # ============================================================================
@@ -256,8 +263,9 @@ def obtener_comentarios_batch(
 
     run_input = {
         "startUrls": start_urls,
-        "resultsPerPost": max_comments,
-        "includeReplies": True,
+        "resultsLimit": max_comments,
+        "includeNestedComments": True,
+        "viewOption": "RECENT_ACTIVITY",
     }
     if since:
         run_input["onlyCommentsNewerThan"] = since
@@ -286,7 +294,36 @@ def obtener_comentarios_batch(
     return items
 
 
-def procesar_items_comentarios(items: list) -> List[dict]:
+def _parse_comment_datetime(value) -> Optional[datetime]:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        timestamp = float(value)
+        if timestamp > 10_000_000_000:
+            timestamp /= 1000.0
+        try:
+            return datetime.fromtimestamp(timestamp, tz=timezone.utc)
+        except (OverflowError, OSError, ValueError):
+            return None
+    raw = str(value).strip()
+    if not raw:
+        return None
+    if raw.isdigit():
+        return _parse_comment_datetime(int(raw))
+    try:
+        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def procesar_items_comentarios(
+    items: list,
+    since: Optional[str] = None,
+    before: Optional[str] = None,
+) -> List[dict]:
     """Extrae campos relevantes de los items del actor."""
     filas = []
     vistos = set()
@@ -302,9 +339,50 @@ def procesar_items_comentarios(items: list) -> List[dict]:
         if not texto or len(texto) < 5:
             continue
 
-        # Deduplicar por texto+post
+        # Priorizar la identidad del comentario; el texto solo es fallback.
         post_url = item.get("postUrl") or item.get("facebookUrl") or ""
-        clave = (post_url, texto[:150])
+        comment_url = item.get("commentUrl") or item.get("url") or ""
+        comment_id = item.get("id") or item.get("commentId") or ""
+        author = (
+            item.get("profileName")
+            or item.get("authorName")
+            or item.get("userName")
+            or ""
+        )
+        raw_comment_date = (
+            item.get("date")
+            or item.get("timestamp")
+            or item.get("commentDate")
+            or ""
+        )
+        parsed_date = _parse_comment_datetime(raw_comment_date)
+        if since or before:
+            if parsed_date is None:
+                continue
+            start = datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=timezone.utc) if since else None
+            end = (
+                datetime.strptime(before, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                + timedelta(days=1)
+                if before
+                else None
+            )
+            if start and parsed_date < start:
+                continue
+            if end and parsed_date >= end:
+                continue
+        comment_date = parsed_date.isoformat() if parsed_date else str(raw_comment_date).strip()
+        if normalize_facebook_comment_url(comment_url) == normalize_facebook_url(post_url):
+            comment_url = ""
+        clave = (
+            ("id", str(comment_id).strip())
+            if str(comment_id).strip()
+            else ("url", str(comment_url).strip())
+            if str(comment_url).strip()
+            else ("fallback",) + tuple(
+                str(value or "").strip()
+                for value in (post_url, author, comment_date, texto)
+            )
+        )
         if clave in vistos:
             continue
         vistos.add(clave)
@@ -312,18 +390,8 @@ def procesar_items_comentarios(items: list) -> List[dict]:
         fila = {
             "post_url": post_url,
             "comentario_texto": texto,
-            "autor": (
-                item.get("profileName")
-                or item.get("authorName")
-                or item.get("userName")
-                or ""
-            ),
-            "fecha_comentario": (
-                item.get("date")
-                or item.get("timestamp")
-                or item.get("commentDate")
-                or ""
-            ),
+            "autor": author,
+            "fecha_comentario": comment_date,
             "likes_comentario": (
                 item.get("likesCount")
                 or item.get("likes")
@@ -331,7 +399,8 @@ def procesar_items_comentarios(items: list) -> List[dict]:
                 or 0
             ),
             "es_respuesta": item.get("isReply", False),
-            "url_comentario": item.get("url") or item.get("commentUrl") or "",
+            "url_comentario": comment_url,
+            "comentario_id": comment_id,
         }
         filas.append(fila)
 
@@ -647,17 +716,21 @@ def run_pipeline(
     if want_posts and want_comments:
         filas_mixtas = []
         for _, row in df_posts.iterrows():
+            post_url = row.get("post_url", "")
             filas_mixtas.append({
                 "tipo": "POST",
-                "url": row.get("post_url", ""),
+                "cuenta": account_from_url(post_url),
+                "url": post_url,
                 "post_url_padre": "",
                 "fecha": row.get("fecha_post", ""),
                 "texto": row.get("post_texto", ""),
                 "num_comentarios": row.get("num_comentarios_post", ""),
             })
         for _, row in df_comments.iterrows():
+            post_url = row.get("post_url", "")
             filas_mixtas.append({
                 "tipo": "COMENTARIO",
+                "cuenta": account_from_url(post_url),
                 "url": row.get("url_comentario", ""),
                 "post_url_padre": row.get("post_url", ""),
                 "fecha": row.get("fecha_comentario", ""),
@@ -669,7 +742,11 @@ def run_pipeline(
             output_dir,
             f"{build_source_filename(report_tag, 'facebook')}.csv",
         )
-        pd.DataFrame(filas_mixtas).to_csv(csv_mixto, index=False, encoding="utf-8-sig")
+        pd.DataFrame(filas_mixtas, columns=FACEBOOK_RAW_COLUMNS).to_csv(
+            csv_mixto,
+            index=False,
+            encoding="utf-8-sig",
+        )
 
     # ── Resumen ──
     print("\n" + "=" * 70)
@@ -893,10 +970,20 @@ def construir_facebook_canonico(input_csv: str, df_comentarios: pd.DataFrame) ->
     """Combina el CSV intermedio de posts y los comentarios en un solo dataset."""
     df_posts = pd.read_csv(input_csv, encoding="utf-8-sig").fillna("")
     filas = []
+    cuentas_por_post: dict[str, str] = {}
     for _, row in df_posts.iterrows():
+        post_url = row.get("post_url", row.get("url", ""))
+        cuenta = (
+            account_from_url(row.get("page_url", ""))
+            or account_from_url(post_url)
+            or normalize_account(row.get("page_handle", row.get("cuenta", "")))
+        )
+        if post_url and cuenta:
+            cuentas_por_post[str(post_url)] = cuenta
         filas.append({
             "tipo": "POST",
-            "url": row.get("post_url", row.get("url", "")),
+            "cuenta": cuenta,
+            "url": post_url,
             "post_url_padre": "",
             "fecha": row.get("fecha_post", row.get("fecha", "")),
             "texto": row.get("post_texto", row.get("texto", "")),
@@ -907,17 +994,18 @@ def construir_facebook_canonico(input_csv: str, df_comentarios: pd.DataFrame) ->
         })
 
     for _, row in df_comentarios.fillna("").iterrows():
+        post_url = row.get("post_url", "")
         filas.append({
             "tipo": "COMENTARIO",
+            "cuenta": cuentas_por_post.get(str(post_url), "") or account_from_url(post_url),
             "url": row.get("url_comentario", ""),
-            "post_url_padre": row.get("post_url", ""),
+            "post_url_padre": post_url,
             "fecha": row.get("fecha_comentario", ""),
             "texto": row.get("comentario_texto", ""),
             "num_comentarios": "",
         })
 
-    columnas = ["tipo", "url", "post_url_padre", "fecha", "texto", "num_comentarios"]
-    return pd.DataFrame(filas, columns=columnas)
+    return pd.DataFrame(filas, columns=FACEBOOK_RAW_COLUMNS)
 
 
 def main():
@@ -1008,7 +1096,11 @@ def main():
             since=args.since,
         )
         
-        comentarios = procesar_items_comentarios(items)
+        comentarios = procesar_items_comentarios(
+            items,
+            since=args.since,
+            before=args.before,
+        )
         all_comments.extend(comentarios)
         print(f"   Acumulado comentarios: {len(all_comments)}")
         
