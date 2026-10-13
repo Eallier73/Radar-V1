@@ -59,7 +59,7 @@ class RunExtraccionTests(unittest.TestCase):
             python_executable="python-test",
         )
         self.assertEqual(len(plans), 1)
-        self.assertEqual(len(plans[0].commands), 4)
+        self.assertEqual(len(plans[0].commands), 5)
         posts_csv, _canonical_csv = RUNNER.facebook_paths(
             output_dir,
             "2026-08-10",
@@ -72,8 +72,12 @@ class RunExtraccionTests(unittest.TestCase):
             plans[0].commands[2].command[1],
         )
         self.assertIn(
-            "validar_homogeneidad_semanal.py",
+            "promover_csv_a_texto.py",
             plans[0].commands[3].command[1],
+        )
+        self.assertIn(
+            "validar_homogeneidad_semanal.py",
+            plans[0].commands[4].command[1],
         )
 
     def test_youtube_and_twitter_plans_finish_in_processed_directories(self):
@@ -89,11 +93,13 @@ class RunExtraccionTests(unittest.TestCase):
             processed_youtube_dir=youtube_dir,
             processed_twitter_dir=twitter_dir,
         )
-        self.assertEqual([len(plan.commands) for plan in plans], [3, 3])
+        self.assertEqual([len(plan.commands) for plan in plans], [4, 4])
         self.assertIn("limpiar_youtube_semanal.py", plans[0].commands[1].command[1])
         self.assertIn(str(youtube_dir), plans[0].commands[1].command)
         self.assertIn("limpiar_twitter_semanal.py", plans[1].commands[1].command[1])
         self.assertIn(str(twitter_dir), plans[1].commands[1].command)
+        self.assertIn("promover_csv_a_texto.py", plans[0].commands[2].command[1])
+        self.assertIn("promover_csv_a_texto.py", plans[1].commands[2].command[1])
 
     def test_medios_plan_extracts_then_processes_csv_and_txt(self):
         output_dir = Path("/tmp/radar-test-output")
@@ -107,11 +113,12 @@ class RunExtraccionTests(unittest.TestCase):
             processed_medios_dir=processed_dir,
         )
         self.assertEqual(len(plans), 1)
-        self.assertEqual(len(plans[0].commands), 3)
+        self.assertEqual(len(plans[0].commands), 4)
         self.assertIn("3_extractors_medios.py", plans[0].commands[0].command[1])
         self.assertIn("procesar_medios_semanal.py", plans[0].commands[1].command[1])
         self.assertIn(str(output_dir), plans[0].commands[1].command)
         self.assertIn(str(processed_dir), plans[0].commands[1].command)
+        self.assertIn("promover_csv_a_texto.py", plans[0].commands[2].command[1])
 
     def test_empty_facebook_week_keeps_only_canonical_csv(self):
         with tempfile.TemporaryDirectory() as temp_dir:

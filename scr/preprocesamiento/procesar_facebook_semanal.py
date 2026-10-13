@@ -38,7 +38,6 @@ from facebook_data_contract import (
 )
 from output_naming import build_source_filename, build_week_folder_name
 from radar_paths import EXTRACTED_DATA_DIR, PROCESSED_DATA_DIR
-from text_normalizers import normalize_facebook
 
 
 DEFAULT_INPUT_DIR = EXTRACTED_DATA_DIR
@@ -51,7 +50,6 @@ class WeekResult:
     week_name: str
     input_path: str
     output_csv: str
-    output_txt: str
     input_sha256: str
     source_schema: str = ""
     rows_read: int = 0
@@ -205,16 +203,6 @@ def project_and_clean_rows(
     return kept, counters
 
 
-def build_facebook_txt(rows: Sequence[dict[str, str]], words_per_line: int = 35) -> str:
-    normalized = [normalize_facebook(row["texto"]) for row in rows]
-    words = " ".join(text for text in normalized if text).split()
-    lines = [
-        " ".join(words[index:index + words_per_line])
-        for index in range(0, len(words), words_per_line)
-    ]
-    return "\n".join(lines) + ("\n" if lines else "")
-
-
 def _write_csv_atomic(path: Path, rows: Sequence[dict[str, str]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temp_name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
@@ -230,30 +218,15 @@ def _write_csv_atomic(path: Path, rows: Sequence[dict[str, str]]) -> None:
         raise
 
 
-def _write_text_atomic(path: Path, text: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temp_name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
-    temp_path = Path(temp_name)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-            handle.write(text)
-        temp_path.replace(path)
-    except Exception:
-        temp_path.unlink(missing_ok=True)
-        raise
-
-
 def process_file(input_path: Path, output_dir: Path, *, dry_run: bool = False) -> WeekResult:
     week_name = input_path.parent.name
     base_name = build_source_filename(week_name, "facebook")
     output_week = output_dir / week_name
     output_csv = output_week / f"{base_name}.csv"
-    output_txt = output_week / f"{base_name}.txt"
     result = WeekResult(
         week_name=week_name,
         input_path=str(input_path),
         output_csv=str(output_csv),
-        output_txt=str(output_txt),
         input_sha256=sha256_file(input_path),
     )
     try:
@@ -283,7 +256,6 @@ def process_file(input_path: Path, output_dir: Path, *, dry_run: bool = False) -
         result.dates_invalid = counters["dates_invalid"]
         if not dry_run:
             _write_csv_atomic(output_csv, cleaned)
-            _write_text_atomic(output_txt, build_facebook_txt(cleaned))
         result.status = "success_dry_run" if dry_run else "success"
     except Exception as exc:
         result.status = "error"

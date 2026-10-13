@@ -184,7 +184,7 @@ class ProcesarFacebookSemanalTests(unittest.TestCase):
             ],
         )
 
-    def test_process_file_writes_one_csv_and_one_txt(self) -> None:
+    def test_process_file_writes_only_canonical_csv(self) -> None:
         since, before = "2026-03-09", "2026-03-15"
         week = build_week_folder_name(since, before)
         base = build_source_filename(week, "facebook")
@@ -212,16 +212,14 @@ class ProcesarFacebookSemanalTests(unittest.TestCase):
             result = PROCESSOR.process_file(input_path, root / "procesado")
             self.assertEqual(result.status, "success")
             output_csv = Path(result.output_csv)
-            output_txt = Path(result.output_txt)
             with output_csv.open(encoding="utf-8-sig", newline="") as handle:
                 reader = csv.DictReader(handle)
                 self.assertEqual(tuple(reader.fieldnames or ()), FACEBOOK_PROCESSED_COLUMNS)
                 self.assertEqual(len(list(reader)), 1)
             self.assertEqual(
                 sorted(path.name for path in output_csv.parent.iterdir()),
-                sorted((output_csv.name, output_txt.name)),
+                [output_csv.name],
             )
-            self.assertEqual(output_txt.read_text(encoding="utf-8"), "informacion numero para tampico\n")
 
 
 if __name__ == "__main__":

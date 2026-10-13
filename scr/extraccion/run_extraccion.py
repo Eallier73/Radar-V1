@@ -57,6 +57,7 @@ TWITTER_PROCESSOR = REPO_ROOT / "scr" / "preprocesamiento" / "limpiar_twitter_se
 HOMOGENEITY_VALIDATOR = (
     REPO_ROOT / "scr" / "preprocesamiento" / "validar_homogeneidad_semanal.py"
 )
+TEXT_PROMOTER = REPO_ROOT / "scr" / "preprocesamiento" / "promover_csv_a_texto.py"
 DEFAULT_PROCESSED_MEDIOS_DIR = PROCESSED_DATA_DIR / "medios_semanal_procesado"
 DEFAULT_PROCESSED_FACEBOOK_DIR = PROCESSED_DATA_DIR / "facebook_semanal_procesado"
 DEFAULT_PROCESSED_YOUTUBE_DIR = PROCESSED_DATA_DIR / "youtube_semanal_procesado"
@@ -170,6 +171,16 @@ def build_source_plans(
             "--weeks", since,
         )
 
+    def promotion_command(source: str, source_dir: Path) -> tuple[str, ...]:
+        return (
+            python,
+            str(TEXT_PROMOTER),
+            "--sources", source,
+            "--source-dir", str(source_dir),
+            "--since", since,
+            "--before", before,
+        )
+
     plans: list[SourcePlan] = []
     for source in selected:
         common = ("--since", since, "--before", before, "--output-dir", output)
@@ -194,6 +205,10 @@ def build_source_plans(
                     (
                         CommandPlan("YouTube: extracción CSV", extractor_command),
                         CommandPlan("YouTube: CSV procesado", processor_command),
+                        CommandPlan(
+                            "YouTube: promover CSV a TXT",
+                            promotion_command(source, processed_youtube_dir),
+                        ),
                         CommandPlan(
                             "YouTube: validar contrato",
                             validation_command(source, processed_youtube_dir),
@@ -225,6 +240,10 @@ def build_source_plans(
                         CommandPlan("Twitter/X: extracción CSV", extractor_command),
                         CommandPlan("Twitter/X: CSV procesado", processor_command),
                         CommandPlan(
+                            "Twitter/X: promover CSV a TXT",
+                            promotion_command(source, processed_twitter_dir),
+                        ),
+                        CommandPlan(
                             "Twitter/X: validar contrato",
                             validation_command(source, processed_twitter_dir),
                         ),
@@ -253,7 +272,11 @@ def build_source_plans(
                     SOURCE_LABELS[source],
                     (
                         CommandPlan("Medios: extracción CSV", extractor_command),
-                        CommandPlan("Medios: CSV y TXT procesados", processor_command),
+                        CommandPlan("Medios: CSV procesado", processor_command),
+                        CommandPlan(
+                            "Medios: promover CSV a TXT",
+                            promotion_command(source, processed_medios_dir),
+                        ),
                         CommandPlan(
                             "Medios: validar contrato",
                             validation_command(source, processed_medios_dir),
@@ -297,7 +320,11 @@ def build_source_plans(
                         comments_command,
                         skip_when_posts_empty=True,
                     ),
-                    CommandPlan("Facebook: CSV y TXT procesados", processor_command),
+                    CommandPlan("Facebook: CSV procesado", processor_command),
+                    CommandPlan(
+                        "Facebook: promover CSV a TXT",
+                        promotion_command("facebook", processed_facebook_dir),
+                    ),
                     CommandPlan(
                         "Facebook: validar contrato",
                         validation_command("facebook", processed_facebook_dir),

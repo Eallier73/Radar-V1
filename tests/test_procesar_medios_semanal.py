@@ -59,7 +59,7 @@ class ProcesarMediosSemanalTests(unittest.TestCase):
             writer.writeheader()
             writer.writerows(rows)
 
-    def test_week_writes_only_canonical_csv_and_txt(self) -> None:
+    def test_week_writes_only_canonical_csv(self) -> None:
         since, before = "2026-04-06", "2026-04-12"
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -89,7 +89,7 @@ class ProcesarMediosSemanalTests(unittest.TestCase):
                 ],
             )
 
-            output_csv, output_txt, counters = PROCESSOR.process_week(
+            output_csv, counters = PROCESSOR.process_week(
                 since,
                 before,
                 input_dir=input_dir,
@@ -98,7 +98,7 @@ class ProcesarMediosSemanalTests(unittest.TestCase):
 
             self.assertEqual(
                 sorted(path.name for path in output_csv.parent.iterdir()),
-                sorted([output_csv.name, output_txt.name]),
+                [output_csv.name],
             )
             with output_csv.open(encoding="utf-8-sig", newline="") as handle:
                 reader = csv.DictReader(handle)
@@ -109,19 +109,15 @@ class ProcesarMediosSemanalTests(unittest.TestCase):
             self.assertEqual(counters["duplicates"], 1)
             self.assertEqual(counters["outside_range"], 1)
             self.assertEqual(counters["invalid_date"], 1)
-            text = output_txt.read_text(encoding="utf-8")
-            self.assertNotIn("2026", text)
-            self.assertNotIn("www.example.com", text)
-            self.assertIn("ultima noticia mas informacion en y datos", text)
 
-    def test_empty_week_keeps_headers_and_empty_txt(self) -> None:
+    def test_empty_week_keeps_headers(self) -> None:
         since, before = "2026-04-06", "2026-04-12"
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             input_dir = root / "extraido"
             output_dir = root / "procesado"
             self._write_input(input_dir, since, before, [])
-            output_csv, output_txt, _ = PROCESSOR.process_week(
+            output_csv, _ = PROCESSOR.process_week(
                 since,
                 before,
                 input_dir=input_dir,
@@ -131,7 +127,7 @@ class ProcesarMediosSemanalTests(unittest.TestCase):
                 reader = csv.DictReader(handle)
                 self.assertEqual(tuple(reader.fieldnames or ()), MEDIOS_OUTPUT_COLUMNS)
                 self.assertEqual(list(reader), [])
-            self.assertEqual(output_txt.read_text(encoding="utf-8"), "")
+            self.assertEqual(list(output_csv.parent.iterdir()), [output_csv])
 
 
 if __name__ == "__main__":

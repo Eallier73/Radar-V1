@@ -84,8 +84,8 @@ PIPELINES = [
         "2",
         "preprocesamiento",
         "Preprocesamiento",
-        SCR_DIR / "preprocesamiento" / "run_stage2_text_preprocessing.py",
-        "Limpia y normaliza los insumos semanales para las etapas analíticas.",
+        SCR_DIR / "preprocesamiento" / "promover_csv_a_texto.py",
+        "Promueve los CSV canónicos semanales a TXT reproducibles.",
     ),
     PipelineSpec(
         "3",
@@ -264,14 +264,17 @@ def build_pipeline(
         if continue_on_error:
             cmd.append("--continue-on-error")
     elif stage.key == "preprocesamiento":
+        sources = normalize_extraction_sources(extraction_sources)
         cmd.extend(
             [
-                "--datos-radar-dir",
-                str(DATA_DIR / "radar_semanal_extraido"),
-                "--datos-texto-dir",
-                str(DATA_DIR / "radar_semanal_texto"),
-                "--weeks",
-                date_range_to_iso_week(since),
+                "--processed-dir",
+                str(DATA_DIR / "radar_semanal_procesado"),
+                "--since",
+                since,
+                "--before",
+                before,
+                "--sources",
+                *sources,
             ]
         )
     else:
@@ -407,8 +410,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         since, before = iso_week_to_range(DEFAULT_GLOBAL_ISO_WEEK)
 
     stages = parse_pipeline_selection(args.stages) if args.stages else _prompt_selection()
-    if args.sources and not any(stage.key == "extraccion" for stage in stages):
-        raise SystemExit("--sources solo aplica cuando se selecciona Extracción.")
+    if args.sources and not any(
+        stage.key in {"extraccion", "preprocesamiento"} for stage in stages
+    ):
+        raise SystemExit(
+            "--sources sólo aplica a Extracción o Preprocesamiento."
+        )
     extraction_sources = normalize_extraction_sources(args.sources)
 
     print(f"\nRepositorio: {REPO_ROOT}")

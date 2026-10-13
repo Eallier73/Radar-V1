@@ -28,7 +28,6 @@ from facebook_data_contract import (
 )
 from medios_data_contract import (
     MEDIOS_OUTPUT_COLUMNS,
-    build_media_txt,
     clean_media_text,
     process_media_rows,
 )
@@ -46,7 +45,7 @@ from youtube_data_contract import (
     deduplicate_youtube_rows,
     parse_youtube_datetime,
 )
-from procesar_facebook_semanal import build_facebook_txt
+from promover_csv_a_texto import build_text_content
 
 
 SOURCES = ("youtube", "twitter", "medios", "facebook")
@@ -88,9 +87,12 @@ def selected_weeks(base: Path, requested: set[str]) -> list[Path]:
 
 def validate_youtube(week: Path, errors: list[str]) -> int:
     path = week / f"{week.name}_youtube.csv"
+    txt_path = week / f"{week.name}_youtube.txt"
     if not path.is_file():
         errors.append(f"youtube/{week.name}: falta CSV")
         return 0
+    if not txt_path.is_file():
+        errors.append(f"youtube/{week.name}: falta TXT")
     header, rows = read_csv(path)
     if tuple(header) != YOUTUBE_OUTPUT_COLUMNS:
         errors.append(f"youtube/{week.name}: encabezado incompatible")
@@ -107,14 +109,20 @@ def validate_youtube(week: Path, errors: list[str]) -> int:
     _, removed = deduplicate_youtube_rows(rows)
     if removed:
         errors.append(f"youtube/{week.name}: {removed} duplicados")
+    expected_txt, _, _ = build_text_content("youtube", rows)
+    if txt_path.is_file() and txt_path.read_text(encoding="utf-8") != expected_txt:
+        errors.append(f"youtube/{week.name}: TXT no corresponde al CSV")
     return len(rows)
 
 
 def validate_twitter(week: Path, errors: list[str]) -> int:
     path = week / f"{week.name}_twitter.csv"
+    txt_path = week / f"{week.name}_twitter.txt"
     if not path.is_file():
         errors.append(f"twitter/{week.name}: falta CSV")
         return 0
+    if not txt_path.is_file():
+        errors.append(f"twitter/{week.name}: falta TXT")
     header, rows = read_csv(path)
     if tuple(header) != TWITTER_OUTPUT_COLUMNS:
         errors.append(f"twitter/{week.name}: encabezado incompatible")
@@ -132,6 +140,9 @@ def validate_twitter(week: Path, errors: list[str]) -> int:
     _, removed = deduplicate_twitter_rows(rows)
     if removed:
         errors.append(f"twitter/{week.name}: {removed} duplicados")
+    expected_txt, _, _ = build_text_content("twitter", rows)
+    if txt_path.is_file() and txt_path.read_text(encoding="utf-8") != expected_txt:
+        errors.append(f"twitter/{week.name}: TXT no corresponde al CSV")
     return len(rows)
 
 
@@ -162,7 +173,8 @@ def validate_medios(week: Path, errors: list[str]) -> int:
     cleaned, counters = process_media_rows(rows, since, before)
     if cleaned != rows or any(counters[key] for key in counters if key != "read"):
         errors.append(f"medios/{week.name}: CSV no satisface limpieza canónica")
-    if build_media_txt(rows) != content:
+    expected_txt, _, _ = build_text_content("medios", rows)
+    if expected_txt != content:
         errors.append(f"medios/{week.name}: TXT no corresponde al CSV")
     return len(compact.split())
 
@@ -214,7 +226,8 @@ def validate_facebook(week: Path, errors: list[str]) -> int:
         if key in seen:
             errors.append(f"facebook/{week.name}:{index}: duplicado")
         seen.add(key)
-    if build_facebook_txt(rows) != txt_path.read_text(encoding="utf-8"):
+    expected_txt, _, _ = build_text_content("facebook", rows)
+    if expected_txt != txt_path.read_text(encoding="utf-8"):
         errors.append(f"facebook/{week.name}: TXT no corresponde al CSV")
     return len(rows)
 

@@ -64,6 +64,19 @@ class OrquestadorRadarTests(unittest.TestCase):
         )
         self.assertIn("--continue-on-error", command)
 
+    def test_preprocessing_uses_current_processed_tree_and_selected_sources(self):
+        stage = ORCH.PIPELINES_BY_KEY["preprocesamiento"]
+        command, _env = ORCH.build_pipeline(
+            stage,
+            "2026-08-10",
+            "2026-08-16",
+            extraction_sources=["facebook", "twitter"],
+        )
+        self.assertIn("promover_csv_a_texto.py", command[1])
+        self.assertIn("radar_semanal_procesado", command[command.index("--processed-dir") + 1])
+        source_index = command.index("--sources")
+        self.assertEqual(command[source_index + 1 :], ["twitter", "facebook"])
+
     def test_pending_stages_remain_in_catalog(self):
         for key in ("nlp", "modelado", "tablero", "reporte"):
             available, _message = ORCH.stage_status(ORCH.PIPELINES_BY_KEY[key])

@@ -32,9 +32,15 @@ class HomogeneityValidatorTests(unittest.TestCase):
                 root / "youtube_semanal_procesado" / week / f"{week}_youtube.csv",
                 MODULE.YOUTUBE_OUTPUT_COLUMNS,
             )
+            (root / "youtube_semanal_procesado" / week / f"{week}_youtube.txt").write_text(
+                "", encoding="utf-8"
+            )
             self._write_csv(
                 root / "twitter_semanal_procesado" / week / f"{week}_twitter.csv",
                 MODULE.TWITTER_OUTPUT_COLUMNS,
+            )
+            (root / "twitter_semanal_procesado" / week / f"{week}_twitter.txt").write_text(
+                "", encoding="utf-8"
             )
             media_txt = root / "medios_semanal_procesado" / week / f"{week}_medios.txt"
             media_txt.parent.mkdir(parents=True)
