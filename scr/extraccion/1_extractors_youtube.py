@@ -332,7 +332,7 @@ def main() -> None:
     args = parse_args()
     if tuple(args.queries) != tuple(DEFAULT_SEARCH_QUERIES):
         print(
-            "❌ El contrato uniforme de YouTube requiere exactamente las seis "
+            "❌ El contrato uniforme de YouTube requiere exactamente las cuatro "
             "consultas históricas configuradas."
         )
         sys.exit(1)

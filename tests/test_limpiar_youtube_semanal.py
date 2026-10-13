@@ -69,6 +69,49 @@ class LimpiarYoutubeSemanalTests(unittest.TestCase):
         self.assertEqual(len(unique), 2)
         self.assertEqual(unique[0]["query"], "Gobierno de Tampico")
 
+    def test_clean_week_removes_queries_outside_contract(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            week = root / "2026-04-06_semana_06abril_12abril_26"
+            week.mkdir()
+            source = week / f"{week.name}_youtube.csv"
+            output = root / "salida" / week.name / source.name
+            with source.open("w", encoding="utf-8-sig", newline="") as handle:
+                writer = csv.DictWriter(
+                    handle,
+                    fieldnames=["comment_text", "published_at", "query"],
+                )
+                writer.writeheader()
+                writer.writerows(
+                    [
+                        {
+                            "comment_text": "conservar",
+                            "published_at": "2026-04-10T12:00:00Z",
+                            "query": "Gobierno de Tampico",
+                        },
+                        {
+                            "comment_text": "eliminar",
+                            "published_at": "2026-04-10T12:00:00Z",
+                            "query": "municipio Tampico",
+                        },
+                    ]
+                )
+
+            result = MODULE.clean_week_file(
+                source,
+                output,
+                dry_run=False,
+                overwrite=False,
+            )
+
+            self.assertEqual(result.rows_removed_query, 1)
+            self.assertEqual(result.rows_kept, 1)
+            with output.open("r", encoding="utf-8-sig", newline="") as handle:
+                self.assertEqual(
+                    [row["query"] for row in csv.DictReader(handle)],
+                    ["Gobierno de Tampico"],
+                )
+
     def test_clean_week_preserves_three_column_contract(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -105,6 +148,7 @@ class LimpiarYoutubeSemanalTests(unittest.TestCase):
             )
             self.assertEqual(result.status, "success")
             self.assertEqual(result.rows_kept, 1)
+            self.assertNotIn(b"\r\n", output.read_bytes())
             with output.open("r", encoding="utf-8-sig", newline="") as handle:
                 reader = csv.DictReader(handle)
                 self.assertEqual(

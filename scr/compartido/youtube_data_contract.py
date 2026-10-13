@@ -13,8 +13,6 @@ YOUTUBE_SEARCH_QUERIES = (
     "Presidenta municipal de Tampico",
     "Gobierno de Tampico",
     "gobierno de Tampico",
-    "presidenta municipal Tampico",
-    "municipio Tampico",
 )
 
 

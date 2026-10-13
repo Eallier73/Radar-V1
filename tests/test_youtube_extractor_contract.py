@@ -19,6 +19,20 @@ SPEC.loader.exec_module(MODULE)
 
 
 class YoutubeExtractorContractTests(unittest.TestCase):
+    def test_default_queries_match_historical_contract(self):
+        self.assertEqual(
+            MODULE.DEFAULT_SEARCH_QUERIES,
+            [
+                "presidenta municipal de Tampico",
+                "Presidenta municipal de Tampico",
+                "Gobierno de Tampico",
+                "gobierno de Tampico",
+            ],
+        )
+        self.assertNotIn("tampico", MODULE.DEFAULT_SEARCH_QUERIES)
+        self.assertNotIn("presidenta municipal Tampico", MODULE.DEFAULT_SEARCH_QUERIES)
+        self.assertNotIn("municipio Tampico", MODULE.DEFAULT_SEARCH_QUERIES)
+
     def test_extraction_filters_projects_and_deduplicates(self):
         original_search = MODULE.search_videos_by_query
         original_details = MODULE.get_video_details

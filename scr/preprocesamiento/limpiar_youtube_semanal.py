@@ -35,6 +35,7 @@ if str(SHARED_DIR) not in sys.path:
 from radar_paths import EXTRACTED_DATA_DIR, PROCESSED_DATA_DIR
 from youtube_data_contract import (
     YOUTUBE_OUTPUT_COLUMNS,
+    YOUTUBE_SEARCH_QUERIES,
     deduplicate_youtube_rows,
     filter_youtube_rows_to_interval,
     parse_youtube_datetime,
@@ -67,10 +68,12 @@ class WeekCleaningResult:
     rows_read: int = 0
     incompatible_nonempty_lines: int = 0
     rows_after_week_filter: int = 0
+    rows_after_query_filter: int = 0
     rows_kept: int = 0
     rows_removed_before_week: int = 0
     rows_removed_after_week: int = 0
     rows_removed_invalid_date: int = 0
+    rows_removed_query: int = 0
     rows_removed_duplicates: int = 0
     status: str = "pending"
     error: str = ""
@@ -81,6 +84,7 @@ class WeekCleaningResult:
             self.rows_removed_before_week
             + self.rows_removed_after_week
             + self.rows_removed_invalid_date
+            + self.rows_removed_query
             + self.rows_removed_duplicates
         )
 
@@ -167,7 +171,11 @@ def write_csv_atomic(
     temp_path = Path(temp_name)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8-sig", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=list(fieldnames))
+            writer = csv.DictWriter(
+                handle,
+                fieldnames=list(fieldnames),
+                lineterminator="\n",
+            )
             writer.writeheader()
             writer.writerows(rows)
         temp_path.replace(output_path)
@@ -234,7 +242,15 @@ def clean_week_file(
         result.rows_removed_after_week = counters["after"]
         result.rows_removed_invalid_date = counters["invalid"]
 
-        projected_rows = project_youtube_rows(kept)
+        matching_query_rows = [
+            row
+            for row in kept
+            if row.get("query", "") in YOUTUBE_SEARCH_QUERIES
+        ]
+        result.rows_after_query_filter = len(matching_query_rows)
+        result.rows_removed_query = len(kept) - len(matching_query_rows)
+
+        projected_rows = project_youtube_rows(matching_query_rows)
         deduplicated_rows, duplicates_removed = deduplicate_rows(projected_rows)
         result.rows_removed_duplicates = duplicates_removed
         result.rows_kept = len(deduplicated_rows)
@@ -291,6 +307,9 @@ def build_summary(results: Sequence[WeekCleaningResult]) -> dict[str, object]:
         "rows_after_week_filter": sum(
             result.rows_after_week_filter for result in results
         ),
+        "rows_after_query_filter": sum(
+            result.rows_after_query_filter for result in results
+        ),
         "rows_kept": sum(result.rows_kept for result in results),
         "rows_removed_before_week": sum(
             result.rows_removed_before_week for result in results
@@ -300,6 +319,9 @@ def build_summary(results: Sequence[WeekCleaningResult]) -> dict[str, object]:
         ),
         "rows_removed_invalid_date": sum(
             result.rows_removed_invalid_date for result in results
+        ),
+        "rows_removed_query": sum(
+            result.rows_removed_query for result in results
         ),
         "rows_removed_duplicates": sum(
             result.rows_removed_duplicates for result in results
@@ -313,7 +335,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         description=(
             "Filtra el raw semanal de YouTube por published_at usando el intervalo "
             "estricto [inicio de carpeta, inicio + 7 días) y proyecta el resultado "
-            "a comment_text,published_at,query; después deduplica por texto+fecha."
+            "a comment_text,published_at,query; conserva solo las consultas del "
+            "contrato y después deduplica por texto+fecha."
         )
     )
     parser.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT_DIR)
@@ -370,6 +393,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "rule": "published_at pertenece a [lunes UTC, lunes siguiente UTC)",
                     "deduplication_key": ["comment_text", "published_at"],
                     "deduplication_query_policy": "query no participa; se conserva la primera aparición",
+                    "allowed_queries": list(YOUTUBE_SEARCH_QUERIES),
                     "output_columns": OUTPUT_COLUMNS,
                     "input_dir": str(args.input_dir),
                     "output_dir": str(args.output_dir),
