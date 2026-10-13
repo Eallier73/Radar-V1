@@ -64,6 +64,13 @@ class AnalizarQueriesTwitterTests(unittest.TestCase):
             candidate = analysis["uniform_content_candidates"]["text_contains_tampico"]
             self.assertEqual(candidate["weeks_with_rows"], 2)
             self.assertEqual(candidate["rows"], 2)
+            account_scope = analysis["uniform_content_candidates"]["account_scope"]
+            self.assertEqual(account_scope["weeks_with_rows"], 1)
+            self.assertEqual(account_scope["rows"], 1)
+            self.assertEqual(
+                analysis["conclusion"]["best_observable_uniform_rule"],
+                "account_scope",
+            )
 
 
 if __name__ == "__main__":

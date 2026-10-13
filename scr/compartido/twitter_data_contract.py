@@ -23,6 +23,15 @@ TWITTER_OUTPUT_COLUMNS = (
     "is_reply",
 )
 
+TWITTER_SEARCH_QUERIES = (
+    "to:MonicaVTampico",
+    "from:MonicaVTampico",
+    "to:TampicoGob",
+    "from:TampicoGob",
+    "@TampicoGob",
+    "@MonicaVTampico",
+)
+
 CURRENT_SCHEMA_REQUIRED = {
     "author",
     "datetime",
@@ -39,10 +48,13 @@ PROVIDER_SCHEMA_REQUIRED = {
     "Post_ID",
     "Tweet_URL",
 }
+CANONICAL_SCHEMA_REQUIRED = set(TWITTER_OUTPUT_COLUMNS)
 
 
 def detect_twitter_schema(fieldnames: Sequence[str]) -> str | None:
     columns = set(fieldnames)
+    if CANONICAL_SCHEMA_REQUIRED.issubset(columns):
+        return "canonical_12_columns"
     if CURRENT_SCHEMA_REQUIRED.issubset(columns):
         return "radar_15_columns"
     if PROVIDER_SCHEMA_REQUIRED.issubset(columns):
@@ -150,6 +162,21 @@ def project_twitter_row(
             "query_raw": str(row.get("Query_Str") or "").strip(),
             "is_reply": normalize_bool(row.get("Replying_to")),
         }
+    elif schema == "canonical_12_columns":
+        projected = {
+            "tweet_id": tweet_id_from_values(row.get("tweet_id"), row.get("url")),
+            "author": normalize_author(row.get("author")),
+            "published_at": _utc_iso(row.get("published_at")),
+            "url": str(row.get("url") or "").strip(),
+            "text": str(row.get("text") or "").strip(),
+            "replies": normalize_metric(row.get("replies")),
+            "retweets": normalize_metric(row.get("retweets")),
+            "likes": normalize_metric(row.get("likes")),
+            "bookmarks": normalize_metric(row.get("bookmarks")),
+            "views": normalize_metric(row.get("views")),
+            "query_raw": str(row.get("query_raw") or "").strip(),
+            "is_reply": normalize_bool(row.get("is_reply")),
+        }
     else:
         raise ValueError(f"Esquema Twitter no soportado: {schema}")
     return {column: projected.get(column, "") for column in TWITTER_OUTPUT_COLUMNS}
@@ -178,6 +205,58 @@ def text_contains_tampico(value: object) -> bool:
             fold_text(value),
         )
     )
+
+
+def normalize_twitter_query(value: object) -> str:
+    query = str(value or "").strip()
+    query = re.sub(
+        r"\s+since:\d{4}-\d{2}-\d{2}\s+until:\d{4}-\d{2}-\d{2}\s*$",
+        "",
+        query,
+        flags=re.IGNORECASE,
+    ).strip()
+    if len(query) >= 2 and query[0] == query[-1] == '"':
+        query = query[1:-1].strip()
+    return query.replace("@@", "@")
+
+
+def twitter_query_targets_accounts(value: object) -> bool:
+    query = normalize_twitter_query(value)
+    folded = fold_text(query).strip()
+    if folded in {fold_text(item) for item in TWITTER_SEARCH_QUERIES}:
+        return True
+    return (
+        "@tampicogob" in folded
+        and "@monicavtampico" in folded
+        and bool(re.search(r"\bor\b", folded))
+    )
+
+
+def twitter_reply_parent_url(value: object) -> str:
+    query = normalize_twitter_query(value)
+    if query.casefold().startswith("reply_to:"):
+        return query[len("reply_to:"):].strip()
+    return ""
+
+
+def filter_twitter_rows_to_account_scope(
+    rows: Sequence[Mapping[str, object]],
+) -> tuple[list[dict[str, object]], int]:
+    parent_urls = {
+        str(row.get("url") or "").strip()
+        for row in rows
+        if twitter_query_targets_accounts(row.get("query_raw"))
+        and str(row.get("url") or "").strip()
+    }
+    kept: list[dict[str, object]] = []
+    for row in rows:
+        query = row.get("query_raw")
+        parent_url = twitter_reply_parent_url(query)
+        if twitter_query_targets_accounts(query) or (
+            parent_url and parent_url in parent_urls
+        ):
+            kept.append(dict(row))
+    return kept, len(rows) - len(kept)
 
 
 def deduplicate_twitter_rows(

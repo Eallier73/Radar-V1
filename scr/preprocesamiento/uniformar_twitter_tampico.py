@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Crea la vista histórica uniforme de Twitter cuyo texto contiene Tampico."""
+"""Crea la vista histórica uniforme de Twitter para las cuentas objetivo."""
 
 from __future__ import annotations
 
@@ -19,7 +19,10 @@ if str(SHARED_DIR) not in sys.path:
     sys.path.insert(0, str(SHARED_DIR))
 
 from radar_paths import PROCESSED_DATA_DIR
-from twitter_data_contract import TWITTER_OUTPUT_COLUMNS, text_contains_tampico
+from twitter_data_contract import (
+    TWITTER_OUTPUT_COLUMNS,
+    filter_twitter_rows_to_account_scope,
+)
 
 
 DEFAULT_INPUT_DIR = PROCESSED_DATA_DIR / "twitter_semanal_limpio"
@@ -49,7 +52,11 @@ def write_csv_atomic(path: Path, rows: Sequence[dict[str, str]]) -> None:
     temp_path = Path(temp_name)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8-sig", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=OUTPUT_COLUMNS)
+            writer = csv.DictWriter(
+                handle,
+                fieldnames=OUTPUT_COLUMNS,
+                lineterminator="\n",
+            )
             writer.writeheader()
             writer.writerows(rows)
         temp_path.replace(path)
@@ -65,7 +72,7 @@ def filter_week_file(
     overwrite: bool,
 ) -> dict[str, object]:
     rows = read_canonical_rows(input_path)
-    kept = [row for row in rows if text_contains_tampico(row.get("text", ""))]
+    kept, removed = filter_twitter_rows_to_account_scope(rows)
     status = "success"
     if output_path.exists() and not overwrite:
         status = "skip_existing"
@@ -77,7 +84,7 @@ def filter_week_file(
         "output_path": str(output_path),
         "rows_read": len(rows),
         "rows_kept": len(kept),
-        "rows_removed": len(rows) - len(kept),
+        "rows_removed": removed,
         "status": status,
     }
 
@@ -85,8 +92,8 @@ def filter_week_file(
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Conserva del Twitter canónico solamente registros cuyo texto contiene "
-            "la palabra completa Tampico, sin distinguir mayúsculas ni acentos."
+            "Conserva del Twitter canónico las consultas de @TampicoGob y "
+            "@MonicaVTampico, junto con sus respuestas vinculadas."
         )
     )
     parser.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT_DIR)
@@ -126,12 +133,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         json.dumps(
             {
                 "selection_rule": (
-                    "text contiene la palabra completa Tampico, con comparación "
-                    "Unicode sin distinguir mayúsculas ni acentos"
+                    "consultas from, to o mención de @TampicoGob y "
+                    "@MonicaVTampico, más respuestas vinculadas"
                 ),
                 "query_provenance_policy": "query_raw conserva la consulta histórica real",
                 "coverage_limit": (
-                    "La regla uniforma la inclusión sobre lo descargado; no recupera "
+                    "La regla uniforma el alcance sobre lo descargado; no recupera "
                     "tweets ausentes de las extracciones históricas."
                 ),
                 "output_columns": OUTPUT_COLUMNS,

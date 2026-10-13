@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Homologa el material semanal existente de Twitter/X sin modificar el raw.
 
-Cada registro se conserva solamente si tiene texto y ``published_at`` cae en el
-intervalo UTC estricto indicado por su carpeta: ``[lunes, lunes siguiente)``.
-Los dos esquemas históricos se proyectan al mismo contrato y se deduplican por
-``tweet_id``; cuando falta el identificador se usa autor+fecha+texto.
+Cada registro se conserva solamente si pertenece al alcance de las cuentas
+``@TampicoGob`` o ``@MonicaVTampico``, tiene texto y ``published_at`` cae en el
+intervalo UTC estricto indicado por su carpeta. Los esquemas históricos se
+proyectan al mismo contrato y se deduplican por ``tweet_id``; cuando falta el
+identificador se usa autor+fecha+texto.
 """
 
 from __future__ import annotations
@@ -33,9 +34,9 @@ from twitter_data_contract import (
     TWITTER_OUTPUT_COLUMNS,
     deduplicate_twitter_rows,
     detect_twitter_schema,
+    filter_twitter_rows_to_account_scope,
     parse_twitter_datetime,
     project_twitter_row,
-    text_contains_tampico,
 )
 
 
@@ -69,7 +70,7 @@ class WeekCleaningResult:
     rows_removed_after_week: int = 0
     rows_removed_invalid_date: int = 0
     rows_removed_empty_text: int = 0
-    rows_removed_outside_content_rule: int = 0
+    rows_removed_outside_account_scope: int = 0
     rows_removed_duplicates: int = 0
     status: str = "pending"
     error: str = ""
@@ -81,7 +82,7 @@ class WeekCleaningResult:
             + self.rows_removed_after_week
             + self.rows_removed_invalid_date
             + self.rows_removed_empty_text
-            + self.rows_removed_outside_content_rule
+            + self.rows_removed_outside_account_scope
             + self.rows_removed_duplicates
         )
 
@@ -140,7 +141,11 @@ def write_csv_atomic(
     temp_path = Path(temp_name)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8-sig", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=OUTPUT_COLUMNS)
+            writer = csv.DictWriter(
+                handle,
+                fieldnames=OUTPUT_COLUMNS,
+                lineterminator="\n",
+            )
             writer.writeheader()
             writer.writerows(rows)
         temp_path.replace(output_path)
@@ -208,13 +213,11 @@ def clean_week_file(
 
         with_text = [row for row in in_week if row["text"].strip()]
         result.rows_removed_empty_text = len(in_week) - len(with_text)
-        matching_content = [
-            row for row in with_text if text_contains_tampico(row["text"])
-        ]
-        result.rows_removed_outside_content_rule = (
-            len(with_text) - len(matching_content)
+        matching_scope, removed_outside_scope = (
+            filter_twitter_rows_to_account_scope(with_text)
         )
-        unique_rows, removed_duplicates = deduplicate_twitter_rows(matching_content)
+        result.rows_removed_outside_account_scope = removed_outside_scope
+        unique_rows, removed_duplicates = deduplicate_twitter_rows(matching_scope)
         result.rows_removed_duplicates = removed_duplicates
         result.rows_kept = len(unique_rows)
 
@@ -277,8 +280,8 @@ def build_summary(results: Sequence[WeekCleaningResult]) -> dict[str, int]:
         "rows_removed_empty_text": sum(
             result.rows_removed_empty_text for result in results
         ),
-        "rows_removed_outside_content_rule": sum(
-            result.rows_removed_outside_content_rule for result in results
+        "rows_removed_outside_account_scope": sum(
+            result.rows_removed_outside_account_scope for result in results
         ),
         "rows_removed_duplicates": sum(
             result.rows_removed_duplicates for result in results
@@ -292,7 +295,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         description=(
             "Proyecta los dos esquemas históricos de Twitter a un contrato común, "
             "filtra por [lunes UTC, lunes siguiente UTC), elimina filas sin texto "
-            "y deduplica por tweet_id con fallback autor+fecha+texto."
+            "conserva el alcance de las dos cuentas objetivo y deduplica por "
+            "tweet_id con fallback autor+fecha+texto."
         )
     )
     parser.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT_DIR)
@@ -339,12 +343,15 @@ def main(argv: Sequence[str] | None = None) -> int:
                 {
                     "rule": "published_at pertenece a [lunes UTC, lunes siguiente UTC)",
                     "empty_text_policy": "se elimina el registro sin texto",
-                    "content_rule": "text contiene la palabra completa Tampico",
+                    "scope_rule": (
+                        "consultas from, to o mención de @TampicoGob y "
+                        "@MonicaVTampico, más respuestas ligadas a esos resultados"
+                    ),
                     "deduplication_key": {
                         "primary": ["tweet_id"],
                         "fallback": ["author", "published_at", "text_normalizado"],
                     },
-                    "query_policy": "query_raw se conserva sin homologar en esta fase",
+                    "query_policy": "query_raw conserva la consulta histórica real",
                     "output_columns": OUTPUT_COLUMNS,
                     "input_dir": str(args.input_dir),
                     "output_dir": str(args.output_dir),

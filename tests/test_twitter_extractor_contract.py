@@ -19,7 +19,12 @@ sys.modules[MODULE_NAME] = MODULE
 SPEC.loader.exec_module(MODULE)
 
 
-def raw_tweet(identifier: str, published_at: str, text: str, query: str = "tampico"):
+def raw_tweet(
+    identifier: str,
+    published_at: str,
+    text: str,
+    query: str = "@TampicoGob",
+):
     return {
         "author": "@cuenta",
         "datetime": published_at,
@@ -47,12 +52,15 @@ class TwitterExtractorContractTests(unittest.TestCase):
             create_output_dir=True,
         )
 
-    def test_only_uniform_query_is_built(self):
+    def test_only_uniform_account_queries_are_built(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             extractor = self.build_extractor(Path(temp_dir))
             self.assertEqual(
                 extractor.search_queries,
-                ["tampico since:2026-04-06 until:2026-04-13"],
+                [
+                    f"{query} since:2026-04-06 until:2026-04-13"
+                    for query in MODULE.SEARCH_QUERIES
+                ],
             )
             with self.assertRaises(ValueError):
                 MODULE.TwitterExtractorIAD(
@@ -63,23 +71,63 @@ class TwitterExtractorContractTests(unittest.TestCase):
                     create_output_dir=False,
                 )
 
-    def test_output_contract_filters_content_week_and_duplicates(self):
+    def test_replies_are_enabled_and_use_the_same_week_contract(self):
+        self.assertTrue(MODULE.INCLUDE_REPLIES)
         with tempfile.TemporaryDirectory() as temp_dir:
             extractor = self.build_extractor(Path(temp_dir))
             rows = [
-                raw_tweet("1", "2026-04-06T00:00:00Z", "Noticias de Tampico", "q1"),
-                raw_tweet("1", "2026-04-06T00:00:00Z", "Noticias de Tampico", "q2"),
-                raw_tweet("2", "2026-04-12T23:59:59Z", "TAMPICO al cierre"),
-                raw_tweet("3", "2026-04-13T00:00:00Z", "Tampico fuera"),
-                raw_tweet("4", "2026-04-10T12:00:00Z", "Gobierno municipal"),
-                raw_tweet("5", "2026-04-10T12:00:00Z", "@TampicoGob informa"),
+                raw_tweet(
+                    "10",
+                    "2026-04-10T12:00:00Z",
+                    "Publicación de la cuenta objetivo",
+                    "@TampicoGob",
+                ),
+                {
+                    **raw_tweet(
+                        "1",
+                        "2026-04-12T23:59:59Z",
+                        "Respuesta sobre Tampico",
+                        "reply_to:https://x.com/cuenta/status/10",
+                    ),
+                    "is_reply": True,
+                },
+                {
+                    **raw_tweet(
+                        "2",
+                        "2026-04-13T00:00:00Z",
+                        "Respuesta posterior sobre Tampico",
+                        "reply_to:https://x.com/cuenta/status/10",
+                    ),
+                    "is_reply": True,
+                },
+            ]
+
+            canonical, counters = extractor.apply_output_contract(rows)
+
+            self.assertEqual(
+                [row["tweet_id"] for row in canonical],
+                ["10", "1"],
+            )
+            self.assertEqual(canonical[1]["is_reply"], "true")
+            self.assertEqual(counters["after"], 1)
+
+    def test_output_contract_filters_scope_week_and_duplicates(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            extractor = self.build_extractor(Path(temp_dir))
+            rows = [
+                raw_tweet("1", "2026-04-06T00:00:00Z", "Informe municipal", "@TampicoGob"),
+                raw_tweet("1", "2026-04-06T00:00:00Z", "Informe municipal", "@MonicaVTampico"),
+                raw_tweet("2", "2026-04-12T23:59:59Z", "Cierre semanal", "from:MonicaVTampico"),
+                raw_tweet("3", "2026-04-13T00:00:00Z", "Publicación posterior", "@TampicoGob"),
+                raw_tweet("4", "2026-04-10T12:00:00Z", "Búsqueda general", "tampico"),
+                raw_tweet("5", "2026-04-10T12:00:00Z", "Otra búsqueda", "monica villarreal"),
             ]
             canonical, counters = extractor.apply_output_contract(rows)
             self.assertEqual(list(canonical[0]), list(MODULE.TWITTER_OUTPUT_COLUMNS))
             self.assertEqual([row["tweet_id"] for row in canonical], ["1", "2"])
             self.assertEqual(counters["duplicates"], 1)
             self.assertEqual(counters["after"], 1)
-            self.assertEqual(counters["outside_content_rule"], 2)
+            self.assertEqual(counters["outside_account_scope"], 2)
 
     def test_empty_week_still_writes_canonical_header(self):
         with tempfile.TemporaryDirectory() as temp_dir:

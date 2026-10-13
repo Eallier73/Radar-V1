@@ -8,7 +8,7 @@ Este script extrae tweets de Twitter/X y los guarda en la carpeta indicada.
 Uso:
     - Sin argumentos: usa las fechas configuradas en CONFIG_START_DATE_STR/CONFIG_END_DATE_STR
     - Con fechas: python 03_twitter_extractor.py YYYY-MM-DD YYYY-MM-DD
-    - La query es fija por contrato; ``--query`` solamente acepta ``tampico``.
+    - Las seis queries de cuentas son fijas por contrato.
 
 Autor: Emilio
 """
@@ -33,11 +33,11 @@ from output_naming import build_source_filename, build_week_folder_name
 from radar_paths import EXTRACTED_DATA_DIR, STATE_DIR
 from twitter_data_contract import (
     TWITTER_OUTPUT_COLUMNS,
+    TWITTER_SEARCH_QUERIES,
     deduplicate_twitter_rows,
-    fold_text,
+    filter_twitter_rows_to_account_scope,
     parse_twitter_datetime,
     project_twitter_row,
-    text_contains_tampico,
 )
 
 try:
@@ -56,13 +56,12 @@ CONFIG_START_DATE_STR = ""
 CONFIG_END_DATE_STR = ""
 DEFAULT_MAX_TWEETS = 3000
 
-# La única consulta compatible con la regla histórica uniforme. La salida se
-# vuelve a filtrar por contenido; la query de X no sustituye esa validación.
-UNIFORM_BASE_QUERY = "tampico"
-SEARCH_QUERIES = [UNIFORM_BASE_QUERY]
+# Alcance uniforme demostrado por ambos periodos históricos: publicaciones de,
+# dirigidas a o que mencionan las dos cuentas objetivo.
+SEARCH_QUERIES = list(TWITTER_SEARCH_QUERIES)
 
 # Respuestas
-INCLUDE_REPLIES = False
+INCLUDE_REPLIES = True
 MAX_REPLIES_PER_TWEET = 200
 MAX_REPLY_SCROLLS = 8
 NAV_TIMEOUT_MS = 90000
@@ -124,19 +123,20 @@ class TwitterExtractorIAD:
         fecha_fin_str = (self.fecha_fin + timedelta(days=1)).strftime("%Y-%m-%d")
         
         base_queries = custom_queries if custom_queries else SEARCH_QUERIES
-        if len(base_queries) != 1 or fold_text(base_queries[0]).strip() != UNIFORM_BASE_QUERY:
+        if tuple(base_queries) != tuple(SEARCH_QUERIES):
             raise ValueError(
-                "El contrato uniforme de Twitter solo admite la query 'tampico'."
+                "El contrato uniforme de Twitter requiere exactamente las seis "
+                "consultas de las cuentas objetivo."
             )
-        self.search_queries = []
-        self.search_queries.append(
-            f"{UNIFORM_BASE_QUERY} since:{fecha_inicio_str} until:{fecha_fin_str}"
-        )
+        self.search_queries = [
+            f"{query} since:{fecha_inicio_str} until:{fecha_fin_str}"
+            for query in base_queries
+        ]
         
         print(f"📅 Período: {self.fecha_inicio.date()} a {self.fecha_fin.date()}")
         print(f"📁 Carpeta: {self.nombre_semana}")
         print(f"📂 Salida canónica: {self.output_csv}")
-        print(f"🔎 Query uniforme: {UNIFORM_BASE_QUERY}")
+        print(f"🔎 Consultas uniformes: {len(self.search_queries)}")
     
     def calcular_nombre_semana(self):
         """Calcula el nombre de la carpeta de salida."""
@@ -464,7 +464,7 @@ class TwitterExtractorIAD:
             "after": 0,
             "invalid_date": 0,
             "empty_text": 0,
-            "outside_content_rule": 0,
+            "outside_account_scope": 0,
             "duplicates": 0,
         }
         eligible = []
@@ -478,19 +478,25 @@ class TwitterExtractorIAD:
                 counters["after"] += 1
             elif not row["text"].strip():
                 counters["empty_text"] += 1
-            elif not text_contains_tampico(row["text"]):
-                counters["outside_content_rule"] += 1
             else:
                 eligible.append(row)
 
-        unique_rows, removed = deduplicate_twitter_rows(eligible)
+        scoped_rows, removed_outside_scope = filter_twitter_rows_to_account_scope(
+            eligible
+        )
+        counters["outside_account_scope"] = removed_outside_scope
+        unique_rows, removed = deduplicate_twitter_rows(scoped_rows)
         counters["duplicates"] = removed
         return unique_rows, counters
 
     def save_to_csv(self, canonical_rows):
         """Guarda siempre el CSV semanal, incluso si solamente tiene encabezado."""
         with open(self.output_csv, "w", newline="", encoding="utf-8-sig") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=list(TWITTER_OUTPUT_COLUMNS))
+            writer = csv.DictWriter(
+                csvfile,
+                fieldnames=list(TWITTER_OUTPUT_COLUMNS),
+                lineterminator="\n",
+            )
             writer.writeheader()
             writer.writerows(canonical_rows)
 
@@ -555,7 +561,7 @@ class TwitterExtractorIAD:
                 print(f"   Después de semana:       {contract_counters['after']}")
                 print(f"   Fecha inválida:          {contract_counters['invalid_date']}")
                 print(f"   Sin texto:               {contract_counters['empty_text']}")
-                print(f"   Sin palabra Tampico:     {contract_counters['outside_content_rule']}")
+                print(f"   Fuera de cuentas objetivo: {contract_counters['outside_account_scope']}")
                 print(f"   Duplicados eliminados:   {contract_counters['duplicates']}")
                 print(f"📊 Total de tweets uniformes: {len(canonical_rows)}")
                 
@@ -579,7 +585,10 @@ def main():
         dest="queries",
         action="append",
         default=[],
-        help="Solo se admite 'tampico' para conservar el contrato uniforme"
+        help=(
+            "Consulta del contrato uniforme; para personalizar deben indicarse "
+            "las seis consultas de cuentas en el orden configurado"
+        )
     )
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_BASE_DIR),
                         help="Directorio base de salida. Default: %(default)s")
@@ -639,11 +648,11 @@ def main():
         sys.exit(1)
 
     custom_queries = [q.strip() for q in args.queries if q and q.strip()]
-    if custom_queries and (
-        len(custom_queries) != 1
-        or fold_text(custom_queries[0]).strip() != UNIFORM_BASE_QUERY
-    ):
-        print("❌ El contrato uniforme solo admite --query tampico.")
+    if custom_queries and tuple(custom_queries) != tuple(SEARCH_QUERIES):
+        print(
+            "❌ El contrato uniforme requiere las seis consultas de cuentas "
+            "en el orden configurado."
+        )
         sys.exit(1)
     if custom_queries:
         print(f"🧩 Usando queries personalizadas: {custom_queries}")

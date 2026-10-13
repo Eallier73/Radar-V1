@@ -80,6 +80,48 @@ class HomogeneityValidatorTests(unittest.TestCase):
             result["errors"],
         )
 
+    def test_twitter_accepts_account_scope_without_literal_tampico(self) -> None:
+        week = "2026-04-06_semana_06abril_12abril_26"
+        row = {column: "" for column in MODULE.TWITTER_OUTPUT_COLUMNS}
+        row.update(
+            {
+                "tweet_id": "1",
+                "author": "@cuenta",
+                "published_at": "2026-04-10T12:00:00+00:00",
+                "url": "https://x.com/cuenta/status/1",
+                "text": "Informe del gobierno municipal",
+                "query_raw": "@TampicoGob",
+                "is_reply": "false",
+            }
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            csv_path = (
+                root
+                / "twitter_semanal_procesado"
+                / week
+                / f"{week}_twitter.csv"
+            )
+            csv_path.parent.mkdir(parents=True)
+            with csv_path.open("w", encoding="utf-8-sig", newline="") as handle:
+                writer = csv.DictWriter(
+                    handle,
+                    fieldnames=MODULE.TWITTER_OUTPUT_COLUMNS,
+                )
+                writer.writeheader()
+                writer.writerow(row)
+            text, _, _ = MODULE.build_text_content("twitter", [row])
+            csv_path.with_suffix(".txt").write_text(text, encoding="utf-8")
+
+            result = MODULE.validate(
+                root,
+                ("twitter",),
+                set(),
+                require_same_weeks=False,
+            )
+
+        self.assertEqual(result["status"], "ok", result["errors"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -36,8 +36,8 @@ from radar_paths import PROCESSED_DATA_DIR
 from twitter_data_contract import (
     TWITTER_OUTPUT_COLUMNS,
     deduplicate_twitter_rows,
+    filter_twitter_rows_to_account_scope,
     parse_twitter_datetime,
-    text_contains_tampico,
 )
 from youtube_data_contract import (
     YOUTUBE_OUTPUT_COLUMNS,
@@ -135,8 +135,12 @@ def validate_twitter(week: Path, errors: list[str]) -> int:
         text = str(row.get("text", "")).strip()
         if not text:
             errors.append(f"twitter/{week.name}:{index}: texto vacío")
-        elif not text_contains_tampico(text):
-            errors.append(f"twitter/{week.name}:{index}: texto sin Tampico")
+    _, removed_outside_scope = filter_twitter_rows_to_account_scope(rows)
+    if removed_outside_scope:
+        errors.append(
+            f"twitter/{week.name}: {removed_outside_scope} filas fuera del "
+            "alcance de cuentas"
+        )
     _, removed = deduplicate_twitter_rows(rows)
     if removed:
         errors.append(f"twitter/{week.name}: {removed} duplicados")

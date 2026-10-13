@@ -20,11 +20,6 @@ SPEC.loader.exec_module(MODULE)
 
 
 class UniformarTwitterTampicoTests(unittest.TestCase):
-    def test_shared_rule_requires_complete_word(self):
-        self.assertTrue(MODULE.text_contains_tampico("Noticias de TAMPICO"))
-        self.assertFalse(MODULE.text_contains_tampico("cuenta @TampicoGob"))
-        self.assertFalse(MODULE.text_contains_tampico("tampicolandia"))
-
     def test_filter_preserves_contract_and_query_provenance(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -37,18 +32,43 @@ class UniformarTwitterTampicoTests(unittest.TestCase):
                 writer.writeheader()
                 base = {column: "" for column in MODULE.OUTPUT_COLUMNS}
                 writer.writerow(
-                    {**base, "tweet_id": "1", "text": "Gobierno de Tampico", "query_raw": "@TampicoGob"}
+                    {
+                        **base,
+                        "tweet_id": "1",
+                        "url": "https://x.com/cuenta/status/1",
+                        "text": "Gobierno municipal",
+                        "query_raw": "@TampicoGob",
+                    }
                 )
                 writer.writerow(
-                    {**base, "tweet_id": "2", "text": "Gobierno municipal", "query_raw": "tampico"}
+                    {
+                        **base,
+                        "tweet_id": "2",
+                        "text": "Respuesta",
+                        "query_raw": "reply_to:https://x.com/cuenta/status/1",
+                    }
+                )
+                writer.writerow(
+                    {
+                        **base,
+                        "tweet_id": "3",
+                        "text": "Búsqueda general",
+                        "query_raw": "tampico",
+                    }
                 )
             result = MODULE.filter_week_file(source, output, overwrite=False)
-            self.assertEqual(result["rows_kept"], 1)
+            self.assertEqual(result["rows_kept"], 2)
             with output.open("r", encoding="utf-8-sig", newline="") as handle:
                 reader = csv.DictReader(handle)
                 rows = list(reader)
             self.assertEqual(reader.fieldnames, MODULE.OUTPUT_COLUMNS)
-            self.assertEqual(rows[0]["query_raw"], "@TampicoGob")
+            self.assertEqual(
+                [row["query_raw"] for row in rows],
+                [
+                    "@TampicoGob",
+                    "reply_to:https://x.com/cuenta/status/1",
+                ],
+            )
 
 
 if __name__ == "__main__":

@@ -40,7 +40,7 @@ class LimpiarTwitterSemanalTests(unittest.TestCase):
             "likes": "3",
             "bookmarks": "",
             "views": "4",
-            "query_used": "tampico since:2026-04-06 until:2026-04-13",
+            "query_used": "@TampicoGob since:2026-04-06 until:2026-04-13",
             "is_reply": "False",
         }
         provider = {
@@ -54,7 +54,7 @@ class LimpiarTwitterSemanalTests(unittest.TestCase):
             "Like_Count": "3",
             "Bookmark_Count": "",
             "View_Count": "4",
-            "Query_Str": "tampico",
+            "Query_Str": "(@@TampicoGob OR @@MonicaVTampico) min_replies:0 min_faves:0 min_retweets:0",
             "Replying_to": "False",
         }
         row_a = MODULE.project_twitter_row(current, schema="radar_15_columns")
@@ -64,6 +64,10 @@ class LimpiarTwitterSemanalTests(unittest.TestCase):
         self.assertEqual(row_a["tweet_id"], row_b["tweet_id"])
         self.assertEqual(row_a["author"], row_b["author"])
         self.assertEqual(row_a["published_at"], row_b["published_at"])
+        self.assertEqual(
+            MODULE.detect_twitter_schema(MODULE.OUTPUT_COLUMNS),
+            "canonical_12_columns",
+        )
 
     def test_clean_week_filters_dates_text_and_duplicate_ids(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -86,11 +90,11 @@ class LimpiarTwitterSemanalTests(unittest.TestCase):
                     "likes": "0", "bookmarks": "", "views": "0",
                     "is_reply": "False",
                 }
-                writer.writerow({**base, "datetime": "2026-04-06T00:00:00Z", "url": "https://x.com/cuenta/status/1", "text": "conservar Tampico", "query_used": "q1"})
-                writer.writerow({**base, "datetime": "2026-04-06T00:00:00Z", "url": "https://x.com/cuenta/status/1", "text": "conservar Tampico", "query_used": "q2"})
-                writer.writerow({**base, "datetime": "2026-04-13T00:00:00Z", "url": "https://x.com/cuenta/status/2", "text": "fuera de Tampico", "query_used": "q"})
-                writer.writerow({**base, "datetime": "2026-04-10T12:00:00Z", "url": "https://x.com/cuenta/status/3", "text": "", "query_used": "q"})
-                writer.writerow({**base, "datetime": "2026-04-10T12:00:00Z", "url": "https://x.com/cuenta/status/4", "text": "sin la palabra requerida", "query_used": "q"})
+                writer.writerow({**base, "datetime": "2026-04-06T00:00:00Z", "url": "https://x.com/cuenta/status/1", "text": "conservar", "query_used": "@TampicoGob"})
+                writer.writerow({**base, "datetime": "2026-04-06T00:00:00Z", "url": "https://x.com/cuenta/status/1", "text": "conservar", "query_used": "@MonicaVTampico"})
+                writer.writerow({**base, "datetime": "2026-04-13T00:00:00Z", "url": "https://x.com/cuenta/status/2", "text": "fuera", "query_used": "@TampicoGob"})
+                writer.writerow({**base, "datetime": "2026-04-10T12:00:00Z", "url": "https://x.com/cuenta/status/3", "text": "", "query_used": "@TampicoGob"})
+                writer.writerow({**base, "datetime": "2026-04-10T12:00:00Z", "url": "https://x.com/cuenta/status/4", "text": "búsqueda general", "query_used": "tampico"})
 
             result = MODULE.clean_week_file(
                 source, output, dry_run=False, overwrite=False
@@ -98,7 +102,7 @@ class LimpiarTwitterSemanalTests(unittest.TestCase):
             self.assertEqual(result.status, "success")
             self.assertEqual(result.rows_removed_after_week, 1)
             self.assertEqual(result.rows_removed_empty_text, 1)
-            self.assertEqual(result.rows_removed_outside_content_rule, 1)
+            self.assertEqual(result.rows_removed_outside_account_scope, 1)
             self.assertEqual(result.rows_removed_duplicates, 1)
             self.assertEqual(result.rows_kept, 1)
             with output.open("r", encoding="utf-8-sig", newline="") as handle:
@@ -106,7 +110,32 @@ class LimpiarTwitterSemanalTests(unittest.TestCase):
                 self.assertEqual(reader.fieldnames, MODULE.OUTPUT_COLUMNS)
                 rows = list(reader)
             self.assertEqual(len(rows), 1)
-            self.assertEqual(rows[0]["query_raw"], "q1")
+            self.assertEqual(rows[0]["query_raw"], "@TampicoGob")
+
+    def test_linked_reply_is_kept_with_account_parent(self):
+        rows = [
+            {
+                "tweet_id": "1",
+                "url": "https://x.com/cuenta/status/1",
+                "text": "Publicación",
+                "query_raw": "from:TampicoGob",
+            },
+            {
+                "tweet_id": "2",
+                "url": "https://x.com/otra/status/2",
+                "text": "Respuesta",
+                "query_raw": "reply_to:https://x.com/cuenta/status/1",
+            },
+            {
+                "tweet_id": "3",
+                "url": "https://x.com/otra/status/3",
+                "text": "Respuesta sin padre aceptado",
+                "query_raw": "reply_to:https://x.com/cuenta/status/99",
+            },
+        ]
+        kept, removed = MODULE.filter_twitter_rows_to_account_scope(rows)
+        self.assertEqual([row["tweet_id"] for row in kept], ["1", "2"])
+        self.assertEqual(removed, 1)
 
     def test_missing_id_fallback_ignores_query(self):
         rows = [

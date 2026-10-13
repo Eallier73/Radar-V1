@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Analiza qué uniformidad de queries es demostrable en Twitter histórico.
+"""Analiza qué uniformidad de alcance es demostrable en Twitter histórico.
 
 Este análisis no altera ni filtra los CSV canónicos. Distingue la procedencia
 registrada en ``query_raw`` de criterios posteriores aplicables al contenido.
@@ -22,7 +22,11 @@ SHARED_DIR = REPO_ROOT / "scr" / "compartido"
 if str(SHARED_DIR) not in sys.path:
     sys.path.insert(0, str(SHARED_DIR))
 
-from twitter_data_contract import fold_text, text_contains_tampico
+from twitter_data_contract import (
+    filter_twitter_rows_to_account_scope,
+    fold_text,
+    text_contains_tampico,
+)
 
 
 DEFAULT_INPUT_DIR = (
@@ -113,6 +117,21 @@ def analyze_queries(input_dir: Path) -> dict[str, object]:
         }
 
     content_candidates = {
+        "account_scope": {
+            "rows": sum(
+                len(filter_twitter_rows_to_account_scope(rows)[0])
+                for rows in rows_by_week.values()
+            ),
+            "weeks_with_rows": sum(
+                bool(filter_twitter_rows_to_account_scope(rows)[0])
+                for rows in rows_by_week.values()
+            ),
+            "weeks_without_rows": [
+                week
+                for week, rows in rows_by_week.items()
+                if not filter_twitter_rows_to_account_scope(rows)[0]
+            ],
+        },
         "text_contains_tampico": _coverage_payload(
             files,
             rows_by_week,
@@ -173,9 +192,9 @@ def analyze_queries(input_dir: Path) -> dict[str, object]:
             "provenance_limit": (
                 "No es válido renombrar queries distintas como una query histórica común."
             ),
-            "best_observable_uniform_rule": "text_contains_tampico",
+            "best_observable_uniform_rule": "account_scope",
             "rule_limit": (
-                "Uniforma el criterio de inclusión sobre lo descargado, pero no "
+                "Uniforma el alcance de las dos cuentas sobre lo descargado, pero no "
                 "recupera tweets que las queries históricas nunca capturaron."
             ),
         },
