@@ -53,6 +53,18 @@ class FakeClient:
 
 
 class FacebookExtractorTests(unittest.TestCase):
+    def test_posts_actor_includes_the_entire_final_day(self) -> None:
+        client = FakeClient()
+        POSTS.run_posts_batch(
+            client,
+            ["https://www.facebook.com/TampicoGob"],
+            100,
+            since="2024-10-21",
+            before="2024-10-27",
+        )
+        self.assertEqual(client.run_input["onlyPostsNewerThan"], "2024-10-21")
+        self.assertEqual(client.run_input["onlyPostsOlderThan"], "2024-10-28")
+
     def test_only_the_two_historical_base_accounts_are_defaults(self) -> None:
         self.assertEqual(set(POSTS.DEFAULT_PAGES), {"TampicoGob", "monicavtampico"})
         self.assertEqual(set(COMMENTS.DEFAULT_PAGES), {"TampicoGob", "monicavtampico"})
@@ -136,6 +148,13 @@ class FacebookExtractorTests(unittest.TestCase):
             before="2026-03-15",
         )
         self.assertEqual([row["comentario_id"] for row in rows], ["inside"])
+
+    def test_short_nonempty_comments_are_not_lost(self) -> None:
+        rows = COMMENTS.procesar_items_comentarios(
+            [{"id": "short", "facebookUrl": "https://facebook.com/TampicoGob/posts/1", "text": "Sí", "date": "2026-03-10T10:00:00Z"}],
+            since="2026-03-09", before="2026-03-15",
+        )
+        self.assertEqual([row["comentario_texto"] for row in rows], ["Sí"])
 
     def test_reel_keeps_the_page_from_actor_input(self) -> None:
         row = POSTS.normalize_post_item(

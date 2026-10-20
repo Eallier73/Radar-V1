@@ -60,6 +60,60 @@ class HomogeneityValidatorTests(unittest.TestCase):
             )
         self.assertEqual(result["status"], "ok", result["errors"])
 
+    def test_csv_only_accepts_missing_txt_but_rejects_unknown_facebook_date(self) -> None:
+        week = "2026-04-06_semana_06abril_12abril_26"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / week / f"{week}_facebook.csv"
+            self._write_csv(path, MODULE.FACEBOOK_PROCESSED_COLUMNS)
+            clean = MODULE.validate(root, ("facebook",), set(), require_same_weeks=False,
+                                    source_dirs={"facebook": root}, csv_only=True)
+            self.assertEqual(clean["status"], "ok", clean["errors"])
+            with path.open("a", encoding="utf-8", newline="") as handle:
+                csv.DictWriter(handle, fieldnames=MODULE.FACEBOOK_PROCESSED_COLUMNS).writerow({
+                    "tipo": "POST", "cuenta": "tampicogob", "url": "https://facebook.com/TampicoGob/posts/1", "fecha": "", "texto": "Dato histórico",
+                })
+            invalid = MODULE.validate(root, ("facebook",), set(), require_same_weeks=False,
+                                      source_dirs={"facebook": root}, csv_only=True)
+            self.assertEqual(invalid["status"], "error")
+            self.assertTrue(any("falta fecha verificable" in e for e in invalid["errors"]))
+            self.assertFalse(any("TXT" in e for e in invalid["errors"]))
+
+    def test_historical_media_txt_is_accepted_without_fabricating_a_csv(self) -> None:
+        week = "2026-04-06_semana_06abril_12abril_26"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            folder = root / week
+            folder.mkdir()
+            (folder / f"{week}_medios.txt").write_text("gobierno de tampico\n", encoding="utf-8")
+            result = MODULE.validate(root, ("medios",), set(), require_same_weeks=False,
+                                     source_dirs={"medios": root}, csv_only=True)
+            self.assertEqual(result["status"], "ok", result["errors"])
+            self.assertEqual(result["summary"]["medios"]["text_only_weeks"], 1)
+            self.assertFalse((folder / f"{week}_medios.csv").exists())
+
+    def test_media_historical_acceptance_is_explicit_and_does_not_waive_schema(self) -> None:
+        week = "2026-04-06_semana_06abril_12abril_26"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            folder = root / week
+            folder.mkdir()
+            (folder / f"{week}_medios.txt").write_text("historico disponible\n", encoding="utf-8")
+            path = folder / f"{week}_medios.csv"
+            self._write_csv(path, MODULE.MEDIOS_OUTPUT_COLUMNS)
+            default = MODULE.validate(root, ("medios",), set(), require_same_weeks=False,
+                                      source_dirs={"medios": root}, csv_only=True)
+            self.assertEqual(default["status"], "error")
+            accepted = MODULE.validate(root, ("medios",), set(), require_same_weeks=False,
+                                       source_dirs={"medios": root}, csv_only=True,
+                                       historical_media_txt=True)
+            self.assertEqual(accepted["status"], "ok", accepted["errors"])
+            self._write_csv(path, ("inventada",))
+            invalid = MODULE.validate(root, ("medios",), set(), require_same_weeks=False,
+                                      source_dirs={"medios": root}, csv_only=True,
+                                      historical_media_txt=True)
+            self.assertTrue(any("encabezado CSV incompatible" in e for e in invalid["errors"]))
+
     def test_folder_label_must_match_exact_monday_to_sunday_week(self) -> None:
         malformed = "2026-04-06_semana_06abril_13abril_26"
         with tempfile.TemporaryDirectory() as temp_dir:

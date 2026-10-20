@@ -55,6 +55,7 @@ from output_naming import (
 from facebook_data_contract import (
     FACEBOOK_RAW_COLUMNS,
     account_from_url,
+    canonicalize_facebook_rows,
     normalize_account,
     normalize_facebook_comment_url,
     normalize_facebook_url,
@@ -336,7 +337,7 @@ def procesar_items_comentarios(
             or ""
         ).strip()
 
-        if not texto or len(texto) < 5:
+        if not texto:
             continue
 
         # Priorizar la identidad del comentario; el texto solo es fallback.
@@ -1113,6 +1114,13 @@ def main():
     canonical_name = build_source_filename(week_name, "facebook")
     csv_path = os.path.join(output_dir, f"{canonical_name}.csv")
     df_canonico = construir_facebook_canonico(input_csv, df_comentarios)
+    canonical_rows, counters = canonicalize_facebook_rows(
+        df_canonico.fillna("").to_dict(orient="records"),
+        schema="canonical",
+        week_start=since_dt.replace(tzinfo=timezone.utc),
+        week_before=(before_dt + timedelta(days=1)).replace(tzinfo=timezone.utc),
+    )
+    df_canonico = pd.DataFrame(canonical_rows, columns=FACEBOOK_RAW_COLUMNS)
     df_canonico.to_csv(csv_path, index=False, encoding="utf-8-sig")
 
     input_path = Path(input_csv).resolve()
@@ -1127,6 +1135,7 @@ def main():
     print("✅ EXTRACCIÓN COMPLETADA")
     print("=" * 70)
     print(f"Comentarios descargados: {len(all_comments)}")
+    print(f"Registros canónicos: {len(df_canonico)} | Excluidos por contrato: {counters['read'] - counters['kept']}")
     print(f"CSV combinado: {csv_path}")
 
 

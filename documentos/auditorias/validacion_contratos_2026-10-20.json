@@ -1,0 +1,36 @@
+{
+  "status": "ok",
+  "scope": "extractor_to_csv_with_historical_media_txt",
+  "root": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_extraido",
+  "summary": {
+    "youtube": {
+      "weeks": 83,
+      "nonempty_weeks": 83,
+      "empty_weeks": 0,
+      "rows": 76986
+    },
+    "twitter": {
+      "weeks": 83,
+      "nonempty_weeks": 83,
+      "empty_weeks": 0,
+      "rows": 9391
+    },
+    "medios": {
+      "weeks": 83,
+      "nonempty_weeks": 83,
+      "empty_weeks": 0,
+      "words": 3869708,
+      "structured_weeks": 3,
+      "text_only_weeks": 80,
+      "historical_txt_accepted": true,
+      "csv_content_checked": false
+    },
+    "facebook": {
+      "weeks": 83,
+      "nonempty_weeks": 62,
+      "empty_weeks": 21,
+      "rows": 2559
+    }
+  },
+  "errors": []
+}

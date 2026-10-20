@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime
-from typing import Mapping
+from collections import Counter
+from datetime import datetime, timezone
+from typing import Mapping, Sequence
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 
@@ -155,7 +156,9 @@ def normalize_absolute_datetime(value: str) -> tuple[str, str]:
 
     if parsed is None:
         return "", "invalid"
-    return parsed.isoformat(), "valid"
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc).isoformat(), "valid"
 
 
 def _legacy_account(row: Mapping[str, str]) -> str:
@@ -277,3 +280,91 @@ def facebook_dedup_key(row: Mapping[str, str]) -> tuple[str, ...]:
         str(row.get("fecha", "") or "").strip(),
         normalized_text,
     )
+
+
+def canonicalize_facebook_rows(
+    raw_rows: Sequence[dict[str, str]],
+    *,
+    schema: str,
+    week_start: datetime,
+    week_before: datetime,
+    exclusions: list[dict[str, object]] | None = None,
+) -> tuple[list[dict[str, str]], Counter[str]]:
+    """Same strict weekly contract for historical CSVs and live extraction.
+
+    Relative/missing dates cannot establish a publication week. Retain their
+    original values in an exclusion ledger rather than fabricating a date.
+    """
+    counters: Counter[str] = Counter(read=len(raw_rows))
+    post_accounts = {}
+    if schema == "canonical":
+        for raw in raw_rows:
+            if str(raw.get("tipo", "")).strip().upper() == "POST":
+                url = normalize_facebook_url(raw.get("url", ""))
+                account = normalize_account(raw.get("cuenta", "")) or account_from_url(url)
+                if url and account:
+                    post_accounts[url] = account
+
+    def exclude(index, raw, projected, reason):
+        counters[reason] += 1
+        if exclusions is not None:
+            exclusions.append({
+                "source_record": index,
+                "reason": reason,
+                "original": dict(raw),
+                "projected": dict(projected),
+            })
+
+    candidates = []
+    seen = set()
+    for index, raw in enumerate(raw_rows, start=1):
+        row, status = project_facebook_row(raw, schema=schema, post_accounts=post_accounts)
+        counters[f"dates_{status}"] += 1
+        if status != "valid":
+            exclude(index, raw, row, f"date_{status}")
+            continue
+        published_at = datetime.fromisoformat(row["fecha"])
+        if not week_start <= published_at < week_before:
+            exclude(index, raw, row, "date_outside_week")
+            continue
+        account = normalize_account(row["cuenta"])
+        if account and account not in FACEBOOK_BASE_ACCOUNTS:
+            exclude(index, raw, row, "non_base_account")
+            continue
+        if not account:
+            exclude(index, raw, row, "unknown_account")
+            continue
+        row["cuenta"] = account
+        if row["tipo"] not in {"POST", "COMENTARIO"}:
+            exclude(index, raw, row, "invalid_type")
+            continue
+        if row["tipo"] == "POST" and not row["url"]:
+            exclude(index, raw, row, "missing_post_url")
+            continue
+        if not row["texto"].strip():
+            if row["tipo"] != "POST":
+                exclude(index, raw, row, "empty_text")
+                continue
+            counters["posts_without_text"] += 1
+        key = facebook_dedup_key(row)
+        if key in seen:
+            exclude(index, raw, row, "duplicates")
+            continue
+        seen.add(key)
+        if row["tipo"] == "COMENTARIO" and normalize_facebook_comment_url(row["url"]) == normalize_facebook_url(row["post_url_padre"]):
+            row["url"] = ""
+        candidates.append((index, raw, row))
+
+    post_urls = {
+        normalize_facebook_url(row["url"])
+        for _, _, row in candidates if row["tipo"] == "POST"
+    }
+    kept = []
+    for index, raw, row in candidates:
+        if row["tipo"] == "COMENTARIO" and normalize_facebook_url(row["post_url_padre"]) not in post_urls:
+            exclude(index, raw, row, "orphan_comments")
+            continue
+        kept.append(row)
+        counters["kept"] += 1
+        counters["posts" if row["tipo"] == "POST" else "comments"] += 1
+    return kept, counters

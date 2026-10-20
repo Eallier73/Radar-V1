@@ -85,13 +85,13 @@ def selected_weeks(base: Path, requested: set[str]) -> list[Path]:
     )
 
 
-def validate_youtube(week: Path, errors: list[str]) -> int:
+def validate_youtube(week: Path, errors: list[str], *, require_txt: bool = True) -> int:
     path = week / f"{week.name}_youtube.csv"
     txt_path = week / f"{week.name}_youtube.txt"
     if not path.is_file():
         errors.append(f"youtube/{week.name}: falta CSV")
         return 0
-    if not txt_path.is_file():
+    if require_txt and not txt_path.is_file():
         errors.append(f"youtube/{week.name}: falta TXT")
     header, rows = read_csv(path)
     if tuple(header) != YOUTUBE_OUTPUT_COLUMNS:
@@ -110,18 +110,18 @@ def validate_youtube(week: Path, errors: list[str]) -> int:
     if removed:
         errors.append(f"youtube/{week.name}: {removed} duplicados")
     expected_txt, _, _ = build_text_content("youtube", rows)
-    if txt_path.is_file() and txt_path.read_text(encoding="utf-8") != expected_txt:
+    if require_txt and txt_path.is_file() and txt_path.read_text(encoding="utf-8") != expected_txt:
         errors.append(f"youtube/{week.name}: TXT no corresponde al CSV")
     return len(rows)
 
 
-def validate_twitter(week: Path, errors: list[str]) -> int:
+def validate_twitter(week: Path, errors: list[str], *, require_txt: bool = True) -> int:
     path = week / f"{week.name}_twitter.csv"
     txt_path = week / f"{week.name}_twitter.txt"
     if not path.is_file():
         errors.append(f"twitter/{week.name}: falta CSV")
         return 0
-    if not txt_path.is_file():
+    if require_txt and not txt_path.is_file():
         errors.append(f"twitter/{week.name}: falta TXT")
     header, rows = read_csv(path)
     if tuple(header) != TWITTER_OUTPUT_COLUMNS:
@@ -145,12 +145,12 @@ def validate_twitter(week: Path, errors: list[str]) -> int:
     if removed:
         errors.append(f"twitter/{week.name}: {removed} duplicados")
     expected_txt, _, _ = build_text_content("twitter", rows)
-    if txt_path.is_file() and txt_path.read_text(encoding="utf-8") != expected_txt:
+    if require_txt and txt_path.is_file() and txt_path.read_text(encoding="utf-8") != expected_txt:
         errors.append(f"twitter/{week.name}: TXT no corresponde al CSV")
     return len(rows)
 
 
-def validate_medios(week: Path, errors: list[str]) -> int:
+def validate_medios(week: Path, errors: list[str], *, historical_text: bool = False) -> int:
     txt_path = week / f"{week.name}_medios.txt"
     if not txt_path.is_file():
         errors.append(f"medios/{week.name}: falta TXT")
@@ -172,6 +172,10 @@ def validate_medios(week: Path, errors: list[str]) -> int:
     if tuple(header) != MEDIOS_OUTPUT_COLUMNS:
         errors.append(f"medios/{week.name}: encabezado CSV incompatible")
         return len(rows)
+    if historical_text:
+        # Historical TXT is the accepted original corpus, not a derivation of
+        # the optional CSVs. Do not pretend its dates/queries can be recovered.
+        return len(compact.split())
     since = week.name[:10]
     before = (datetime.fromisoformat(since) + timedelta(days=6)).date().isoformat()
     cleaned, counters = process_media_rows(rows, since, before)
@@ -183,10 +187,10 @@ def validate_medios(week: Path, errors: list[str]) -> int:
     return len(compact.split())
 
 
-def validate_facebook(week: Path, errors: list[str]) -> int:
+def validate_facebook(week: Path, errors: list[str], *, require_txt: bool = True) -> int:
     csv_path = week / f"{week.name}_facebook.csv"
     txt_path = week / f"{week.name}_facebook.txt"
-    if not csv_path.is_file() or not txt_path.is_file():
+    if not csv_path.is_file() or (require_txt and not txt_path.is_file()):
         errors.append(f"facebook/{week.name}: falta CSV o TXT")
         return 0
     header, rows = read_csv(csv_path)
@@ -208,6 +212,8 @@ def validate_facebook(week: Path, errors: list[str]) -> int:
         if not str(row.get("texto", "")).strip() and row.get("tipo") != "POST":
             errors.append(f"facebook/{week.name}:{index}: comentario vacío")
         raw_date = str(row.get("fecha", "")).strip()
+        if not raw_date:
+            errors.append(f"facebook/{week.name}:{index}: falta fecha verificable")
         if raw_date:
             try:
                 parsed = datetime.fromisoformat(raw_date)
@@ -231,7 +237,7 @@ def validate_facebook(week: Path, errors: list[str]) -> int:
             errors.append(f"facebook/{week.name}:{index}: duplicado")
         seen.add(key)
     expected_txt, _, _ = build_text_content("facebook", rows)
-    if expected_txt != txt_path.read_text(encoding="utf-8"):
+    if require_txt and expected_txt != txt_path.read_text(encoding="utf-8"):
         errors.append(f"facebook/{week.name}: TXT no corresponde al CSV")
     return len(rows)
 
@@ -251,6 +257,8 @@ def validate(
     *,
     require_same_weeks: bool,
     source_dirs: dict[str, Path] | None = None,
+    csv_only: bool = False,
+    historical_media_txt: bool = False,
 ) -> dict[str, object]:
     errors: list[str] = []
     summary: dict[str, dict[str, int]] = {}
@@ -272,7 +280,12 @@ def validate(
         week_counts: list[int] = []
         for week in weeks:
             try:
-                week_counts.append(VALIDATORS[source](week, errors))
+                if source == "medios" and historical_media_txt:
+                    week_counts.append(validate_medios(week, errors, historical_text=True))
+                elif csv_only and source != "medios":
+                    week_counts.append(VALIDATORS[source](week, errors, require_txt=False))
+                else:
+                    week_counts.append(VALIDATORS[source](week, errors))
             except (OSError, ValueError) as exc:
                 errors.append(f"{source}/{week.name}: {exc}")
                 week_counts.append(0)
@@ -293,6 +306,8 @@ def validate(
                         not (week / f"{week.name}_medios.csv").is_file()
                         for week in weeks
                     ),
+                    "historical_txt_accepted": historical_media_txt,
+                    "csv_content_checked": not historical_media_txt,
                 }
             )
         else:
@@ -305,6 +320,7 @@ def validate(
                 errors.append(f"{source}: conjunto de semanas distinto")
     return {
         "status": "ok" if not errors else "error",
+        "scope": "extractor_to_csv_with_historical_media_txt" if csv_only else "csv_to_txt",
         "root": str(root),
         "summary": summary,
         "errors": errors,
@@ -322,6 +338,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="Directorio de una sola fuente; requiere exactamente un --sources.",
     )
     parser.add_argument("--weeks", nargs="*", default=[])
+    parser.add_argument("--extracted-dir", type=Path, default=None,
+                        help="Raíz semanal común de las fuentes históricas y extraídas.")
+    parser.add_argument("--csv-only", action="store_true",
+                        help="Valida extractor a CSV; para Medios admite los TXT históricos existentes.")
+    parser.add_argument("--accept-historical-media-txt", action="store_true",
+                        help="Acepta Medios TXT como original histórico independiente del CSV; valida solo el esquema de los CSV opcionales.")
     parser.add_argument("--require-same-weeks", action="store_true")
     parser.add_argument("--audit-path", type=Path, default=None)
     return parser.parse_args(argv)
@@ -329,6 +351,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
+    if args.source_dir is not None and args.extracted_dir is not None:
+        print("ERROR: no se combinan --source-dir y --extracted-dir.", file=sys.stderr)
+        return 2
     if args.source_dir is not None and len(args.sources) != 1:
         print("ERROR: --source-dir requiere exactamente una fuente.", file=sys.stderr)
         return 2
@@ -337,12 +362,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.source_dir is not None
         else None
     )
+    if args.extracted_dir is not None:
+        source_dirs = {source: args.extracted_dir.expanduser().resolve() for source in args.sources}
     result = validate(
-        args.processed_dir.expanduser().resolve(),
+        (args.extracted_dir or args.processed_dir).expanduser().resolve(),
         args.sources,
         set(args.weeks),
         require_same_weeks=args.require_same_weeks,
         source_dirs=source_dirs,
+        csv_only=args.csv_only,
+        historical_media_txt=args.accept_historical_media_txt,
     )
     rendered = json.dumps(result, ensure_ascii=False, indent=2)
     print(rendered)

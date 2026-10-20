@@ -290,7 +290,11 @@ def run_posts_batch(client, page_urls: list[str], results_limit: int, since: Opt
     if since:
         run_input["onlyPostsNewerThan"] = since
     if before:
-        run_input["onlyPostsOlderThan"] = before
+        # Apify interprets a date as midnight UTC. The CLI's final day is
+        # inclusive, so request posts before midnight of the following day.
+        run_input["onlyPostsOlderThan"] = (
+            datetime.strptime(before, "%Y-%m-%d") + timedelta(days=1)
+        ).date().isoformat()
 
     try:
         run = client.actor(ACTOR_POSTS).call(run_input=run_input)

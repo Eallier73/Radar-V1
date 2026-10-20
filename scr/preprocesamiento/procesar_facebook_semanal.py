@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unifica el histórico semanal de Facebook sin modificar los CSV raw."""
+"""Homologa Facebook con fechas semanales verificables y exclusiones trazables."""
 
 from __future__ import annotations
 
@@ -28,20 +28,16 @@ if str(Path(__file__).resolve().parent) not in sys.path:
 from facebook_data_contract import (
     FACEBOOK_BASE_ACCOUNTS,
     FACEBOOK_PROCESSED_COLUMNS,
-    account_from_url,
+    canonicalize_facebook_rows,
     detect_facebook_schema,
-    facebook_dedup_key,
-    normalize_account,
-    normalize_facebook_comment_url,
-    normalize_facebook_url,
-    project_facebook_row,
 )
 from output_naming import build_source_filename, build_week_folder_name
-from radar_paths import EXTRACTED_DATA_DIR, PROCESSED_DATA_DIR
+from radar_paths import DATA_DIR, EXTRACTED_DATA_DIR, PROCESSED_DATA_DIR
 
 
 DEFAULT_INPUT_DIR = EXTRACTED_DATA_DIR
 DEFAULT_OUTPUT_DIR = PROCESSED_DATA_DIR / "facebook_semanal_procesado"
+DEFAULT_EXCLUDED_DIR = DATA_DIR / "radar_historico_excluido" / "facebook"
 WEEK_DIR_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})_semana_.+$")
 
 
@@ -51,6 +47,8 @@ class WeekResult:
     input_path: str
     output_csv: str
     input_sha256: str
+    excluded_path: str = ""
+    excluded_rows: int = 0
     source_schema: str = ""
     rows_read: int = 0
     rows_kept: int = 0
@@ -62,6 +60,10 @@ class WeekResult:
     rows_removed_duplicates: int = 0
     rows_removed_orphan_comments: int = 0
     rows_date_outside_week: int = 0
+    rows_removed_unknown_date: int = 0
+    rows_removed_invalid_date: int = 0
+    rows_removed_invalid_type: int = 0
+    rows_removed_missing_post_url: int = 0
     rows_removed_unknown_account: int = 0
     dates_valid: int = 0
     dates_unknown: int = 0
@@ -98,29 +100,13 @@ def read_facebook_rows(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     return fieldnames, rows
 
 
-def _canonical_post_accounts(rows: Sequence[dict[str, str]]) -> dict[str, str]:
-    accounts: dict[str, str] = {}
-    for row in rows:
-        if str(row.get("tipo", "")).strip().upper() != "POST":
-            continue
-        url = str(row.get("url", "") or "").strip()
-        account = normalize_account(str(row.get("cuenta", "") or "")) or account_from_url(url)
-        normalized_url = normalize_facebook_url(url)
-        if normalized_url and account:
-            accounts[normalized_url] = account
-    return accounts
-
-
 def project_and_clean_rows(
     raw_rows: Sequence[dict[str, str]],
     *,
     schema: str,
     week_name: str,
+    exclusions: list[dict[str, object]] | None = None,
 ) -> tuple[list[dict[str, str]], Counter[str]]:
-    counters: Counter[str] = Counter(read=len(raw_rows))
-    post_accounts = _canonical_post_accounts(raw_rows) if schema == "canonical" else {}
-    candidates: list[dict[str, str]] = []
-    seen: set[tuple[str, ...]] = set()
     week_match = WEEK_DIR_RE.fullmatch(week_name)
     if not week_match:
         raise ValueError(f"Nombre de semana inválido: {week_name}")
@@ -129,78 +115,10 @@ def project_and_clean_rows(
     )
     week_before = week_start + timedelta(days=7)
 
-    for raw_row in raw_rows:
-        row, date_status = project_facebook_row(
-            raw_row,
-            schema=schema,
-            post_accounts=post_accounts,
-        )
-        counters[f"dates_{date_status}"] += 1
-
-        if date_status == "valid":
-            parsed_date = datetime.fromisoformat(row["fecha"])
-            if parsed_date.tzinfo is None:
-                parsed_date = parsed_date.replace(tzinfo=timezone.utc)
-            else:
-                parsed_date = parsed_date.astimezone(timezone.utc)
-            if not week_start <= parsed_date < week_before:
-                # La carpeta semanal es la procedencia histórica verificable.
-                # Una fecha contradictoria se conserva como desconocida, no se
-                # inventa ni se deja fuera del contrato temporal semanal.
-                counters["date_outside_week"] += 1
-                row["fecha"] = ""
-
-        account = normalize_account(row["cuenta"])
-        if account and account not in FACEBOOK_BASE_ACCOUNTS:
-            counters["non_base_account"] += 1
-            continue
-        if row["tipo"] not in {"POST", "COMENTARIO"}:
-            counters["invalid_type"] += 1
-            continue
-        if not account:
-            counters["unknown_account"] += 1
-            continue
-        row["cuenta"] = account
-        if not row["texto"].strip():
-            if row["tipo"] != "POST" or not row["url"]:
-                counters["empty_text"] += 1
-                continue
-            # Algunos lotes históricos conservaron la URL y sus comentarios,
-            # pero no el cuerpo del post. El post se mantiene como vínculo de
-            # procedencia sin fabricar contenido.
-            counters["posts_without_text"] += 1
-
-        key = facebook_dedup_key(row)
-        if key in seen:
-            counters["duplicates"] += 1
-            continue
-        seen.add(key)
-        if (
-            row["tipo"] == "COMENTARIO"
-            and normalize_facebook_comment_url(row["url"])
-            == normalize_facebook_url(row["post_url_padre"])
-        ):
-            row["url"] = ""
-        candidates.append(row)
-
-    post_urls = {
-        normalize_facebook_url(row["url"])
-        for row in candidates
-        if row["tipo"] == "POST" and row["url"]
-    }
-    kept: list[dict[str, str]] = []
-    for row in candidates:
-        if (
-            row["tipo"] == "COMENTARIO"
-            and normalize_facebook_url(row["post_url_padre"]) not in post_urls
-        ):
-            counters["orphan_comments"] += 1
-            continue
-        kept.append(row)
-        counters["kept"] += 1
-        counters["posts" if row["tipo"] == "POST" else "comments"] += 1
-
-    return kept, counters
+    return canonicalize_facebook_rows(
+        raw_rows, schema=schema, week_start=week_start,
+        week_before=week_before, exclusions=exclusions,
+    )
 
 
 def _write_csv_atomic(path: Path, rows: Sequence[dict[str, str]]) -> None:
@@ -218,7 +136,10 @@ def _write_csv_atomic(path: Path, rows: Sequence[dict[str, str]]) -> None:
         raise
 
 
-def process_file(input_path: Path, output_dir: Path, *, dry_run: bool = False) -> WeekResult:
+def process_file(
+    input_path: Path, output_dir: Path, *, dry_run: bool = False,
+    excluded_dir: Path = DEFAULT_EXCLUDED_DIR,
+) -> WeekResult:
     week_name = input_path.parent.name
     base_name = build_source_filename(week_name, "facebook")
     output_week = output_dir / week_name
@@ -235,10 +156,12 @@ def process_file(input_path: Path, output_dir: Path, *, dry_run: bool = False) -
         if schema is None:
             raise ValueError(f"Esquema Facebook no reconocido: {fieldnames}")
         result.source_schema = schema
+        exclusions: list[dict[str, object]] = []
         cleaned, counters = project_and_clean_rows(
             raw_rows,
             schema=schema,
             week_name=week_name,
+            exclusions=exclusions,
         )
         result.rows_read = counters["read"]
         result.rows_kept = counters["kept"]
@@ -250,10 +173,35 @@ def process_file(input_path: Path, output_dir: Path, *, dry_run: bool = False) -
         result.rows_removed_duplicates = counters["duplicates"]
         result.rows_removed_orphan_comments = counters["orphan_comments"]
         result.rows_date_outside_week = counters["date_outside_week"]
+        result.rows_removed_unknown_date = counters["date_unknown"]
+        result.rows_removed_invalid_date = counters["date_invalid"]
+        result.rows_removed_invalid_type = counters["invalid_type"]
+        result.rows_removed_missing_post_url = counters["missing_post_url"]
         result.rows_removed_unknown_account = counters["unknown_account"]
         result.dates_valid = counters["dates_valid"]
         result.dates_unknown = counters["dates_unknown"]
         result.dates_invalid = counters["dates_invalid"]
+        result.excluded_rows = len(exclusions)
+        if result.rows_read != result.rows_kept + result.excluded_rows:
+            raise ValueError("Las filas conservadas y excluidas no reconcilian con la entrada")
+        if exclusions:
+            excluded_path = excluded_dir / week_name / f"facebook_excluido_{result.input_sha256[:16]}.jsonl"
+            result.excluded_path = str(excluded_path)
+            if not dry_run:
+                excluded_path.parent.mkdir(parents=True, exist_ok=True)
+                payload = "".join(
+                    json.dumps({
+                        "source_week": week_name,
+                        "source_file": input_path.name,
+                        "source_sha256": result.input_sha256,
+                        **record,
+                    }, ensure_ascii=False) + "\n"
+                    for record in exclusions
+                )
+                # Never overwrite a different record of the original input.
+                if excluded_path.exists() and excluded_path.read_text(encoding="utf-8") != payload:
+                    raise ValueError(f"Archivo de exclusiones distinto: {excluded_path}")
+                excluded_path.write_text(payload, encoding="utf-8")
         if not dry_run:
             _write_csv_atomic(output_csv, cleaned)
         result.status = "success_dry_run" if dry_run else "success"
@@ -283,10 +231,12 @@ def build_audit(results: Sequence[WeekResult]) -> dict[str, object]:
         "contract": {
             "accounts": list(FACEBOOK_BASE_ACCOUNTS),
             "columns": list(FACEBOOK_PROCESSED_COLUMNS),
-            "raw_preserved": True,
-            "unknown_dates_preserved_as_blank": True,
+            "excluded_original_rows_preserved": True,
+            "unknown_dates_preserved_as_blank": False,
+            "unknown_dates_excluded": True,
+            "invalid_dates_excluded": True,
             "unknown_accounts_removed": True,
-            "historical_dates_outside_folder_cleared": True,
+            "historical_dates_outside_folder_removed": True,
             "future_extractors_filter_requested_week": True,
             "orphan_comments_removed": True,
         },
@@ -294,6 +244,8 @@ def build_audit(results: Sequence[WeekResult]) -> dict[str, object]:
             "weeks": len(results),
             "weeks_success": sum(result.status.startswith("success") for result in results),
             "weeks_error": sum(result.status == "error" for result in results),
+            "empty_weeks": [r.week_name for r in results if r.status.startswith("success") and not r.rows_kept],
+            "excluded_rows": sum(r.excluded_rows for r in results),
             "rows_read": sum(result.rows_read for result in results),
             "rows_kept": sum(result.rows_kept for result in results),
             "posts_kept": sum(result.posts_kept for result in results),
@@ -308,6 +260,10 @@ def build_audit(results: Sequence[WeekResult]) -> dict[str, object]:
                 result.rows_removed_orphan_comments for result in results
             ),
             "rows_date_outside_week": sum(result.rows_date_outside_week for result in results),
+            "rows_removed_unknown_date": sum(r.rows_removed_unknown_date for r in results),
+            "rows_removed_invalid_date": sum(r.rows_removed_invalid_date for r in results),
+            "rows_removed_invalid_type": sum(r.rows_removed_invalid_type for r in results),
+            "rows_removed_missing_post_url": sum(r.rows_removed_missing_post_url for r in results),
             "rows_removed_unknown_account": sum(
                 result.rows_removed_unknown_account for result in results
             ),
@@ -327,6 +283,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--all-weeks", action="store_true")
     parser.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT_DIR)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--excluded-dir", type=Path, default=DEFAULT_EXCLUDED_DIR)
+    parser.add_argument("--audit-path", type=Path, default=None)
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args(argv)
 
@@ -355,10 +313,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("ERROR: no se encontraron CSV semanales de Facebook.", file=sys.stderr)
         return 1
 
-    results = [process_file(path, output_dir, dry_run=args.dry_run) for path in files]
+    results = [process_file(
+        path, output_dir, dry_run=args.dry_run,
+        excluded_dir=args.excluded_dir.expanduser().resolve(),
+    ) for path in files]
     audit = build_audit(results)
-    if not args.dry_run:
-        audit_path = output_dir / "auditoria_facebook_semanal_procesado.json"
+    if not args.dry_run or args.audit_path:
+        audit_path = args.audit_path or (output_dir / "auditoria_facebook_semanal_procesado.json")
         audit_path.parent.mkdir(parents=True, exist_ok=True)
         audit_path.write_text(json.dumps(audit, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
@@ -366,6 +327,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(f"Semanas procesadas: {summary['weeks_success']}/{summary['weeks']}")
     print(f"Filas: {summary['rows_read']} leídas, {summary['rows_kept']} conservadas")
     print(f"Posts: {summary['posts_kept']} | Comentarios: {summary['comments_kept']}")
+    print(f"Exclusiones conservadas: {summary['excluded_rows']} | Semanas sin material verificable: {len(summary['empty_weeks'])}")
     print(f"Salida: {output_dir}")
     return 1 if summary["weeks_error"] else 0
 

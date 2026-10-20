@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import importlib.util
+import json
 import sys
 import tempfile
 import unittest
@@ -87,10 +88,10 @@ class ProcesarFacebookSemanalTests(unittest.TestCase):
             schema="canonical",
             week_name=week,
         )
-        self.assertEqual(len(cleaned), 3)
+        self.assertEqual(len(cleaned), 1)
         self.assertEqual(cleaned[0]["cuenta"], "monicavtampico")
-        self.assertEqual(cleaned[1]["fecha"], "")
-        self.assertEqual(cleaned[2]["fecha"], "")
+        self.assertEqual(cleaned[0]["fecha"], "2026-03-10T12:00:00+00:00")
+        self.assertEqual(counters["date_unknown"], 1)
         self.assertEqual(counters["non_base_account"], 1)
         self.assertEqual(counters["date_outside_week"], 1)
         self.assertEqual(counters["empty_text"], 1)
@@ -136,7 +137,7 @@ class ProcesarFacebookSemanalTests(unittest.TestCase):
             [row["cuenta"] for row in cleaned],
             ["monicavtampico", "tampicogob", "tampicogob"],
         )
-        self.assertEqual(cleaned[0]["fecha"], "2025-01-04T16:27:00")
+        self.assertEqual(cleaned[0]["fecha"], "2025-01-04T16:27:00+00:00")
         self.assertEqual(cleaned[2]["tipo"], "COMENTARIO")
         self.assertEqual(counters["kept"], 3)
 
@@ -147,7 +148,7 @@ class ProcesarFacebookSemanalTests(unittest.TestCase):
                 "tipo": "POST",
                 "url": post_url,
                 "post_url_padre": "",
-                "fecha": "",
+                "fecha": "2026-03-10T09:00:00Z",
                 "texto": "",
                 "num_comentarios": "2",
             },
@@ -183,6 +184,62 @@ class ProcesarFacebookSemanalTests(unittest.TestCase):
                 f"https://facebook.com/TampicoGob/posts/1?comment_id=200",
             ],
         )
+
+    def test_unknown_parent_date_excludes_parent_and_orphan_without_losing_evidence(self) -> None:
+        parent = "https://facebook.com/TampicoGob/posts/1"
+        rows = [
+            {"tipo": "POST", "url": parent, "fecha": "767h", "texto": "Post", "post_url_padre": "", "num_comentarios": "1"},
+            {"tipo": "COMENTARIO", "url": parent + "?comment_id=2", "fecha": "2026-03-10T12:00:00Z", "texto": "Sí", "post_url_padre": parent, "num_comentarios": ""},
+        ]
+        exclusions = []
+        cleaned, counters = PROCESSOR.project_and_clean_rows(
+            rows, schema="canonical", week_name="2026-03-09_semana_09marzo_15marzo_26",
+            exclusions=exclusions,
+        )
+        self.assertEqual(cleaned, [])
+        self.assertEqual(counters["date_invalid"], 1)
+        self.assertEqual(counters["orphan_comments"], 1)
+        self.assertEqual([r["reason"] for r in exclusions], ["date_invalid", "orphan_comments"])
+        self.assertEqual(exclusions[0]["original"]["fecha"], "767h")
+        self.assertEqual(exclusions[1]["original"]["texto"], "Sí")
+
+    def test_final_sunday_is_kept_and_next_monday_is_excluded(self) -> None:
+        base = {"tipo": "POST", "cuenta": "tampicogob", "post_url_padre": "", "texto": "Post", "num_comentarios": "0"}
+        cleaned, counters = PROCESSOR.project_and_clean_rows(
+            [
+                {**base, "url": "https://facebook.com/TampicoGob/posts/1", "fecha": "2026-03-15T23:59:59Z"},
+                {**base, "url": "https://facebook.com/TampicoGob/posts/2", "fecha": "2026-03-16T00:00:00Z"},
+            ], schema="canonical", week_name="2026-03-09_semana_09marzo_15marzo_26",
+        )
+        self.assertEqual(len(cleaned), 1)
+        self.assertEqual(counters["date_outside_week"], 1)
+        again, second = PROCESSOR.project_and_clean_rows(
+            cleaned, schema="canonical", week_name="2026-03-09_semana_09marzo_15marzo_26",
+        )
+        self.assertEqual(again, cleaned)
+        self.assertEqual(second["read"], second["kept"])
+
+    def test_exclusion_ledger_preserves_original_record_and_hash(self) -> None:
+        week = "2026-03-09_semana_09marzo_15marzo_26"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "input" / week / f"{week}_facebook.csv"
+            path.parent.mkdir(parents=True)
+            with path.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=FACEBOOK_PROCESSED_COLUMNS)
+                writer.writeheader()
+                writer.writerow({"tipo": "POST", "cuenta": "tampicogob", "url": "https://facebook.com/TampicoGob/posts/1", "fecha": "Desconocida", "texto": "Original"})
+            before = path.read_bytes()
+            result = PROCESSOR.process_file(path, root / "output", excluded_dir=root / "excluded")
+            self.assertEqual(result.status, "success", result.error)
+            self.assertEqual(result.rows_kept, 0)
+            self.assertEqual(result.excluded_rows, 1)
+            self.assertEqual(path.read_bytes(), before)
+            record = json.loads(Path(result.excluded_path).read_text())
+            self.assertEqual(record["source_sha256"], PROCESSOR.sha256_file(path))
+            self.assertEqual(record["source_record"], 1)
+            self.assertEqual(record["original"]["fecha"], "Desconocida")
+            self.assertEqual(record["reason"], "date_unknown")
 
     def test_process_file_writes_only_canonical_csv(self) -> None:
         since, before = "2026-03-09", "2026-03-15"
