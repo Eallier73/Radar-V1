@@ -74,11 +74,18 @@ class PromotionResult:
 
 
 def normalize_social_text(value: object) -> str:
-    """Normaliza sin perder acentos, ñ, números, signos, menciones o URLs."""
+    """Deja únicamente letras ASCII minúsculas y espacios (ñ -> n)."""
 
-    text = html.unescape(str(value or ""))
-    text = unicodedata.normalize("NFC", text).lower()
-    return unicodedata.normalize("NFC", " ".join(text.split()))
+    text = html.unescape(str(value or "")).lower()
+    # YouTube puede entregar textDisplay con etiquetas HTML. No emitir sus nombres.
+    text = re.sub(r"<[^>]*>", " ", text)
+    text = re.sub(r"\b[a-z][a-z0-9+.-]*://\S+|www\.\S+", " ", text)
+    # Incluye enlaces sin protocolo, como t.co/abc y ejemplo.com/nota?q=1.
+    text = re.sub(r"\b[\w-]+(?:\.[\w-]+)+(?:[/?#][^\s<>]*)?", " ", text)
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(char for char in text if not unicodedata.combining(char))
+    text = re.sub(r"[^a-z\s]", " ", text)
+    return " ".join(text.split())
 
 
 def validate_week_directory_name(week: str) -> None:
@@ -335,8 +342,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         "contract": {
             "csv_is_canonical": True,
             "txt_next_to_csv": True,
-            "social_record_boundary": "one_csv_row_per_txt_line",
-            "social_unicode": "NFC_lowercase_preserve_accents_enye_numbers_punctuation",
+            "social_record_boundary": "one_nonempty_normalized_csv_row_per_txt_line",
+            "social_unicode": "ascii_lowercase_letters_spaces_accents_folded_enye_to_n_no_numbers_signs_urls",
             "medios": "titulo_mas_texto_ascii_historical_wrap_30_words",
         },
         "results": [asdict(result) for result in results],

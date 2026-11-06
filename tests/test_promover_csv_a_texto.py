@@ -35,7 +35,7 @@ class PromoverCsvATextoTests(unittest.TestCase):
             writer.writeheader()
             writer.writerows(rows)
 
-    def test_social_preserves_unicode_numbers_punctuation_and_record_boundaries(self) -> None:
+    def test_social_ascii_preserves_order_duplicates_and_record_boundaries(self) -> None:
         week = "2026-04-06_semana_06abril_12abril_26"
         with tempfile.TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / week / f"{week}_twitter.csv"
@@ -45,6 +45,7 @@ class PromoverCsvATextoTests(unittest.TestCase):
                 row["text"] = text
                 rows.append(row)
             self._write_csv(path, MODULE.TWITTER_OUTPUT_COLUMNS, rows)
+            original_csv = path.read_bytes()
 
             result = MODULE.promote_csv("twitter", path)
 
@@ -52,8 +53,38 @@ class PromoverCsvATextoTests(unittest.TestCase):
             self.assertEqual(result.records_written, 3)
             self.assertEqual(
                 path.with_suffix(".txt").read_text(encoding="utf-8"),
-                "¡información 2026 para niñas! sí.\nmismo registro\nmismo registro\n",
+                "informacion para ninas si\nmismo registro\nmismo registro\n",
             )
+            self.assertEqual(path.read_bytes(), original_csv)
+            self.assertEqual(MODULE.promote_csv("twitter", path).status, "unchanged")
+
+    def test_normalizer_removes_urls_html_digits_and_symbols(self) -> None:
+        cases = (
+            ("¡ÁÉÍÓÚ Ü Ñ! １２３ 456 😀", "aeiou u n"),
+            ("niñas\nniños\tmañana", "ninas ninos manana"),
+            ("nin\u0303as cafe\u0301", "ninas cafe"),
+            ("Visita HTTPS://ejemplo.com/niñas?q=1&amp;x=2 hoy", "visita hoy"),
+            ("www.ejemplo.com/nota ejemplo.com/ruta t.co/abc fin", "fin"),
+            ('<a href="https://ejemplo.com">¡Información!</a><br>más', "informacion mas"),
+            ("@TampicoGob #Niñez_2026 hola🚀mundo", "tampicogob ninez hola mundo"),
+            ("123 !!! https://ejemplo.com/nota 😀", ""),
+        )
+        for original, expected in cases:
+            with self.subTest(original=original):
+                actual = MODULE.normalize_social_text(original)
+                self.assertEqual(actual, expected)
+                self.assertRegex(actual, r"^[a-z ]*$")
+
+    def test_all_social_sources_share_ascii_contract_and_skip_empty_records(self) -> None:
+        for source, column in MODULE.TEXT_COLUMNS.items():
+            with self.subTest(source=source):
+                content, written, empty = MODULE.build_text_content(source, [
+                    {column: "¡Niñas 2026! https://ejemplo.com/nota"},
+                    {column: "123 !!! www.ejemplo.com"},
+                    {column: ""},
+                ])
+                self.assertEqual(content, "ninas\n")
+                self.assertEqual((written, empty), (1, 2))
 
     def test_medios_reproduces_historical_ascii_contract(self) -> None:
         week = "2026-04-06_semana_06abril_12abril_26"

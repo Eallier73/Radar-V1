@@ -21,14 +21,21 @@ datos/radar_semanal_procesado/<fuente>_semanal_procesado/<semana>/
 - YouTube: columna `comment_text`; una fila del CSV por línea.
 - Medios: combina `titulo + texto`, aplica la limpieza histórica y envuelve el
   corpus semanal en líneas de 30 palabras.
-- Las redes se guardan en minúsculas y Unicode NFC. Se conservan acentos, `ñ`,
-  números, puntuación, menciones y URLs.
+- Las redes se guardan exclusivamente con letras ASCII minúsculas (`a-z`),
+  espacios y un salto de línea entre registros. Se eliminan URLs (también sin
+  protocolo), etiquetas HTML, números, signos y emojis; los acentos se pliegan
+  (`á` → `a`) y `ñ` → `n`. Por ejemplo, `¡Niñas 2026! https://ejemplo.com`
+  se convierte en `ninas`. Los signos de menciones y hashtags desaparecen,
+  pero se conserva su texto.
+- Las filas que quedan sin letras tras la normalización no generan líneas;
+  se cuentan en `empty_records_skipped` en la auditoría.
 - La promoción no vuelve a deduplicar ni reordenar: respeta el CSV procesado.
 - Un TXT existente idéntico se acepta como idempotente. Uno diferente requiere
   `--overwrite` explícito.
 
-Los 83 TXT históricos de Medios que carecen de CSV no se descubren en
-`--all-weeks` y permanecen intactos.
+Los TXT históricos de Medios sin CSV no se descubren en `--all-weeks` y
+permanecen intactos. La limpieza sólo afecta a los TXT derivados; los CSV
+canónicos conservan el contenido original.
 
 ## Ejecución semanal
 

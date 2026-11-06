@@ -6,3 +6,12 @@
 
 # Sesiones autenticadas locales (Playwright/Twitter)
 /state/*.json
+
+# Archivos retirados: respaldo local, nunca entrada del pipeline ni publicacion.
+/trash/*
+!/trash/README.md
+!/trash/manifest_*.json
+
+# Cache de Python regenerable.
+__pycache__/
+*.py[cod]

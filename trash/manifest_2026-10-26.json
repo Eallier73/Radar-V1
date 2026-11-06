@@ -1,0 +1,2097 @@
+{
+  "date": "2026-10-26",
+  "repo": "/home/emilio/Documentos/Radar V1",
+  "state": "verified",
+  "files": [
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/scr/preprocesamiento/limpieza_facebook.py",
+      "destination": "trash/2026-10-26/scr/preprocesamiento/limpieza_facebook.py",
+      "reason": "Limpiador antiguo con rutas y esquema de otro proyecto; reemplazado por procesar_facebook_semanal.py",
+      "bytes": 6005,
+      "sha256": "971794f1ec0217b28c9a46945c85d346ace5762b7cced479057db7ab08f2edd7"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/scr/preprocesamiento/limpieza_youtube.py",
+      "destination": "trash/2026-10-26/scr/preprocesamiento/limpieza_youtube.py",
+      "reason": "Limpiador antiguo con rutas y esquema de otro proyecto; reemplazado por limpiar_youtube_semanal.py",
+      "bytes": 8379,
+      "sha256": "a472a88847af8fa88932bcc8e76b3b3952421f39fe3e4689070aa4d934e13590"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/scr/preprocesamiento/analizar_queries_twitter.py",
+      "destination": "trash/2026-10-26/scr/preprocesamiento/analizar_queries_twitter.py",
+      "reason": "Auditoria puntual de homologacion ya concluida, fuera del pipeline vigente",
+      "bytes": 7697,
+      "sha256": "45e7b8d1bb532a01f069473e75ab31a3f515b0ced120629b1081a33def8ca0d2"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/scr/preprocesamiento/uniformar_twitter_tampico.py",
+      "destination": "trash/2026-10-26/scr/preprocesamiento/uniformar_twitter_tampico.py",
+      "reason": "Filtro de homologacion historica ya integrado en limpiar_twitter_semanal.py",
+      "bytes": 5344,
+      "sha256": "32b0fe368f69b42c14b74af27fdcf2c517ee84f0a9f31d977a7c7f51255802e5"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/tests/test_analizar_queries_twitter.py",
+      "destination": "trash/2026-10-26/tests/test_analizar_queries_twitter.py",
+      "reason": "Pruebas de utilidad historica archivada; se conserva junto a su implementacion",
+      "bytes": 3182,
+      "sha256": "8280a5fa48e874e102797f8f3b821fce04b5fe3fff45249b5e5df9fc3dbf8411"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/tests/test_uniformar_twitter_tampico.py",
+      "destination": "trash/2026-10-26/tests/test_uniformar_twitter_tampico.py",
+      "reason": "Pruebas de utilidad historica archivada; se conserva junto a su implementacion",
+      "bytes": 2832,
+      "sha256": "90695b7d37a75f381306cafb10d5820274403c317e1e774f3665d606b55ef993"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/scr/preprocesamiento/__pycache__/procesar_facebook_semanal.cpython-311.pyc",
+      "destination": "trash/2026-10-26/cache/scr/preprocesamiento/__pycache__/procesar_facebook_semanal.cpython-311.pyc",
+      "reason": "Cache Python regenerable, no codigo fuente",
+      "bytes": 28762,
+      "sha256": "58aa76ba33d0523725f898b9381dde99fa18f72c20cfd9ec592a02b0fc6952f4"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/scr/preprocesamiento/__pycache__/text_normalizers.cpython-311.pyc",
+      "destination": "trash/2026-10-26/cache/scr/preprocesamiento/__pycache__/text_normalizers.cpython-311.pyc",
+      "reason": "Cache Python regenerable, no codigo fuente",
+      "bytes": 5346,
+      "sha256": "2208cf9b2edbfaad5d7800bd78da9824e7366afde8b01cea50c22baebfb9e75e"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/scr/extraccion/__pycache__/1_extractors_youtube.cpython-312.pyc",
+      "destination": "trash/2026-10-26/cache/scr/extraccion/__pycache__/1_extractors_youtube.cpython-312.pyc",
+      "reason": "Cache Python regenerable, no codigo fuente",
+      "bytes": 15746,
+      "sha256": "294f158ab953377069d1d8f7e386b86f828176a2f0d1be3dc58ef3ecbd3ce1de"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-09-30_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-09-30_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 126778,
+      "sha256": "74a0f923e1775a5e5cacd5f769240ee9aa8a0fde3235e2eaae8382424147ed64",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-09-30_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-10-07_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-10-07_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 106416,
+      "sha256": "d987201157bfbf9df8a9fe7d539a5e45b511653df49fe938cf506d102481a441",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-10-07_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-10-14_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-10-14_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 493523,
+      "sha256": "201798bb044e814081352f02a8ca0b90af5587fcf7a61455735d492607d8e91b",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-10-14_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-10-21_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-10-21_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 117074,
+      "sha256": "3ad1a6a61e51cb233a74e5dafc4b7a8d8ec37eda1e730a6abbd3a7201417340e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-10-21_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-10-28_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-10-28_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 7252,
+      "sha256": "6671dc6ecce8902fbeb94d30e06a2c7888d89de78710722dd7f5e1f7fae68044",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-10-28_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-11-04_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-11-04_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 23042,
+      "sha256": "8e7b74879f6a66232c072a7aa2e8da9be5ad471048a8dc08efa7975f28ed6946",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-11-04_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-11-11_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-11-11_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8355,
+      "sha256": "349cc351caa041db4582d5131a3e30a832572aba24baaa3d1ae1a77d1301c51e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-11-11_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-11-18_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-11-18_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 4768,
+      "sha256": "94b80186be18f7efd9d4823b2122a10606e03c5eed8de687ba486e40f6f1b7a1",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-11-18_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-11-25_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-11-25_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 3206,
+      "sha256": "5ce4af29ad662cf7a38423a1170e2b65f0507030c4bce2974c658af353a23e03",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-11-25_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-12-02_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-12-02_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 1053,
+      "sha256": "7fb667c955a3fe597c6f7f989fb7f283981724343c4dd08e2e3bfcb73fbaaf19",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-12-02_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-12-09_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-12-09_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 602,
+      "sha256": "7ca781e141c3f1b29f89c319dac274dbeabedee1a51697c9b179c7b9c3f2a155",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-12-09_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-12-16_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-12-16_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 881,
+      "sha256": "14aee33cdfec14f6e28925dae962313bd1652176a15df4f0d12b1c06b2785dbe",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-12-16_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-12-23_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-12-23_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 4099,
+      "sha256": "a297d9d4ebd17b1946f76ad99e263a9fba1dcf083fa8627932d8735fa1e0e06a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-12-23_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-12-30_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2024-12-30_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 21111,
+      "sha256": "18ce591b18e5de12e9a3d210b318313339391b18a0b1bddb9d5bdc41430d9ba2",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2024-12-30_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-01-06_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-01-06_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 31611,
+      "sha256": "3101721c0b60a2b0442e6de908b10382f3d0f7f997b3c87c1f2abe19f7e00f5b",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-01-06_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-01-13_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-01-13_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 14356,
+      "sha256": "2594592fc50f74a0481c4564941b96cd48fe10615f514d17735b1962823932a2",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-01-13_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-01-20_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-01-20_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 25575,
+      "sha256": "636cfce171982cd3864ce9d5fac2cde9b083c25360b27ac323220040de777d5c",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-01-20_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-01-27_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-01-27_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 22866,
+      "sha256": "57233265314a586275479c6fea32c35146ac8d623882da148811fad7e1e7d817",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-01-27_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-02-03_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-02-03_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 9928,
+      "sha256": "ba7f6d22d93e28314f8840d2f81d46b34f26f016a2032b8643c15f84be3b64ca",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-02-03_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-02-10_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-02-10_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 113593,
+      "sha256": "cc119ac08ada27d55ed88e73b9a447ddf6679838beb7027500ed0b45f3e095a0",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-02-10_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-02-17_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-02-17_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 41910,
+      "sha256": "26d02923bb7da4b10267bdb1cb4ab528e67bb3dca8f2fbebedf6d42d5bcee93a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-02-17_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-02-24_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-02-24_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 37609,
+      "sha256": "44d32e790dcf9ce210f23f673ad259bd8bcd9275496939ff7972b7b0461175bc",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-02-24_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-03-03_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-03-03_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 9299,
+      "sha256": "fc89168ac4e297a3e63e2d164e7377df329ffbebae7108dd4d7cf1666ee38e59",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-03-03_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-03-10_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-03-10_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 14580,
+      "sha256": "91adf024a498dc7a7923d92b96e6c8223d65bee9a1ab255d5444d1e23779826f",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-03-10_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-03-17_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-03-17_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 62221,
+      "sha256": "668257ac0723cb30bde02cff6499478112106e67a7872904656e16201ebdfb2e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-03-17_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-03-24_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-03-24_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 13262,
+      "sha256": "e8aa4e7daf60f8fab9678bb3752f9eef6fbce5d9f311104f516082b51b749475",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-03-24_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-03-31_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-03-31_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 15830,
+      "sha256": "76bbb6a12a292546c60cbfd92b0a5a3b6ed7c826596ac4984e42d2ee8d0b860e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-03-31_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-04-07_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-04-07_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 86300,
+      "sha256": "f284f9eb843774b48f93caa8e7c50a692fbd2cd8fca4efc550fa8c6d9fd6554c",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-04-07_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-04-14_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-04-14_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 79510,
+      "sha256": "3d4a1aedab6f7c759ba106410640a443037f6b672f637b3e9924888c4055f072",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-04-14_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-04-21_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-04-21_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 12587,
+      "sha256": "f353a1d5894f819bf109ffefd63eb70cf2df279f063b2e53b087aa2de3d3f884",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-04-21_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-04-28_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-04-28_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 64308,
+      "sha256": "322fe9976e692ae84c957f579eb72ecf154b08d945cc07876c9fd61c0323c1a3",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-04-28_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-05-05_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-05-05_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 51984,
+      "sha256": "756a0de07eaeb0356301345bc17ea088ffc31d3f115fa77a64244f8019a81199",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-05-05_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-05-12_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-05-12_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 44923,
+      "sha256": "31d979927592bdb7e6fcfd236abdaf143119fd260c427a75a85115e4d2c0f6a9",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-05-12_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-05-19_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-05-19_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 67292,
+      "sha256": "4d4e37759d6b2d4a1ebbe346d7ee4b8cef30795cf43f6ef8df9d995429528069",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-05-19_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-05-26_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-05-26_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 42072,
+      "sha256": "f2ef8c20a7ddaa771b096b43f840f44d69e354afbc5ab9e2b2a2e7b7b388a36a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-05-26_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-06-02_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-06-02_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 22299,
+      "sha256": "5eaca3962b855e3bb4fb7942f9a9a2adb87615cb06af777cabf914ca9a6d5966",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-06-02_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-06-09_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-06-09_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 13351,
+      "sha256": "9a95c1c8b4407cc16322f8ca1c2f6de03906e29e61a83b65d89314f562b5d264",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-06-09_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-06-16_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-06-16_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 26105,
+      "sha256": "53b1b5df8a96840a954fbbf67170e26c70ea1492a3ac515a01ecee921d38af0d",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-06-16_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-06-23_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-06-23_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 29049,
+      "sha256": "89b3d55430e921e202c0499a6c16a38011635c53b753bf5aa4325092fee5b573",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-06-23_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-06-30_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-06-30_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 424847,
+      "sha256": "d75ceb3d758c5b9e39dcb8f4f77485e73cc91204e9059579b1ffa6c6d2495071",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-06-30_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-07-07_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-07-07_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 649229,
+      "sha256": "3ab601bb41aa5356cff1e3677e84d6cbdf0d95a853ae5a82b3a5fffc78fe3963",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-07-07_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-07-14_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-07-14_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 73070,
+      "sha256": "894bcf53219296432e3633be6e33f7c82bf9939bf13518e493720b9e8d0bf074",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-07-14_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-07-21_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-07-21_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 315010,
+      "sha256": "5e9b33685e60e22f1362fc4064d3d71dddf9696f5d92576666f82b7f5bfb5586",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-07-21_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-07-28_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-07-28_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 82340,
+      "sha256": "1635b9bc6133e4cc19f6623b97e4e5bce0f6a195e4146eb64b5027dc74a573b2",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-07-28_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-08-04_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-08-04_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 59879,
+      "sha256": "ebda0c4521ca0ee233456c4fc09712d5caa2a86ebad4960a6d683d9ac2825fae",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-08-04_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-08-11_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-08-11_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 153100,
+      "sha256": "5fc3de4f98bfd205d6a9b1cbf44a5bd4c2ca10c26168c71672824b1d1823a917",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-08-11_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-08-18_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-08-18_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 32169,
+      "sha256": "86dfe9cc36092bd42702c1ba0d092f8fa70bdd05788343a302e0dc4f5448214d",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-08-18_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-08-25_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-08-25_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 44900,
+      "sha256": "53996327071e514dadf7a886c4a1ec99f09e2f0fd07577d14ad5cffcba3af975",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-08-25_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-09-01_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-09-01_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 351633,
+      "sha256": "bab7957b46bfd7d6c37d3280105921e9e628c8353e0b39005f412ad14efb32f9",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-09-01_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-09-08_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-09-08_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 216586,
+      "sha256": "63b39a32394ad9cc74a2b144c226dd45922a253eadbf51c8e05bb4ea81db627c",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-09-08_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-09-15_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-09-15_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 599868,
+      "sha256": "f785ff4613987087a61669432b49252dc02559389a3431184da6b0d9d631cdd5",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-09-15_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-09-22_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-09-22_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 61040,
+      "sha256": "ee48d81afcfca75ee3ce34ed94ffd6fb5abdfb45f1845e9e58100de053f902b8",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-09-22_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-09-29_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-09-29_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 40907,
+      "sha256": "8b77d12a40b5626665aa6c32e47c45b40b3fd0d551c02a26e976fa5c05f5fc30",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-09-29_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-10-06_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-10-06_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 211414,
+      "sha256": "cb84107bb37158d4c2a33fed5e40c84dce24732aa5549be0b43ce1468a87782e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-10-06_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-10-13_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-10-13_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 337212,
+      "sha256": "8809d67a01aabf8dd3577c1e0c316fb5414d8e651863cc2c5363b9b893721f09",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-10-13_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-10-20_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-10-20_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 283839,
+      "sha256": "e64a55e418ed3645615803305e159197d134db81a864714198383e551f1a47b6",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-10-20_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-10-27_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-10-27_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 438498,
+      "sha256": "48362fe35ba6c9655b302610b5536970a6080c2e8b81f2f534e2344964a187a8",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-10-27_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-11-03_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-11-03_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 217668,
+      "sha256": "c70db56531996354922d9c29844b226995e1c32ae706e58d7a69067e65ec4c10",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-11-03_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-11-10_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-11-10_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 1891294,
+      "sha256": "c394c423470b0c0178b3b5ae9dc69cb50243f1d1e7e3ec44f235da6f4d53e1d9",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-11-10_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-11-17_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-11-17_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 383332,
+      "sha256": "3f0c9ac28a34d31b17838b93e4921cdea0e2268b2ac7c4f48c3fd26274ed2db1",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-11-17_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-11-24_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-11-24_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 212804,
+      "sha256": "50c8ae1e49f874c5e255dead0bf7ce973dd6692503d782983b430760b8429d39",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-11-24_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-12-01_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-12-01_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 182547,
+      "sha256": "f2b4636e059996c166be3518d1c3aaa2fe7088713682b4b871305269b6c784c6",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-12-01_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-12-08_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-12-08_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 402701,
+      "sha256": "69d41d513ead43a0b90b058a48bc06d7371759dcc2f2b8794e72e2115ed968f6",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-12-08_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-12-15_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-12-15_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 508828,
+      "sha256": "8441f594844eb86a93a844397318d1d46edca6052055eb548376ab979b7128e4",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-12-15_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-12-22_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-12-22_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 144633,
+      "sha256": "dc04927e3f7abc77463744a99b4ee8a514090a66108df7087363c06ae7b0bbca",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-12-22_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-12-29_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2025-12-29_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 465786,
+      "sha256": "79fd85a6789de03b5e6d89714a1955b3c76de247475796c7f615ef84bd364c0e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2025-12-29_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-01-05_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-01-05_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 136930,
+      "sha256": "2bd123732ef2c2544a02e9284c436a23408e6b191c6cb77c753266536a0cd541",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-01-05_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-01-12_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-01-12_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 676101,
+      "sha256": "75ed0a4def40830ebc3f2882f24c185d321c6cec1cb00c56f74c2c4bebf2534a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-01-12_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-01-19_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-01-19_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 325368,
+      "sha256": "a85842d6da298a26209e1d34585283661a1d43c4a363933cb5521ef455b030e0",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-01-19_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-01-26_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-01-26_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 71521,
+      "sha256": "fe942c98e85c3a8fefd503a7746fb89752b00cf420051af1f3d207b7961684d2",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-01-26_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-02-02_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-02-02_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 163415,
+      "sha256": "0bf770779bae0e88c94785fb6acd466d31c78fe2dc06d1acfe2e4643ecc41ce0",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-02-02_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-02-09_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-02-09_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 115223,
+      "sha256": "66c86eb6b1bb1ed2178872e13f8a0729af52242818c51e0298e7081df72dcde1",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-02-09_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-02-16_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-02-16_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 47205,
+      "sha256": "2cf5ac2bea4e290b64d2d88e635a0692a83261bb44967591dc9bcc96ac7f7dee",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-02-16_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-02-23_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-02-23_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 98041,
+      "sha256": "be36fcc543ca4dffda62e67abd17df7e54b44ff23d3b9c2b346fdbb676bee2e8",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-02-23_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-03-02_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-03-02_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 207377,
+      "sha256": "ce54aeb2e21b1ec6ad876f3d7bd30b96bbbbf49d7d46162a8d1db3066d6e636f",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-03-02_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-03-09_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-03-09_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 154163,
+      "sha256": "00cbfdcda94fbfacd18ca3497b1d719c39c12a1a722b5ea8e0bd63d4974208ca",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-03-09_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-03-16_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-03-16_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 431552,
+      "sha256": "7d98eceb094dac28a45bd63c1cff214b166a66a19d432bc4ca600afff8007c34",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-03-16_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-03-23_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-03-23_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 103413,
+      "sha256": "04802a120dbf4192be24af7ede8ac719c471972b03c8d0f237584f5e142a8b86",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-03-23_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-03-30_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-03-30_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 57194,
+      "sha256": "6d4b02f2185aa5696842417a6d632b12f4c4c5f32d8b1dcafd12332bd1b00229",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-03-30_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-04-06_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-04-06_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 20926,
+      "sha256": "495ed8378f06c13e4a712f26b96a486f8a213b5265e016b7d677dbc6efb3f01e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-04-06_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-04-13_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-04-13_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 61108,
+      "sha256": "12c1fca907e6e3e4d038538e76e0d77b992c24ebb97f4c1452432a5d9cb3eea8",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-04-13_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-04-20_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-04-20_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 53306,
+      "sha256": "e1ace3bc5905534a83504a8ba853bb0394f35110d94b8ce3cef4706b6acac0f6",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-04-20_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-04-27_youtube.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/youtube_semana_texto/2026-04-27_youtube.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 21575,
+      "sha256": "294a76ce9d8aec1714273c06644a6d78d045f400187acc8fe0671a728332f774",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/youtube_semana_texto/2026-04-27_youtube.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-09-30_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-09-30_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 42838,
+      "sha256": "c1d1892de0860e787e3b60e437e105e54e48cd70f8969761a091f2be6e623b77",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-09-30_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-10-07_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-10-07_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 6943,
+      "sha256": "b4f8cab5c59673f1afc38c126d1bb6294074e49dc872f877d821e11ed9d4668c",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-10-07_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-10-14_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-10-14_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 7537,
+      "sha256": "0697a394fb0d0b941e455d7adbe1b752f9b92c034ae5e75d355125fee56b4d33",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-10-14_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-10-21_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-10-21_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 24258,
+      "sha256": "96e7ed14d9367ab039d114332a14f1816897042947d8ec2318a800b37dba104c",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-10-21_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-10-28_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-10-28_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 35751,
+      "sha256": "74432380ac2ad1de6487dea5811b9882d6217559076909d981380b9e47f575df",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-10-28_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-11-04_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-11-04_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 6821,
+      "sha256": "d3f03a2bfc297a15b3591168b837f49fb394c06326b9e3f32fb837127738d178",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-11-04_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-11-11_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-11-11_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 42597,
+      "sha256": "6f49ebae34f1ef53b9ad23c86d166417bf347d4c7d843448fd85f84a4af4c0c6",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-11-11_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-11-18_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-11-18_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 49336,
+      "sha256": "fb2a9144432927b87e54bcd6d1c1947f454cc5f540fb961c5c1bbe72521d57be",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-11-18_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-11-25_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-11-25_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 40328,
+      "sha256": "03a4d3f357d7368c6de8ae7b6859496e575ba1370dc12054a1563068ef5dcc60",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-11-25_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-12-02_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-12-02_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 87873,
+      "sha256": "bae5767c4a12bc14b47936b4dbd4060c3888ec2af854972ab6e583d3aad3d774",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-12-02_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-12-09_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-12-09_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 77049,
+      "sha256": "b025511ffb0045c18044e337a5ca6a03ee63a114ca3b671ba85404492cf12161",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-12-09_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-12-16_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-12-16_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 65452,
+      "sha256": "ce32a460cefb9c6105234a62728ff36691d0bd1c87d02f6a038d0e44d96b1da9",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-12-16_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-12-23_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-12-23_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 18041,
+      "sha256": "501267dd4f4c43c6e6846e3a4b275a419aa789c0d75b2f6ffcf18842c4fcc46e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-12-23_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-12-30_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2024-12-30_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 10687,
+      "sha256": "fc6474da9cd3b53d6b2a41dac87bed12c00f5ed261c4b3bfe4662a88d96806bc",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2024-12-30_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-01-06_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-01-06_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 4232,
+      "sha256": "debe24c07dff55646a7a023755e4f62dc5414ff63c65e5f1bc05112f490a2a14",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-01-06_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-01-13_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-01-13_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 69042,
+      "sha256": "02ada31e58738040a1f7438834c2357096235d49889391e6973086442931ce66",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-01-13_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-01-20_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-01-20_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 36181,
+      "sha256": "9b1f19140af6d24a6e783df4eefa9c4f203ca83fd30a4ab1825f081a2858a821",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-01-20_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-01-27_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-01-27_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 54944,
+      "sha256": "673b5a244bd69336c6e3a6f8410f6b92d797bd874b817b8f3798484fee788f09",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-01-27_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-02-03_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-02-03_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 32019,
+      "sha256": "aaa8b8a59a24d042b90111cf1d0bf922716a733b53b56362af210805999ca93e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-02-03_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-02-10_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-02-10_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 46637,
+      "sha256": "7fda1f3b4e244fcee7d11f3b86a48d5850d4a914c8864ef4144b64ae9b0b04c5",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-02-10_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-02-17_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-02-17_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 44154,
+      "sha256": "de5dbe02374d04e7727c15cbe218567c168e42700b75a2ca43c206d381399581",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-02-17_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-02-24_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-02-24_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 4257,
+      "sha256": "59c5623265ff696e7c24d979a6dc44d2ce637202c350c6b26b119d882bcf9534",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-02-24_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-03-03_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-03-03_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 74819,
+      "sha256": "e649eca6a4c8af23a189c41b65ff072401f02a4f0d5cd38eaf73fcee12064d94",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-03-03_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-03-10_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-03-10_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 31540,
+      "sha256": "94326e9d2c252c3096344e10cbed7ba4fcbba148b8e2d09f1301c101abe04841",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-03-10_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-03-17_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-03-17_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 2730,
+      "sha256": "5dbe9a4885694b07bd72f81436c490ef40963d527a48914aa70502600a3a18cb",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-03-17_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-03-24_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-03-24_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 60806,
+      "sha256": "35af211b04de960605623207ec83741cef0b7aa6a6fefe9450363fc9ac81f4f6",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-03-24_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-03-31_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-03-31_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 31658,
+      "sha256": "8dcff8650ca4bf68edd8d6220d073d61fcceb042a5b27e4fffb7e0d6a4fb1703",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-03-31_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-04-07_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-04-07_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 83687,
+      "sha256": "f46bec836ec00603a30e85b89d95276fc5bba062a4638994f89821c4ac7d2911",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-04-07_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-04-14_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-04-14_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 67182,
+      "sha256": "c43954f5c110da06ee99f01594736ece9765a650c2e31d30bd3c6ef7c4edd987",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-04-14_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-04-21_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-04-21_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 65325,
+      "sha256": "f598b956014179b96a45f1eb2ce394370989fa0c099902dae4d08de62fdb0491",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-04-21_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-04-28_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-04-28_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 70224,
+      "sha256": "94cc4b9a40876c10aacce5bfa69a2ee6600219a719a25096c5e195ec6a9e17fe",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-04-28_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-05-05_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-05-05_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 21280,
+      "sha256": "6eaac65cc3c91bc035fe6435d2eaafda4de464db5862b27ae904be44044212cb",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-05-05_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-05-12_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-05-12_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 55187,
+      "sha256": "deb5c3f8f4d2c97ead1740c2a7599f6d26a874e5c023bc8ccca35cad8f2e7091",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-05-12_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-05-19_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-05-19_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 101833,
+      "sha256": "f7982d16d6bb65c274b578e61983ada99f66832e084e44500419ca2192bc9b1e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-05-19_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-05-26_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-05-26_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 46926,
+      "sha256": "74b89c88758207604f18b681b1b52792dbc81e3f167a8ceb95995ee361a23bbd",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-05-26_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-06-02_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-06-02_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 3183,
+      "sha256": "dec9c32056080cb99823892f6b69e677e127e742e812b5d4cbea713ef6922f13",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-06-02_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-06-09_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-06-09_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 36767,
+      "sha256": "ac254a100edcd8d161c92f9fe15cc4ca99034d8f27a0207c016d18d5af550262",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-06-09_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-06-16_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-06-16_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 38836,
+      "sha256": "146edd3e30fc21d183e6067715266b13674ec4d13092bc9e9d471737e1da83cd",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-06-16_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-06-23_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-06-23_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8691,
+      "sha256": "c8d72deea1e6a1afc200e4c9bc92d89a692dc841823c123d58d70290c78ffb47",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-06-23_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-06-30_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-06-30_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 50193,
+      "sha256": "aa7e5bc1c5c3406f9ec911016000d95e786279f3e9f666ea97140ea51bac0de1",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-06-30_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-07-07_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-07-07_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 7014,
+      "sha256": "78d339c5df3e6676ea8988844be57170991c57e71f9b6681a239b453d364329e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-07-07_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-07-14_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-07-14_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 26775,
+      "sha256": "7435ccdbc31b17cb56687f9e337413fc910528c6d8fd36b2a00178d5723a71cc",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-07-14_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-07-21_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-07-21_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 38356,
+      "sha256": "eb6cddc9606dedce705e177456132f406992a7976a96757957c500e58c708f6a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-07-21_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-07-28_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-07-28_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 101783,
+      "sha256": "5ed5d3c248bc4d42f5d582a85be89a114df07af929be0d18188af003c47c2eef",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-07-28_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-08-04_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-08-04_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 1500,
+      "sha256": "5f43473ebf449c133d49134162209cacbb0e8799ab550bb522e1535364739fe5",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-08-04_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-08-11_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-08-11_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 620,
+      "sha256": "0a972082aa169931e73aa8b89d1788cb2f26c393384fe9709c80aaedf7fb28c2",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-08-11_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-08-18_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-08-18_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 5288,
+      "sha256": "da7c6a30c4babc07dd718cd48a9722e8be5dbd1e783916f7ca1bfd9941349be3",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-08-18_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-08-25_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-08-25_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 15744,
+      "sha256": "19014f31b7e83718cc963ecac6adbb3d84fe997224e13f7c23a5a336a168fb1b",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-08-25_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-09-01_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-09-01_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 55229,
+      "sha256": "08cbe64d87e007e0553e9abaaa836b5f779e837c97b8faa883a4d274303b66fc",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-09-01_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-09-08_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-09-08_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 9494,
+      "sha256": "01e11106ec47d7d5e486a8a32f170d7fa4efc626cc9a603b55a2bc2c164f1f9a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-09-08_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-09-15_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-09-15_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 61859,
+      "sha256": "51f1d720a5bb23d0c902b7d76eb134036d325112aaf48f97e2d79d64197b55d0",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-09-15_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-09-22_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-09-22_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 26554,
+      "sha256": "149a7de6076d0d004835cbe350f0ed6ee73cad5f8101bee2056d7396a2106da6",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-09-22_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-09-29_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-09-29_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 52770,
+      "sha256": "a68d77519dbbc5ebbdb94022521905f08ea268b90aa41480c401a7d1bfd41506",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-09-29_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-10-06_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-10-06_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 6095,
+      "sha256": "d9b1eccbcb3d3502706b95006829e14c40273ccfc217076bc2bc2a81ac8f06f2",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-10-06_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-10-13_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-10-13_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 15168,
+      "sha256": "253a137f01c89b9e4128e12eb35a1906b480882cb269f77b74ed16a0649ca951",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-10-13_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-10-20_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-10-20_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 24462,
+      "sha256": "9eabaab52ceafd6ee851a233c38fc55803c2f90ceadb98a9e0dcfabdd1b9f123",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-10-20_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-10-27_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-10-27_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 115730,
+      "sha256": "6e306fcc3ac019fb592687ad0d5a2b30825a9151ef5ca39cd9f0731291fee9cf",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-10-27_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-11-03_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-11-03_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 22330,
+      "sha256": "823e8ef2118ccefb80fa7660171e582cad671f141b472ced524c724953179baa",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-11-03_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-11-10_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-11-10_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 15892,
+      "sha256": "e7202d27fac7acfa9da15d579ef6494985437664ecef62fda05d9ea93aeafa19",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-11-10_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-11-17_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-11-17_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 17134,
+      "sha256": "9659ec2b45f3991d2b9ac2342b3d0d39d6b921c5c89c9aae294d6117cefce2d1",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-11-17_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-11-24_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-11-24_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 15982,
+      "sha256": "e6ba171f43179e7ff1510f797d98dcd18d7e5d3301e9fbe259c5576729ff4b38",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-11-24_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-12-01_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-12-01_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 13049,
+      "sha256": "99938e8eb4cde84c26e0604b284ae65e398cd7e7c52f3266e40f5ab7b506ca19",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-12-01_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-12-08_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-12-08_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8392,
+      "sha256": "eec03e77bc0b93b41bf2265d956ad2efedff675120be0552c429262e6332091c",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-12-08_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-12-15_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-12-15_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 9187,
+      "sha256": "33ddb3b4e79ec2ef1644541222bb8b9373580cc0702cf5dd2fd69fe9ee8d7ce8",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-12-15_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-12-22_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-12-22_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 15041,
+      "sha256": "23b934221ec4c62789d25231effa77f27e65d99174f2c2585e0cc406950c7e24",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-12-22_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-12-29_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2025-12-29_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 12041,
+      "sha256": "2c1f738bb388f4d5a13b25a7d979092daf90ea8dedec4226f91517c764d13953",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2025-12-29_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-01-05_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-01-05_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 699,
+      "sha256": "8032be0c70676b12a54542f5979f490aa262310b75fdfc1f7d1642d2941b7595",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-01-05_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-01-12_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-01-12_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 12247,
+      "sha256": "38046be3ddd09d912c90d3d0c4a769f03390537c37c4693f92b7e277bc9403be",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-01-12_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-01-19_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-01-19_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8817,
+      "sha256": "1a9e1e7bd6c3ff14c68599bb19a4b4ca2a839e9150c8e1641134bac873d23afa",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-01-19_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-01-26_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-01-26_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 9231,
+      "sha256": "388ba43db8590ea223b7b6d6cd9f7408deedb2efdccc78ca02e9650be2da2ab0",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-01-26_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-02-02_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-02-02_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 10492,
+      "sha256": "e2666a52d13918fdfb5221ca47d7ace9e3f8ceca20efc5da3ffa768457382a93",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-02-02_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-02-09_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-02-09_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 11177,
+      "sha256": "2b65aaa0c72e5143e8ab03b0b05345b7a23ab935dc1a3019aa3ba6ea1c487cba",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-02-09_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-02-16_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-02-16_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 5231,
+      "sha256": "01a6cbfe1de754d59db89d7b05fdf6706c747c265df9056403fbdfddd2201c31",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-02-16_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-02-23_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-02-23_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 7595,
+      "sha256": "b7a6f8ed19866e7c48b93a5d89d48fcc5511195f9286abb37e28fa7a9e69d4cf",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-02-23_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-03-02_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-03-02_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 6907,
+      "sha256": "5d61287203a13a3ad9ef42dfb53388244b416de0cc903e8c008c5be53e21a0d5",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-03-02_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-03-09_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-03-09_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8470,
+      "sha256": "f36db70e0538fa3de3c9dd0a794c829e3dc8da045eb79ea84ccf76e80d32db12",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-03-09_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-03-16_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-03-16_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 3145,
+      "sha256": "590706c9a9e696189ff609d95fd87fd5edb1afcadd674726f3fd3ba2eab69d99",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-03-16_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-03-23_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-03-23_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 12833,
+      "sha256": "768edf31edd50dc2f06ee09277272732e177a36799a76e9c384bd6cf7c561aa2",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-03-23_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-03-30_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-03-30_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 13096,
+      "sha256": "196c6894f34e4349161b814551a5ea3a26385bcd8355e6c6a99bcbf273b7988f",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-03-30_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-04-06_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-04-06_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 28132,
+      "sha256": "268652221375b6b4ae3704ca67579137cae05e1c1fc1489f5d0d725f5c84995a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-04-06_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-04-13_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-04-13_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 26101,
+      "sha256": "c4cff31b669f59a2b0c454e53805fd54fdcfea3aecdc538ebf30b33da25a2cf2",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-04-13_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-04-20_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-04-20_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 23512,
+      "sha256": "1178ce79cee11311ce6114ee8bc44497f70968ef180ab47d5d45ec3638c4cfd2",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-04-20_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-04-27_twitter.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/twitter_semana_texto/2026-04-27_twitter.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 18818,
+      "sha256": "8d7efefe1839cbf916f832d717a47ceb4736938ef7324b17844fdb3756541644",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/twitter_semana_texto/2026-04-27_twitter.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-09-30_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-09-30_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 9420,
+      "sha256": "4f5be4e26b4b374013e46ceaed85d9aa2f648798841b38704c4a8c172c5bfdfd",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-09-30_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-10-07_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-10-07_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8187,
+      "sha256": "a220d490db73ef0813edd9181eb18fe20e1fc668d98a1b092b63dc277bc2370f",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-10-07_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-10-14_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-10-14_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 9473,
+      "sha256": "ddbbedb8bcc278e85a51095cfacee7e68843830af2688428448deb8a2f1b93ff",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-10-14_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-10-21_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-10-21_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 17032,
+      "sha256": "e97b7411c99f14ff22b2036d5ae5d995b144c4bd7f3e12853484c96ae08d6411",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-10-21_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-10-28_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-10-28_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 24987,
+      "sha256": "bbc85a40c2893b1257826f7585cf297d53b9af69601f7a7f3915ea98283112cf",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-10-28_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-11-04_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-11-04_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 17132,
+      "sha256": "23e31ca4d0f2760167c3be814eb1e25bba43c2fad576bc9f4ee9c23b0bc65800",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-11-04_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-11-11_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-11-11_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 23056,
+      "sha256": "1e481d6b12c7c2aa5ddc4a746529a8430aa2fd64135a4339c7949e898c8da57f",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-11-11_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-11-18_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-11-18_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 19773,
+      "sha256": "b13b38962966907a4e6f9146c4ba0bf8506e7746bb8f758637c4481f4a4ffff9",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-11-18_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-11-25_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-11-25_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 22331,
+      "sha256": "aeb745c25180bd5deae44c761d12555b47e001a6dad8da8bc21bd04559db4a2f",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-11-25_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-12-02_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-12-02_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 16811,
+      "sha256": "cbe9bbab18df082f9cd0559945a066a8f45c6e7e0f9adbf861c282bb9b26177c",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-12-02_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-12-09_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-12-09_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 19694,
+      "sha256": "6d480217247b9f9f9948d82d14cfe575ad7a95266bf7d4f7e9521f8fa4fdecbb",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-12-09_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-12-16_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-12-16_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 20724,
+      "sha256": "55f534ecc337d41ac7644f7e9977a068b0211c93cd571e0a0f096aa77fe813bc",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-12-16_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-12-23_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-12-23_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 19467,
+      "sha256": "368aa96b3b11858f6e618f1f01ec66a37a1fcfad668da07f4c2f80829a8f337b",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-12-23_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-12-30_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2024-12-30_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 13883,
+      "sha256": "03fb51d1d8fbfdb8c972a8cb2cea2f74dcf0fbf1476351f562db35b3bae61429",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2024-12-30_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-01-06_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-01-06_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 19243,
+      "sha256": "bbdc4f8b452ec399e83fca2695a1211f9a6d68b7d39aa3166da80474979948ad",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-01-06_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-01-13_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-01-13_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 17889,
+      "sha256": "b29cc271ff1b19379135a74d14e5f14abe4596d5f26fb6aef6a772a8a21fe60a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-01-13_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-01-20_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-01-20_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 20064,
+      "sha256": "14d6e38009fd5e7ea121a81b8318e6a5560d76d86580f85e06f87d7635230dfe",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-01-20_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-01-27_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-01-27_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 11143,
+      "sha256": "e5b78052c5c67c9451fc60771430a0bda2048799fc5a4221cc653d267952523f",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-01-27_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-02-03_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-02-03_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 21989,
+      "sha256": "d4aa8244270cca9e3fda7fec0f87e4676351375f46c18caa51b6d4798ac08cb9",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-02-03_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-02-10_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-02-10_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 17463,
+      "sha256": "c3b659646a79005f893aa52c73cadefe4026af3f86c17fd543aa1c110ae6317c",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-02-10_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-02-17_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-02-17_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 21085,
+      "sha256": "c8b6c19fe38676f759972d88579f5fb52ad38565a3afb7266ac9590ea0c38074",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-02-17_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-02-24_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-02-24_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 11221,
+      "sha256": "6afff9f2abe7383044e81e25d49a5cb8c126d9228d13e54b0026db0de5647512",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-02-24_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-03-03_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-03-03_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 5475,
+      "sha256": "ae91b5cb894afe82cf7df336d35154c4cd00e9fe62f3413dad6f28dfafa6841b",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-03-03_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-03-10_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-03-10_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 2366,
+      "sha256": "5e4588c0c4173a037ae1a3011d5c183c7c8ad61748bb805d4cf29a49bbdb2f1a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-03-10_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-03-17_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-03-17_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 2244,
+      "sha256": "d967591a3d5aaf79df7128b0d479a6406f319a19273fedc612c3c5728bd7e24a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-03-17_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-03-24_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-03-24_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 808,
+      "sha256": "7e960d7bad7b9ef7e86090fdd36f92ec9ee6d9930970a407b27df5cb3e7d131e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-03-24_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-03-31_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-03-31_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 10142,
+      "sha256": "976932512b4c5bd6b75ff592cf8db0fb2501afb43fff5b0c99dff1ebc4b3c1c9",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-03-31_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-04-07_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-04-07_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 6750,
+      "sha256": "dde1fa301d174ee9354d9017f4949e444c366069b7ad90223c6a3d96efcccd36",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-04-07_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-04-14_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-04-14_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 5531,
+      "sha256": "31fd77688acbd1dddcde64caea504f28cc7ddeb42c56cd7b19fa8aa62bc19a21",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-04-14_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-04-21_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-04-21_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8262,
+      "sha256": "7a72105bccf723ba70d6811894839cc5e86b4f3ea7f8c509cacc6b8baadc09c6",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-04-21_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-04-28_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-04-28_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 9927,
+      "sha256": "85f5143e2ca79ee452633107152ec84d95887c4c0e4172af09ca2c148c14a992",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-04-28_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-05-05_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-05-05_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 7430,
+      "sha256": "313147c7898e3477930efcacbffb140d0b1695842439350f1c6b0c08ab93ebb8",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-05-05_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-05-12_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-05-12_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 9178,
+      "sha256": "1eee0bf3a270d19fd867e1fe09996c38cb3cc898ad5efebe5927733e97eab41c",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-05-12_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-05-19_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-05-19_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 12012,
+      "sha256": "9794b16d66b54cca8bf4f9782900c9272e765ff1e3ca77cfe265ad50518eaf76",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-05-19_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-05-26_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-05-26_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 11178,
+      "sha256": "476db2dfb00de979b2c1e372e177bd43887dd4eb4175ffada511005a1db1eff1",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-05-26_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-06-02_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-06-02_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 12672,
+      "sha256": "ed74bbecd413f86c550f23a9a90f770f96e82c79c6e2b889780f2e0a64a56d70",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-06-02_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-06-09_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-06-09_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 11496,
+      "sha256": "28632448fce88a4cd63bf1c113ae9cfbc91bf7f9818b9c7db4f322fb7eee4862",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-06-09_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-06-16_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-06-16_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 10013,
+      "sha256": "024f62bd1251cf665b9acb13c7ec3db3ee8a7c3ddf7c0c4c2a20944594849887",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-06-16_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-06-23_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-06-23_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8151,
+      "sha256": "7c464fde4f771217b5fa8e9d1d23f24df49cb51f01fe98bbcd49e8b91fcf2c39",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-06-23_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-06-30_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-06-30_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 12009,
+      "sha256": "ea1a1878f5ec6e3df38090d72d174bbffc5e08eb1d697f529cc7f22beeb38e0a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-06-30_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-07-07_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-07-07_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 13837,
+      "sha256": "fbe4883c52591a86b01799a342f4de8ac28f7f21cb1dbd703b7d4f2d5fb40659",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-07-07_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-07-14_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-07-14_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 7863,
+      "sha256": "69b60083bd1545b02e5f0ff82fac4a61d3666206b5667c7a4ddb8e502f3ab130",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-07-14_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-07-21_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-07-21_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 11792,
+      "sha256": "697e5c2d13b85790baac7a309065dd99d039aa38400537da844973431fe81fff",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-07-21_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-07-28_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-07-28_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 11543,
+      "sha256": "4a6cc8e7455d4e2826d9fccad41d2cc9e19c42e9f08506520e82702735f32b81",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-07-28_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-08-04_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-08-04_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8779,
+      "sha256": "764748adf37a4b608190374ec453f0704b34464291976ec4182d623322ebe099",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-08-04_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-08-11_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-08-11_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 11977,
+      "sha256": "c92a8e7c192a843a1ef694a4bb65d75d79d9d3a7f3b8631c3e01f9cdcc3a4249",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-08-11_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-08-18_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-08-18_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 9896,
+      "sha256": "581ab119c162c94053e5d23da66da45ad73384384f07e60be4f6b2c87da16fd0",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-08-18_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-08-25_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-08-25_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 6815,
+      "sha256": "c7471ebf99934ce6e588622eb804b88669a4063b9c8e94186a5a2626d6a741ef",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-08-25_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-09-01_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-09-01_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 6965,
+      "sha256": "b95d40206b8c0a7a5badc3efa3da46e65a0c535f27b437d53ec6dc6991761be8",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-09-01_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-09-08_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-09-08_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 5238,
+      "sha256": "7578358a1bf14a791c47df9c0c81a29ca55044977c00f0f4f4564bd06a0e2058",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-09-08_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-09-15_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-09-15_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 6966,
+      "sha256": "f7641b3e198341cd5697f4222f56bccb8d64eccf0d3acd027a6a98aaa4147890",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-09-15_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-09-22_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-09-22_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 7790,
+      "sha256": "41e5a83d4c9d77e21c1d2b2ba5253f90ad50216c7b9bb93a9971672fb0e99469",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-09-22_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-09-29_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-09-29_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 2022,
+      "sha256": "f1fc126367f6d1c5ed596753e52f7465f20e95b3d12ceb120561fe1f22631e22",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-09-29_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-10-06_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-10-06_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 5115,
+      "sha256": "de19719f0df593e21724cd6a07516f4b859469f3f526ea9721ea4a93e4734119",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-10-06_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-10-13_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-10-13_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8680,
+      "sha256": "60638786f6e5bde3bfb08b25e2a88ae5fbf1bcd8a9f438cc73d134b8266c4d4d",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-10-13_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-10-20_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-10-20_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8825,
+      "sha256": "e590b5dc7358fc1b68429743cb2906558f6ffedccd499290dc45bd50e3009359",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-10-20_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-10-27_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-10-27_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 7768,
+      "sha256": "6f7f21d9f012bc1d654230c2bc7559821598bb44b8b37a8320186135d534a0b3",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-10-27_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-11-03_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-11-03_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8795,
+      "sha256": "e302bcaff8af037b81857c0f8802897c5d9ec3fd4b50766a8175dc56bc64d31c",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-11-03_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-11-10_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-11-10_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 30422,
+      "sha256": "92866d31165214a36c912c60e6182b844e14736c2b674bca76cd05c19bd38e0a",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-11-10_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-11-17_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-11-17_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 23226,
+      "sha256": "d85b25457bc52ac655ca55af1342dc4bbe061efc953779fb1f31ea6ac47d8f37",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-11-17_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-11-24_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-11-24_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 15836,
+      "sha256": "23e25dee89acae72bdf85f72d74560c1fb959069d61cc50744ff71dbc3a15496",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-11-24_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-12-01_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-12-01_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 26342,
+      "sha256": "6bf8c3b1f70c6ff221af77a60dd93be10c5768e145d687bc01e9b620964ead5b",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-12-01_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-12-08_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-12-08_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 27548,
+      "sha256": "3f6d6bbdb99540970199ca2f4048bedc378478bc6f7b7d20e3a071257727764b",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-12-08_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-12-15_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-12-15_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 36489,
+      "sha256": "96a2248a1d84dda2c101f40df5ca17cdc3772252140df5f4c53181ea13d7d370",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-12-15_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-12-22_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-12-22_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 29979,
+      "sha256": "d11f7671f57060d725f37ba4b45b59b112cb461d35d8f8b89cb84405f9000b87",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-12-22_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-12-29_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2025-12-29_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 24208,
+      "sha256": "017090d2949959ae1e3df7dc5a20d92cb9f19ad67b1a39529e20a039e8faad91",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2025-12-29_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-01-05_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-01-05_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 25271,
+      "sha256": "7953e8cd4f3059f6709912e90299feadf7286fbd6606ce1bd2990086d94a6e48",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-01-05_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-01-12_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-01-12_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 33151,
+      "sha256": "38fa94ab3505778f59475a13539e80f460ce1360502a0e4e93bcb97581b9225e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-01-12_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-01-19_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-01-19_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 32124,
+      "sha256": "4480e7d2c20c0c50d216d70da3a093a4286e6b0504335e823afda9750858a9e2",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-01-19_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-01-26_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-01-26_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 31661,
+      "sha256": "cc82b7c8d12201291a7fb75875a6faf872914e7eb107d6f2ae8319cc51f52094",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-01-26_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-02-02_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-02-02_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 21969,
+      "sha256": "61441d8133e087a56ba85637c62f177d39336cdb63c7e18db8b6acee29517822",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-02-02_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-02-09_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-02-09_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 17413,
+      "sha256": "ac8176850ed1f5d135e9c41d58760f394d2ad2c6079f169c9d994ac607069e29",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-02-09_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-02-16_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-02-16_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 19623,
+      "sha256": "e056ed40b14319692d8bce68879d9a5bc89a3b7218da76abde21394052349773",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-02-16_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-02-23_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-02-23_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 20643,
+      "sha256": "7b9e0497f4fb4b002c4a3359db0be3183121509b1869eff7679afe4c551ab4fb",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-02-23_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-03-02_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-03-02_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 5989,
+      "sha256": "ed68dad451dd8dbcaf0848a765e414c1dea70d1a6b47e1534c5f7de6339056ce",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-03-02_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-03-09_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-03-09_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 6667,
+      "sha256": "d756e27c24c06f2e115239415caba79c851ac398a0c83aa6970a6f08a08cbac3",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-03-09_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-03-16_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-03-16_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 10586,
+      "sha256": "1c4433bd0a7ab7ea2f8adce380112f29e7b020ce8ac57306b73f121c104cdcc4",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-03-16_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-03-23_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-03-23_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 7719,
+      "sha256": "51892a09666311d5f1d1385502d7fcd93f89ba3338b2c3f1e003a3cbbf242c63",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-03-23_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-03-30_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-03-30_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 10090,
+      "sha256": "9fca79d37175802c31a3863c7b3b10e0d17b4d78b7863970a895873ac57870c6",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-03-30_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-04-06_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-04-06_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 8001,
+      "sha256": "a5260653ce4d9e478bbed39efefa122022903b67d39612da3a90a355e2d65ac8",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-04-06_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-04-13_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-04-13_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 7963,
+      "sha256": "0f4b99969d4e953658700793501a9527d7fa90b7a13cf312c8c8e687ffae0b07",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-04-13_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-04-20_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-04-20_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 6610,
+      "sha256": "ad2a43ab76a2bd17d1a8316854be9b726e62743d80163664ea6aa53a69b6aed2",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-04-20_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-04-27_facebook.txt",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/facebook_semana_texto/2026-04-27_facebook.txt",
+      "reason": "TXT social antiguo retirado antes de esta limpieza",
+      "bytes": 11534,
+      "sha256": "a17f71e0a43086b64b806a7fa7f6b333a2149f7ae3f2aab3fa3549138bdc148e",
+      "historical_original_path": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_texto/facebook_semana_texto/2026-04-27_facebook.txt"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar_V1_respaldos/txt_anteriores_2026-10-20_b50h7c6i/MANIFIESTO.json",
+      "destination": "trash/respaldos/txt_anteriores_2026-10-20_b50h7c6i/MANIFIESTO.json",
+      "reason": "Manifiesto original del respaldo TXT",
+      "bytes": 44924,
+      "sha256": "72188fd980457fe8785006dd42906208a4c20d05e442bbea2e89e8dc54eaf579"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/scr/preprocesamiento/boots_facebook.py",
+      "destination": "trash/2026-10-26/scr/preprocesamiento/boots_facebook.py",
+      "reason": "Filtro o notebook antiguo sin uso en pipeline; archivo aprobado expresamente por usuario",
+      "bytes": 20291,
+      "sha256": "e9789e943eac03b7093c37eb2e02a703880a9de51229e99f79ad8cd21e22b03d"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/scr/preprocesamiento/boots_youtube.py",
+      "destination": "trash/2026-10-26/scr/preprocesamiento/boots_youtube.py",
+      "reason": "Filtro o notebook antiguo sin uso en pipeline; archivo aprobado expresamente por usuario",
+      "bytes": 19394,
+      "sha256": "d7231678e437c61abd8db8832a626ec4234fbd4d13cab8b5100cb6904a12f41a"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/scr/preprocesamiento/limpieza_boots_twitter.py",
+      "destination": "trash/2026-10-26/scr/preprocesamiento/limpieza_boots_twitter.py",
+      "reason": "Filtro o notebook antiguo sin uso en pipeline; archivo aprobado expresamente por usuario",
+      "bytes": 7341,
+      "sha256": "f6f8801f8835b51d79664c257b737452b30ea16ba42e5d7f4432d416a12bc542"
+    },
+    {
+      "original_path": "/home/emilio/Documentos/Radar V1/scr/preprocesamiento/Scraping_Limpieza_Preprocesing_Data.ipynb",
+      "destination": "trash/2026-10-26/scr/preprocesamiento/Scraping_Limpieza_Preprocesing_Data.ipynb",
+      "reason": "Filtro o notebook antiguo sin uso en pipeline; archivo aprobado expresamente por usuario",
+      "bytes": 621266,
+      "sha256": "acca2313eca1e7e00b746de29d5ebc5fc49280175174dc34486419614d73162f"
+    }
+  ]
+}
