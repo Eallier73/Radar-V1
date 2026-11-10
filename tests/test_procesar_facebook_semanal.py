@@ -6,6 +6,7 @@ import json
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 
@@ -14,7 +15,7 @@ SHARED_DIR = REPO_ROOT / "scr" / "compartido"
 if str(SHARED_DIR) not in sys.path:
     sys.path.insert(0, str(SHARED_DIR))
 
-from facebook_data_contract import FACEBOOK_PROCESSED_COLUMNS
+from facebook_data_contract import FACEBOOK_PROCESSED_COLUMNS, historical_facebook_row
 from output_naming import build_source_filename, build_week_folder_name
 
 
@@ -29,6 +30,97 @@ SPEC.loader.exec_module(PROCESSOR)
 
 
 class ProcesarFacebookSemanalTests(unittest.TestCase):
+    def test_restored_unknown_date_parent_keeps_verified_historical_comment(self) -> None:
+        week = "2026-03-09_semana_09marzo_15marzo_26"
+        parent = {"tipo": "POST", "cuenta": "tampicogob", "url": "https://facebook.com/TampicoGob/posts/1",
+                  "post_url_padre": "", "fecha": "Desconocida", "texto": "", "num_comentarios": "1"}
+        comment = {"tipo": "COMENTARIO", "cuenta": "tampicogob", "url": parent["url"] + "?comment_id=2",
+                   "post_url_padre": parent["url"], "fecha": "2026-03-10T12:00:00+00:00",
+                   "texto": "Comentario ciudadano", "num_comentarios": ""}
+        cleaned, counters = PROCESSOR.project_and_clean_rows(
+            [parent, comment], schema="canonical", week_name=week,
+            historical_rows=[historical_facebook_row(parent)],
+        )
+        self.assertEqual(len(cleaned), 2)
+        self.assertEqual(cleaned[1]["fecha"], comment["fecha"])
+        self.assertEqual(counters["historical_dates_accepted"], 1)
+        self.assertEqual(counters["orphan_comments"], 0)
+        again, second = PROCESSOR.project_and_clean_rows(
+            cleaned, schema="canonical", week_name=week,
+            historical_rows=[historical_facebook_row(parent)],
+        )
+        self.assertEqual(again, cleaned)
+        self.assertEqual(second["kept"], 2)
+
+    def test_registered_history_keeps_original_dates_and_is_idempotent(self) -> None:
+        week = "2026-03-09_semana_09marzo_15marzo_26"
+        parent = "https://facebook.com/TampicoGob/posts/1"
+        rows = [
+            {"tipo": "POST", "cuenta": "tampicogob", "url": parent,
+             "post_url_padre": "", "fecha": "Desconocida", "texto": "Post", "num_comentarios": "1"},
+            {"tipo": "COMENTARIO", "cuenta": "tampicogob", "url": parent + "?comment_id=2",
+             "post_url_padre": parent, "fecha": "767h", "texto": "Niñas y niños", "num_comentarios": ""},
+        ]
+        authorized = [historical_facebook_row(row) for row in rows]
+        strict, _ = PROCESSOR.project_and_clean_rows(rows, schema="canonical", week_name=week)
+        self.assertEqual(strict, [])
+        kept, counts = PROCESSOR.project_and_clean_rows(
+            rows, schema="canonical", week_name=week, historical_rows=authorized,
+        )
+        self.assertEqual(kept, authorized)
+        self.assertEqual([row["fecha"] for row in kept], ["Desconocida", "767h"])
+        self.assertEqual(counts["historical_dates_accepted"], 2)
+        self.assertEqual(counts["date_unknown"] + counts["date_invalid"], 0)
+        again, second = PROCESSOR.project_and_clean_rows(
+            kept, schema="canonical", week_name=week, historical_rows=authorized,
+        )
+        self.assertEqual(again, kept)
+        self.assertEqual(second["read"], second["kept"])
+        mutated = [rows[0], {**rows[1], "texto": "No es el registro autorizado"}]
+        kept, counts = PROCESSOR.project_and_clean_rows(
+            mutated, schema="canonical", week_name=week, historical_rows=authorized,
+        )
+        self.assertEqual(len(kept), 1)
+        self.assertEqual(counts["date_invalid"], 1)
+
+    def test_historical_exception_does_not_waive_other_filters_or_real_dates(self) -> None:
+        week = "2026-03-09_semana_09marzo_15marzo_26"
+        rows = [
+            {"tipo": "POST", "cuenta": "otra", "url": "https://facebook.com/otra/posts/1",
+             "post_url_padre": "", "fecha": "767h", "texto": "Post", "num_comentarios": "0"},
+            {"tipo": "POST", "cuenta": "tampicogob", "url": "https://facebook.com/TampicoGob/posts/2",
+             "post_url_padre": "", "fecha": "2026-03-20T12:00:00+00:00", "texto": "Fuera", "num_comentarios": "0"},
+            {"tipo": "COMENTARIO", "cuenta": "tampicogob", "url": "",
+             "post_url_padre": "https://facebook.com/TampicoGob/posts/inexistente", "fecha": "767h", "texto": "Huerfano", "num_comentarios": ""},
+        ]
+        kept, counts = PROCESSOR.project_and_clean_rows(
+            rows, schema="canonical", week_name=week,
+            historical_rows=[historical_facebook_row(row) for row in rows],
+        )
+        self.assertEqual(kept, [])
+        self.assertEqual(counts["non_base_account"], 1)
+        self.assertEqual(counts["date_outside_week"], 1)
+        self.assertEqual(counts["orphan_comments"], 1)
+
+    def test_process_file_preserves_registered_unknown_date_and_reports_it(self) -> None:
+        week = "2026-03-09_semana_09marzo_15marzo_26"
+        row = {"tipo": "POST", "cuenta": "tampicogob", "url": "https://facebook.com/TampicoGob/posts/1",
+               "post_url_padre": "", "fecha": "Desconocida", "texto": "Post", "num_comentarios": "0"}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "input" / week / f"{week}_facebook.csv"
+            path.parent.mkdir(parents=True)
+            with path.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=FACEBOOK_PROCESSED_COLUMNS)
+                writer.writeheader()
+                writer.writerow(row)
+            with patch.object(PROCESSOR, "load_historical_facebook_rows", return_value=[row]):
+                result = PROCESSOR.process_file(path, root / "output", excluded_dir=root / "excluded")
+            self.assertEqual(result.status, "success", result.error)
+            self.assertEqual((result.rows_kept, result.historical_dates_accepted, result.excluded_rows), (1, 1, 0))
+            with Path(result.output_csv).open(encoding="utf-8-sig", newline="") as handle:
+                self.assertEqual(next(csv.DictReader(handle))["fecha"], "Desconocida")
+
     def test_canonical_filters_accounts_dates_empty_and_duplicates(self) -> None:
         week = "2026-03-09_semana_09marzo_15marzo_26"
         rows = [

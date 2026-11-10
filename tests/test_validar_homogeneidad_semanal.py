@@ -5,6 +5,7 @@ import importlib.util
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 
@@ -19,6 +20,57 @@ SPEC.loader.exec_module(MODULE)
 
 
 class HomogeneityValidatorTests(unittest.TestCase):
+    def test_coverage_guard_rejects_valid_but_empty_txt(self) -> None:
+        week = "2026-04-06_semana_06abril_12abril_26"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / week / f"{week}_youtube.csv"
+            self._write_csv(path, MODULE.YOUTUBE_OUTPUT_COLUMNS)
+            path.with_suffix(".txt").write_text("", encoding="utf-8")
+            allowed = MODULE.validate(root, ("youtube",), set(), require_same_weeks=False,
+                                      source_dirs={"youtube": root})
+            checked = MODULE.validate(root, ("youtube",), set(), require_same_weeks=False,
+                                      source_dirs={"youtube": root}, require_nonempty_text=True)
+            self.assertEqual(allowed["status"], "ok", allowed["errors"])
+            self.assertEqual(checked["status"], "error")
+            self.assertEqual(checked["summary"]["youtube"]["empty_text_weeks"], 1)
+            self.assertTrue(any("cobertura incompleta" in error for error in checked["errors"]))
+
+    def test_coverage_guard_is_not_a_csv_only_check(self) -> None:
+        self.assertEqual(MODULE.main(["--csv-only", "--require-nonempty-text"]), 2)
+
+    def test_coverage_guard_rejects_directory_without_weeks(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            result = MODULE.validate(root, ("youtube",), set(), require_same_weeks=False,
+                                     source_dirs={"youtube": root}, require_nonempty_text=True)
+            self.assertEqual(result["status"], "error")
+            self.assertTrue(any("no hay semanas" in error for error in result["errors"]))
+
+    def test_facebook_historical_date_waiver_requires_exact_registered_row(self) -> None:
+        week = "2026-04-06_semana_06abril_12abril_26"
+        row = dict.fromkeys(MODULE.FACEBOOK_PROCESSED_COLUMNS, "")
+        row.update(tipo="POST", cuenta="tampicogob", url="https://facebook.com/TampicoGob/posts/1",
+                   fecha="767h", texto="Registro historico")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / week / f"{week}_facebook.csv"
+            path.parent.mkdir()
+            with path.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=MODULE.FACEBOOK_PROCESSED_COLUMNS)
+                writer.writeheader()
+                writer.writerow(row)
+            path.with_suffix(".txt").write_text(MODULE.build_text_content("facebook", [row])[0])
+            with patch.object(MODULE, "load_historical_facebook_rows", return_value=[row]):
+                accepted = MODULE.validate(root, ("facebook",), set(), require_same_weeks=False,
+                                           source_dirs={"facebook": root})
+            self.assertEqual(accepted["status"], "ok", accepted["errors"])
+            with patch.object(MODULE, "load_historical_facebook_rows", return_value=[{**row, "texto": "Otro"}]):
+                rejected = MODULE.validate(root, ("facebook",), set(), require_same_weeks=False,
+                                           source_dirs={"facebook": root})
+            self.assertEqual(rejected["status"], "error")
+            self.assertTrue(any("fecha fuera de contrato" in error for error in rejected["errors"]))
+
     def _write_csv(self, path: Path, columns: tuple[str, ...]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", encoding="utf-8-sig", newline="") as handle:

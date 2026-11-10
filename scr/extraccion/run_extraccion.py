@@ -169,6 +169,7 @@ def build_source_plans(
             "--sources", source,
             "--source-dir", str(source_dir),
             "--weeks", since,
+            "--require-nonempty-text",
         )
 
     def promotion_command(source: str, source_dir: Path) -> tuple[str, ...]:

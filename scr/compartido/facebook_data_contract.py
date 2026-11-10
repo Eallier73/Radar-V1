@@ -282,6 +282,20 @@ def facebook_dedup_key(row: Mapping[str, str]) -> tuple[str, ...]:
     )
 
 
+def historical_facebook_row(row: Mapping[str, str]) -> dict[str, str]:
+    """Proyecta las siete columnas sin inventar ni sustituir la fecha original."""
+    projected, _ = project_facebook_row(row, schema="canonical")
+    projected["fecha"] = str(row.get("fecha") or "")
+    if projected["tipo"] == "COMENTARIO" and normalize_facebook_comment_url(projected["url"]) == normalize_facebook_url(projected["post_url_padre"]):
+        projected["url"] = ""
+    return projected
+
+
+def historical_facebook_key(row: Mapping[str, str]) -> tuple[str, ...]:
+    projected = historical_facebook_row(row)
+    return tuple(projected[column] for column in FACEBOOK_PROCESSED_COLUMNS)
+
+
 def canonicalize_facebook_rows(
     raw_rows: Sequence[dict[str, str]],
     *,
@@ -289,13 +303,17 @@ def canonicalize_facebook_rows(
     week_start: datetime,
     week_before: datetime,
     exclusions: list[dict[str, object]] | None = None,
+    historical_rows: Sequence[Mapping[str, str]] = (),
 ) -> tuple[list[dict[str, str]], Counter[str]]:
-    """Same strict weekly contract for historical CSVs and live extraction.
+    """Contrato semanal estricto, salvo filas historicas autorizadas exactamente.
 
-    Relative/missing dates cannot establish a publication week. Retain their
-    original values in an exclusion ledger rather than fabricating a date.
+    Los extractores no proporcionan ``historical_rows`` y siguen rechazando
+    fechas no verificables. La excepcion no elimina controles de cuentas,
+    duplicados, contenido ni vinculos entre publicaciones y comentarios.
     """
     counters: Counter[str] = Counter(read=len(raw_rows))
+    accepted_history = Counter(historical_facebook_key(row) for row in historical_rows)
+    historical_indices: set[int] = set()
     post_accounts = {}
     if schema == "canonical":
         for raw in raw_rows:
@@ -321,12 +339,20 @@ def canonicalize_facebook_rows(
         row, status = project_facebook_row(raw, schema=schema, post_accounts=post_accounts)
         counters[f"dates_{status}"] += 1
         if status != "valid":
-            exclude(index, raw, row, f"date_{status}")
-            continue
-        published_at = datetime.fromisoformat(row["fecha"])
-        if not week_start <= published_at < week_before:
-            exclude(index, raw, row, "date_outside_week")
-            continue
+            candidate = historical_facebook_row(raw) if schema == "canonical" else None
+            key = historical_facebook_key(candidate) if candidate is not None else ()
+            if accepted_history[key] > 0:
+                accepted_history[key] -= 1
+                row = candidate
+                historical_indices.add(index)
+            else:
+                exclude(index, raw, row, f"date_{status}")
+                continue
+        else:
+            published_at = datetime.fromisoformat(row["fecha"])
+            if not week_start <= published_at < week_before:
+                exclude(index, raw, row, "date_outside_week")
+                continue
         account = normalize_account(row["cuenta"])
         if account and account not in FACEBOOK_BASE_ACCOUNTS:
             exclude(index, raw, row, "non_base_account")
@@ -366,5 +392,7 @@ def canonicalize_facebook_rows(
             continue
         kept.append(row)
         counters["kept"] += 1
+        if index in historical_indices:
+            counters["historical_dates_accepted"] += 1
         counters["posts" if row["tipo"] == "POST" else "comments"] += 1
     return kept, counters

@@ -8,6 +8,7 @@ import csv
 import json
 import re
 import sys
+from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Sequence
@@ -24,8 +25,10 @@ from facebook_data_contract import (
     FACEBOOK_BASE_ACCOUNTS,
     FACEBOOK_PROCESSED_COLUMNS,
     facebook_dedup_key,
+    historical_facebook_key,
     normalize_facebook_url,
 )
+from facebook_historical_contract import load_historical_facebook_rows
 from medios_data_contract import (
     MEDIOS_OUTPUT_COLUMNS,
     clean_media_text,
@@ -187,7 +190,10 @@ def validate_medios(week: Path, errors: list[str], *, historical_text: bool = Fa
     return len(compact.split())
 
 
-def validate_facebook(week: Path, errors: list[str], *, require_txt: bool = True) -> int:
+def validate_facebook(
+    week: Path, errors: list[str], *, require_txt: bool = True,
+    historical_counts: dict[str, int] | None = None,
+) -> int:
     csv_path = week / f"{week.name}_facebook.csv"
     txt_path = week / f"{week.name}_facebook.txt"
     if not csv_path.is_file() or (require_txt and not txt_path.is_file()):
@@ -203,8 +209,15 @@ def validate_facebook(week: Path, errors: list[str], *, require_txt: bool = True
         for row in rows
         if row.get("tipo") == "POST" and row.get("url")
     }
+    historical = Counter(historical_facebook_key(row) for row in load_historical_facebook_rows(week.name))
+    historical_count = 0
     seen: set[tuple[str, ...]] = set()
     for index, row in enumerate(rows, start=2):
+        history_key = historical_facebook_key(row)
+        registered_history = historical[history_key] > 0
+        if registered_history:
+            historical[history_key] -= 1
+            historical_count += 1
         if row.get("cuenta") not in FACEBOOK_BASE_ACCOUNTS:
             errors.append(f"facebook/{week.name}:{index}: cuenta fuera de contrato")
         if row.get("tipo") not in {"POST", "COMENTARIO"}:
@@ -212,9 +225,9 @@ def validate_facebook(week: Path, errors: list[str], *, require_txt: bool = True
         if not str(row.get("texto", "")).strip() and row.get("tipo") != "POST":
             errors.append(f"facebook/{week.name}:{index}: comentario vacío")
         raw_date = str(row.get("fecha", "")).strip()
-        if not raw_date:
+        if not raw_date and not registered_history:
             errors.append(f"facebook/{week.name}:{index}: falta fecha verificable")
-        if raw_date:
+        if raw_date and not registered_history:
             try:
                 parsed = datetime.fromisoformat(raw_date)
                 parsed = (
@@ -239,6 +252,8 @@ def validate_facebook(week: Path, errors: list[str], *, require_txt: bool = True
     expected_txt, _, _ = build_text_content("facebook", rows)
     if require_txt and expected_txt != txt_path.read_text(encoding="utf-8"):
         errors.append(f"facebook/{week.name}: TXT no corresponde al CSV")
+    if historical_counts is not None:
+        historical_counts[week.name] = historical_count
     return len(rows)
 
 
@@ -259,6 +274,7 @@ def validate(
     source_dirs: dict[str, Path] | None = None,
     csv_only: bool = False,
     historical_media_txt: bool = False,
+    require_nonempty_text: bool = False,
 ) -> dict[str, object]:
     errors: list[str] = []
     summary: dict[str, dict[str, int]] = {}
@@ -276,16 +292,32 @@ def validate(
         weeks = selected_weeks(base, requested)
         if requested and not weeks:
             errors.append(f"{source}: no se encontró la semana solicitada")
+        if require_nonempty_text and not weeks:
+            errors.append(f"{source}: no hay semanas para comprobar cobertura de texto")
         week_sets[source] = {week.name for week in weeks}
         week_counts: list[int] = []
+        empty_text_weeks = 0
+        facebook_historical_counts: dict[str, int] = {}
         for week in weeks:
             try:
                 if source == "medios" and historical_media_txt:
                     week_counts.append(validate_medios(week, errors, historical_text=True))
+                elif source == "facebook":
+                    week_counts.append(validate_facebook(
+                        week, errors, require_txt=not csv_only,
+                        historical_counts=facebook_historical_counts,
+                    ))
                 elif csv_only and source != "medios":
                     week_counts.append(VALIDATORS[source](week, errors, require_txt=False))
                 else:
                     week_counts.append(VALIDATORS[source](week, errors))
+                if require_nonempty_text:
+                    txt_path = week / f"{week.name}_{source}.txt"
+                    if not txt_path.is_file():
+                        errors.append(f"{source}/{week.name}: falta TXT para comprobar cobertura")
+                    elif not txt_path.read_text(encoding="utf-8").strip():
+                        empty_text_weeks += 1
+                        errors.append(f"{source}/{week.name}: TXT vacío; cobertura incompleta")
             except (OSError, ValueError) as exc:
                 errors.append(f"{source}/{week.name}: {exc}")
                 week_counts.append(0)
@@ -294,6 +326,8 @@ def validate(
             "nonempty_weeks": sum(count > 0 for count in week_counts),
             "empty_weeks": sum(count == 0 for count in week_counts),
         }
+        if require_nonempty_text:
+            source_summary["empty_text_weeks"] = empty_text_weeks
         if source == "medios":
             source_summary.update(
                 {
@@ -312,6 +346,9 @@ def validate(
             )
         else:
             source_summary["rows"] = sum(week_counts)
+            if source == "facebook":
+                source_summary["historical_unverified_date_rows"] = sum(facebook_historical_counts.values())
+                source_summary["historical_date_exception_weeks"] = sum(count > 0 for count in facebook_historical_counts.values())
         summary[source] = source_summary
     if require_same_weeks and week_sets:
         reference = week_sets[sources[0]]
@@ -321,6 +358,7 @@ def validate(
     return {
         "status": "ok" if not errors else "error",
         "scope": "extractor_to_csv_with_historical_media_txt" if csv_only else "csv_to_txt",
+        "nonempty_text_required": require_nonempty_text,
         "root": str(root),
         "summary": summary,
         "errors": errors,
@@ -345,12 +383,17 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--accept-historical-media-txt", action="store_true",
                         help="Acepta Medios TXT como original histórico independiente del CSV; valida solo el esquema de los CSV opcionales.")
     parser.add_argument("--require-same-weeks", action="store_true")
+    parser.add_argument("--require-nonempty-text", action="store_true",
+                        help="Falla si alguna semana seleccionada carece de TXT o tiene el TXT vacío.")
     parser.add_argument("--audit-path", type=Path, default=None)
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
+    if args.csv_only and args.require_nonempty_text:
+        print("ERROR: --require-nonempty-text no se combina con --csv-only.", file=sys.stderr)
+        return 2
     if args.source_dir is not None and args.extracted_dir is not None:
         print("ERROR: no se combinan --source-dir y --extracted-dir.", file=sys.stderr)
         return 2
@@ -372,6 +415,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         source_dirs=source_dirs,
         csv_only=args.csv_only,
         historical_media_txt=args.accept_historical_media_txt,
+        require_nonempty_text=args.require_nonempty_text,
     )
     rendered = json.dumps(result, ensure_ascii=False, indent=2)
     print(rendered)

@@ -79,6 +79,7 @@ class RunExtraccionTests(unittest.TestCase):
             "validar_homogeneidad_semanal.py",
             plans[0].commands[4].command[1],
         )
+        self.assertIn("--require-nonempty-text", plans[0].commands[4].command)
 
     def test_youtube_and_twitter_plans_finish_in_processed_directories(self):
         output_dir = Path("/tmp/radar-test-output")
@@ -100,6 +101,7 @@ class RunExtraccionTests(unittest.TestCase):
         self.assertIn(str(twitter_dir), plans[1].commands[1].command)
         self.assertIn("promover_csv_a_texto.py", plans[0].commands[2].command[1])
         self.assertIn("promover_csv_a_texto.py", plans[1].commands[2].command[1])
+        self.assertTrue(all("--require-nonempty-text" in plan.commands[-1].command for plan in plans))
 
     def test_medios_plan_extracts_then_processes_csv_and_txt(self):
         output_dir = Path("/tmp/radar-test-output")

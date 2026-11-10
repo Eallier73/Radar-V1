@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Homologa Facebook con fechas semanales verificables y exclusiones trazables."""
+"""Homologa Facebook con fechas estrictas y excepciones historicas trazables."""
 
 from __future__ import annotations
 
@@ -31,6 +31,7 @@ from facebook_data_contract import (
     canonicalize_facebook_rows,
     detect_facebook_schema,
 )
+from facebook_historical_contract import DEFAULT_HISTORICAL_DIR, load_historical_facebook_rows
 from output_naming import build_source_filename, build_week_folder_name
 from radar_paths import DATA_DIR, EXTRACTED_DATA_DIR, PROCESSED_DATA_DIR
 
@@ -68,6 +69,7 @@ class WeekResult:
     dates_valid: int = 0
     dates_unknown: int = 0
     dates_invalid: int = 0
+    historical_dates_accepted: int = 0
     status: str = "pending"
     error: str = ""
 
@@ -106,6 +108,7 @@ def project_and_clean_rows(
     schema: str,
     week_name: str,
     exclusions: list[dict[str, object]] | None = None,
+    historical_rows: Sequence[dict[str, str]] = (),
 ) -> tuple[list[dict[str, str]], Counter[str]]:
     week_match = WEEK_DIR_RE.fullmatch(week_name)
     if not week_match:
@@ -118,6 +121,7 @@ def project_and_clean_rows(
     return canonicalize_facebook_rows(
         raw_rows, schema=schema, week_start=week_start,
         week_before=week_before, exclusions=exclusions,
+        historical_rows=historical_rows,
     )
 
 
@@ -162,6 +166,7 @@ def process_file(
             schema=schema,
             week_name=week_name,
             exclusions=exclusions,
+            historical_rows=load_historical_facebook_rows(week_name),
         )
         result.rows_read = counters["read"]
         result.rows_kept = counters["kept"]
@@ -181,6 +186,7 @@ def process_file(
         result.dates_valid = counters["dates_valid"]
         result.dates_unknown = counters["dates_unknown"]
         result.dates_invalid = counters["dates_invalid"]
+        result.historical_dates_accepted = counters["historical_dates_accepted"]
         result.excluded_rows = len(exclusions)
         if result.rows_read != result.rows_kept + result.excluded_rows:
             raise ValueError("Las filas conservadas y excluidas no reconcilian con la entrada")
@@ -233,8 +239,10 @@ def build_audit(results: Sequence[WeekResult]) -> dict[str, object]:
             "columns": list(FACEBOOK_PROCESSED_COLUMNS),
             "excluded_original_rows_preserved": True,
             "unknown_dates_preserved_as_blank": False,
-            "unknown_dates_excluded": True,
-            "invalid_dates_excluded": True,
+            "unregistered_unknown_dates_excluded": True,
+            "unregistered_invalid_dates_excluded": True,
+            "historical_date_exception_registry": str(DEFAULT_HISTORICAL_DIR),
+            "historical_dates_preserved_verbatim": True,
             "unknown_accounts_removed": True,
             "historical_dates_outside_folder_removed": True,
             "future_extractors_filter_requested_week": True,
@@ -270,6 +278,7 @@ def build_audit(results: Sequence[WeekResult]) -> dict[str, object]:
             "dates_valid": sum(result.dates_valid for result in results),
             "dates_unknown": sum(result.dates_unknown for result in results),
             "dates_invalid": sum(result.dates_invalid for result in results),
+            "historical_dates_accepted": sum(result.historical_dates_accepted for result in results),
         },
         "weeks": [result.to_dict() for result in results],
     }
@@ -327,7 +336,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     print(f"Semanas procesadas: {summary['weeks_success']}/{summary['weeks']}")
     print(f"Filas: {summary['rows_read']} leídas, {summary['rows_kept']} conservadas")
     print(f"Posts: {summary['posts_kept']} | Comentarios: {summary['comments_kept']}")
-    print(f"Exclusiones conservadas: {summary['excluded_rows']} | Semanas sin material verificable: {len(summary['empty_weeks'])}")
+    print(f"Exclusiones conservadas: {summary['excluded_rows']} | Semanas vacías: {len(summary['empty_weeks'])}")
     print(f"Salida: {output_dir}")
     return 1 if summary["weeks_error"] else 0
 

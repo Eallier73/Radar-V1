@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-09",
+  "status": "ok",
+  "authorization": "Reparar las cinco semanas de Facebook sin datos o sin texto",
+  "historical_comments_restored": 210,
+  "historical_weeks_repaired": [
+    {
+      "week": "2025-03-03_semana_03marzo_09marzo_25",
+      "restored_comments": 50,
+      "rows_after": 61,
+      "expected_txt_lines": 47,
+      "csv_path": "datos/radar_semanal_extraido/2025-03-03_semana_03marzo_09marzo_25/2025-03-03_semana_03marzo_09marzo_25_facebook.csv",
+      "csv_sha256": "cd8e432ceea4b46a912cdb1a7180be31fd0d921389253e511a1a71610bc1fb04",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-03-03_semana_03marzo_09marzo_25/facebook_comentarios_reincorporados.jsonl",
+      "registry_sha256": "5a2cb93801e047895c7aad092cd441d269da9538f0cf62388368808eb3e468ca",
+      "txt_lines": 47
+    },
+    {
+      "week": "2025-03-10_semana_10marzo_16marzo_25",
+      "restored_comments": 51,
+      "rows_after": 62,
+      "expected_txt_lines": 51,
+      "csv_path": "datos/radar_semanal_extraido/2025-03-10_semana_10marzo_16marzo_25/2025-03-10_semana_10marzo_16marzo_25_facebook.csv",
+      "csv_sha256": "e40383217aef2fcee6230373074a3ad52cc48642540ad36d47798724175cf8e3",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-03-10_semana_10marzo_16marzo_25/facebook_comentarios_reincorporados.jsonl",
+      "registry_sha256": "813c92237611aa81019a0386f9f3a8ae8ebde7b8b769df2492a1d5082f018e72",
+      "txt_lines": 51
+    },
+    {
+      "week": "2025-03-17_semana_17marzo_23marzo_25",
+      "restored_comments": 24,
+      "rows_after": 32,
+      "expected_txt_lines": 24,
+      "csv_path": "datos/radar_semanal_extraido/2025-03-17_semana_17marzo_23marzo_25/2025-03-17_semana_17marzo_23marzo_25_facebook.csv",
+      "csv_sha256": "3a9fbf6d3cc2bb5c7c004c8b0075f8c05484846a3c872030dd0371fc2a16852b",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-03-17_semana_17marzo_23marzo_25/facebook_comentarios_reincorporados.jsonl",
+      "registry_sha256": "d7c88fc26a85dff3153b3fc1cb9425f28e7755e11f72e29c59b45248a9fbda7f",
+      "txt_lines": 24
+    },
+    {
+      "week": "2025-09-01_semana_01septiembre_07septiembre_25",
+      "restored_comments": 85,
+      "rows_after": 106,
+      "expected_txt_lines": 83,
+      "csv_path": "datos/radar_semanal_extraido/2025-09-01_semana_01septiembre_07septiembre_25/2025-09-01_semana_01septiembre_07septiembre_25_facebook.csv",
+      "csv_sha256": "41de48396444afb43cb3512dffe33e57a3436f1e59d17e7eadb0549ec3bcad20",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-09-01_semana_01septiembre_07septiembre_25/facebook_comentarios_reincorporados.jsonl",
+      "registry_sha256": "7d911098d2a806bb362dd1b1b54e6e94223d044c072f25fecf2f3501661ea5d8",
+      "txt_lines": 83
+    }
+  ],
+  "live_extraction_week": "2025-03-24_semana_24marzo_30marzo_25",
+  "backup": "/home/emilio/Documentos/Radar V1/trash/respaldos/facebook_vacios_2026-11-09_bvkxiq7m",
+  "out_of_period_records_relabelled": false,
+  "dates_invented": false,
+  "target_weeks": [
+    "2025-03-03_semana_03marzo_09marzo_25",
+    "2025-03-10_semana_10marzo_16marzo_25",
+    "2025-03-17_semana_17marzo_23marzo_25",
+    "2025-03-24_semana_24marzo_30marzo_25",
+    "2025-09-01_semana_01septiembre_07septiembre_25"
+  ],
+  "live_extraction": {
+    "week": "2025-03-24_semana_24marzo_30marzo_25",
+    "rows": 469,
+    "posts": 38,
+    "comments": 431,
+    "expected_txt_lines": 413,
+    "empty_after_normalization": 56,
+    "csv_path": "datos/radar_semanal_extraido/2025-03-24_semana_24marzo_30marzo_25/2025-03-24_semana_24marzo_30marzo_25_facebook.csv",
+    "csv_sha256": "58be58e0e2b8723d34e4dcf3fc9de10882d3a4e133284819b8c23d976f55d31d",
+    "evidence": "/home/emilio/Documentos/Radar V1/trash/respaldos/facebook_vacios_2026-11-09_bvkxiq7m/extraccion_real_2025-03-24"
+  },
+  "all_five_txt_repaired": true,
+  "facebook_csv_rows": 10027,
+  "facebook_txt_lines": 9614,
+  "facebook_weeks_with_text": 83,
+  "empty_facebook_weeks": 0,
+  "all_sources_weeks_with_text": {
+    "youtube": {
+      "weeks": 83,
+      "nonempty_weeks": 83,
+      "empty_weeks": 0,
+      "empty_text_weeks": 0,
+      "rows": 76986
+    },
+    "twitter": {
+      "weeks": 83,
+      "nonempty_weeks": 83,
+      "empty_weeks": 0,
+      "empty_text_weeks": 0,
+      "rows": 9391
+    },
+    "facebook": {
+      "weeks": 83,
+      "nonempty_weeks": 83,
+      "empty_weeks": 0,
+      "empty_text_weeks": 0,
+      "rows": 10027,
+      "historical_unverified_date_rows": 6789,
+      "historical_date_exception_weeks": 20
+    },
+    "medios": {
+      "weeks": 83,
+      "nonempty_weeks": 83,
+      "empty_weeks": 0,
+      "empty_text_weeks": 0,
+      "words": 3869708,
+      "structured_weeks": 0,
+      "text_only_weeks": 83,
+      "historical_txt_accepted": true,
+      "csv_content_checked": false
+    }
+  },
+  "txt_files_checked": 332,
+  "idempotent_social_txt_files": 249,
+  "unchanged_unrelated_data_files": 1086,
+  "prior_files_preserved": 15,
+  "live_actor_runs": [
+    {
+      "actor": "apify/facebook-posts-scraper",
+      "run_ids": [
+        "z5ID81ufnDfoAhRid"
+      ],
+      "statuses": [
+        "SUCCEEDED"
+      ],
+      "reported_cost_usd": 0.191
+    },
+    {
+      "actor": "apify/facebook-comments-scraper",
+      "run_ids": [
+        "2QfTAUcmvBCi3zeYc",
+        "RYRgZGauhdir8tybs"
+      ],
+      "statuses": [
+        "SUCCEEDED",
+        "SUCCEEDED"
+      ],
+      "reported_cost_usd": 1.552
+    }
+  ],
+  "live_reported_cost_usd": 1.743,
+  "coverage_guard": "--require-nonempty-text enabled by run_extraccion.py",
+  "tests_passed": 77
+}

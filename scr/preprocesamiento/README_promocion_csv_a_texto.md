@@ -37,6 +37,12 @@ Los TXT históricos de Medios sin CSV no se descubren en `--all-weeks` y
 permanecen intactos. La limpieza sólo afecta a los TXT derivados; los CSV
 canónicos conservan el contenido original.
 
+Facebook incluye los registros históricos con fecha desconocida o relativa
+reincorporados por decisión del usuario. Su procedencia se registra en
+`datos/radar_historico_reincorporado/facebook/`: no se inventa una fecha de
+publicación y la promoción a TXT aplica a su texto la misma limpieza ASCII.
+Esta excepción histórica no se extiende a las nuevas extracciones.
+
 ## Ejecución semanal
 
 ```bash
@@ -59,3 +65,18 @@ python scr/preprocesamiento/promover_csv_a_texto.py \
 El runner de extracción llama automáticamente al promotor después de crear el
 CSV procesado y antes de validar el contrato semanal. La etapa 2 del
 orquestador permite ejecutarlo de forma independiente.
+
+## Cobertura de texto
+
+El runner exige `--require-nonempty-text` al validador: ninguna semana se da
+por terminada si falta su TXT o queda sin contenido. Para comprobar todo el
+histórico procesado, ejecutar:
+
+```bash
+python scr/preprocesamiento/validar_homogeneidad_semanal.py \
+  --require-same-weeks --accept-historical-media-txt --require-nonempty-text
+```
+
+Este control detecta vacíos; no los rellena con otras fechas ni inventa texto.
+Las filas individuales sin letras tras la limpieza siguen omitiéndose del TXT,
+sin eliminarse del CSV.

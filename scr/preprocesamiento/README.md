@@ -6,7 +6,7 @@ Sólo estos seis programas forman la etapa operativa:
 | --- | --- |
 | `limpiar_youtube_semanal.py` | Derivar el CSV procesado de YouTube. |
 | `limpiar_twitter_semanal.py` | Derivar el CSV procesado de Twitter y aplicar su alcance por cuentas. |
-| `procesar_facebook_semanal.py` | Derivar el CSV procesado de publicaciones y comentarios de Facebook. |
+| `procesar_facebook_semanal.py` | Derivar el CSV procesado de Facebook, conservando las excepciones históricas de fecha registradas por procedencia. |
 | `procesar_medios_semanal.py` | Derivar el CSV procesado de Medios cuando existe un CSV de entrada; no transforma los TXT históricos. |
 | `promover_csv_a_texto.py` | Derivar TXT limpios desde los CSV procesados, sin modificar los CSV. |
 | `validar_homogeneidad_semanal.py` | Validar contratos semanales y correspondencia CSV/TXT. |

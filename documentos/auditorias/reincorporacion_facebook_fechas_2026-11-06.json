@@ -1,0 +1,281 @@
+{
+  "date": "2026-11-06",
+  "status": "ok",
+  "authorization": "Incorporar al material historico los registros excluidos por fecha desconocida o invalida",
+  "publication_dates_invented": false,
+  "week_assignment": "original_source_week_not_verified_publication_week",
+  "columns": [
+    "tipo",
+    "cuenta",
+    "url",
+    "post_url_padre",
+    "fecha",
+    "texto",
+    "num_comentarios"
+  ],
+  "new_extractions_remain_strict": true,
+  "restored_rows": 6789,
+  "reasons": {
+    "date_unknown": 3884,
+    "date_invalid": 2905
+  },
+  "weeks_restored": 20,
+  "backup": "/home/emilio/Documentos/Radar V1/trash/respaldos/facebook_antes_reincorporacion_fechas_2026-11-06_1hm081m_",
+  "weeks": [
+    {
+      "week": "2025-03-03_semana_03marzo_09marzo_25",
+      "restored_rows": 11,
+      "reasons": {
+        "date_unknown": 11
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-03-03_semana_03marzo_09marzo_25/2025-03-03_semana_03marzo_09marzo_25_facebook.csv",
+      "csv_sha256": "b53a0e019e2f3cccc5c07f024d04c33478d11de7845e1adfef760e447f96704b",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-03-03_semana_03marzo_09marzo_25/facebook_reincorporado.jsonl",
+      "registry_sha256": "99406e1476fe5a1ccb2af39a69a4d7f34c89778ce22a7bb73731638e6a1b93bb"
+    },
+    {
+      "week": "2025-03-10_semana_10marzo_16marzo_25",
+      "restored_rows": 11,
+      "reasons": {
+        "date_unknown": 11
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-03-10_semana_10marzo_16marzo_25/2025-03-10_semana_10marzo_16marzo_25_facebook.csv",
+      "csv_sha256": "c15b595462d0ea1cc1fbf7c5a0f036bf09b6897bfd925b55498158bad31d662c",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-03-10_semana_10marzo_16marzo_25/facebook_reincorporado.jsonl",
+      "registry_sha256": "6013a9d6445d09a405b389828a661cebc622c32f2c61c7fccd1b68044f0eda63"
+    },
+    {
+      "week": "2025-03-17_semana_17marzo_23marzo_25",
+      "restored_rows": 8,
+      "reasons": {
+        "date_unknown": 8
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-03-17_semana_17marzo_23marzo_25/2025-03-17_semana_17marzo_23marzo_25_facebook.csv",
+      "csv_sha256": "122ae498a6321214261f14506756b3c4c4cf9ccc41c9ef040bd79d54c4f248b3",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-03-17_semana_17marzo_23marzo_25/facebook_reincorporado.jsonl",
+      "registry_sha256": "ae3a6f376202c4b17613343118dc3ca32f5137d81277fd414e78bb00bf7a04c0"
+    },
+    {
+      "week": "2025-09-01_semana_01septiembre_07septiembre_25",
+      "restored_rows": 21,
+      "reasons": {
+        "date_unknown": 21
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-09-01_semana_01septiembre_07septiembre_25/2025-09-01_semana_01septiembre_07septiembre_25_facebook.csv",
+      "csv_sha256": "d16da3e05f3e862e06a882818ad8c295fca6c32fe0e936f3f8e2495247544bb7",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-09-01_semana_01septiembre_07septiembre_25/facebook_reincorporado.jsonl",
+      "registry_sha256": "33205a56a12281f9f271b813534ee2996c461b4a402542b630ed338514fdb915"
+    },
+    {
+      "week": "2025-11-10_semana_10noviembre_16noviembre_25",
+      "restored_rows": 433,
+      "reasons": {
+        "date_invalid": 409,
+        "date_unknown": 24
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-11-10_semana_10noviembre_16noviembre_25/2025-11-10_semana_10noviembre_16noviembre_25_facebook.csv",
+      "csv_sha256": "1982355ef88892a99b9dad3bbb9a9f05941267c7e62dbd12df14af1ffcd9ab41",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-11-10_semana_10noviembre_16noviembre_25/facebook_reincorporado.jsonl",
+      "registry_sha256": "0a94f22a4a823737fa497a7aa5861838a78ad72a2fe8c4d01ef9ef8fdb870e91"
+    },
+    {
+      "week": "2025-11-17_semana_17noviembre_23noviembre_25",
+      "restored_rows": 351,
+      "reasons": {
+        "date_invalid": 289,
+        "date_unknown": 62
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-11-17_semana_17noviembre_23noviembre_25/2025-11-17_semana_17noviembre_23noviembre_25_facebook.csv",
+      "csv_sha256": "1d5a167415b96c145eefbb392158a5bc675b8ba8a862e8493fde0834ebbff396",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-11-17_semana_17noviembre_23noviembre_25/facebook_reincorporado.jsonl",
+      "registry_sha256": "5637dc7677a78ec8f0372be6e853e63de6bb6f049717abdd36f969bb5548813a"
+    },
+    {
+      "week": "2025-11-24_semana_24noviembre_30noviembre_25",
+      "restored_rows": 268,
+      "reasons": {
+        "date_unknown": 211,
+        "date_invalid": 57
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-11-24_semana_24noviembre_30noviembre_25/2025-11-24_semana_24noviembre_30noviembre_25_facebook.csv",
+      "csv_sha256": "8ad9304b35d28ffbde4b661c44b7fc24502a2adf731572f0ae0f4f0a79a90f0f",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-11-24_semana_24noviembre_30noviembre_25/facebook_reincorporado.jsonl",
+      "registry_sha256": "b024b19504e9eadb1dcb8c3299cb71824de4eb2be01bd65d79639d9478162077"
+    },
+    {
+      "week": "2025-12-01_semana_01diciembre_07diciembre_25",
+      "restored_rows": 402,
+      "reasons": {
+        "date_unknown": 286,
+        "date_invalid": 116
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-12-01_semana_01diciembre_07diciembre_25/2025-12-01_semana_01diciembre_07diciembre_25_facebook.csv",
+      "csv_sha256": "036c600344ee193e46078d224ada31324305e37393c0ac38de07cbee6f70c464",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-12-01_semana_01diciembre_07diciembre_25/facebook_reincorporado.jsonl",
+      "registry_sha256": "852750d2fa23524a38e99ca17d85c7b0607c0efdf63d8312cd6d092f301e3e88"
+    },
+    {
+      "week": "2025-12-08_semana_08diciembre_14diciembre_25",
+      "restored_rows": 437,
+      "reasons": {
+        "date_unknown": 249,
+        "date_invalid": 188
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-12-08_semana_08diciembre_14diciembre_25/2025-12-08_semana_08diciembre_14diciembre_25_facebook.csv",
+      "csv_sha256": "f20f1c9c5853589fa9fcb643351347d7eae80d25f36370cc449f8f56ad03589e",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-12-08_semana_08diciembre_14diciembre_25/facebook_reincorporado.jsonl",
+      "registry_sha256": "aa6f4910cb4f4f638d022b98fb69628ebee676e3ef8296ef2f1ffea03de6b128"
+    },
+    {
+      "week": "2025-12-15_semana_15diciembre_21diciembre_25",
+      "restored_rows": 489,
+      "reasons": {
+        "date_unknown": 301,
+        "date_invalid": 188
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-12-15_semana_15diciembre_21diciembre_25/2025-12-15_semana_15diciembre_21diciembre_25_facebook.csv",
+      "csv_sha256": "2bccb30e52b2b7f01aa1a0f3da9efa2c741b33bba0b7abae2e031da786a3fc92",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-12-15_semana_15diciembre_21diciembre_25/facebook_reincorporado.jsonl",
+      "registry_sha256": "2d33e05902cf44bff1ce6d47f54e995b4cd546dab7687444e7461d380026715b"
+    },
+    {
+      "week": "2025-12-22_semana_22diciembre_28diciembre_25",
+      "restored_rows": 536,
+      "reasons": {
+        "date_unknown": 186,
+        "date_invalid": 350
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-12-22_semana_22diciembre_28diciembre_25/2025-12-22_semana_22diciembre_28diciembre_25_facebook.csv",
+      "csv_sha256": "6db83c479ad0eaa68b4ea1fd3c11f58da33f9dcf48a09cc77aa50fb4df4b11ef",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-12-22_semana_22diciembre_28diciembre_25/facebook_reincorporado.jsonl",
+      "registry_sha256": "d712753396d99ffbbcd63bbd6df89d61647e3d74f44fab39da91bb5ed8422abf"
+    },
+    {
+      "week": "2025-12-29_semana_29diciembre_04enero_26",
+      "restored_rows": 472,
+      "reasons": {
+        "date_invalid": 117,
+        "date_unknown": 355
+      },
+      "csv_path": "datos/radar_semanal_extraido/2025-12-29_semana_29diciembre_04enero_26/2025-12-29_semana_29diciembre_04enero_26_facebook.csv",
+      "csv_sha256": "afed1dbcf3a2ec90aa89f90ff5c51a499dc02fb53f02166b8063fa15645fa411",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2025-12-29_semana_29diciembre_04enero_26/facebook_reincorporado.jsonl",
+      "registry_sha256": "ab2fdb27b46cf3bdfd63df8fa5ee32f28050d9d87227ca7783f0b0fd4ca023af"
+    },
+    {
+      "week": "2026-01-05_semana_05enero_11enero_26",
+      "restored_rows": 392,
+      "reasons": {
+        "date_unknown": 278,
+        "date_invalid": 114
+      },
+      "csv_path": "datos/radar_semanal_extraido/2026-01-05_semana_05enero_11enero_26/2026-01-05_semana_05enero_11enero_26_facebook.csv",
+      "csv_sha256": "c7d43236999407c942a6d9c4a69dc3f04b36cf6f95773ceae00a0be514bb28df",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2026-01-05_semana_05enero_11enero_26/facebook_reincorporado.jsonl",
+      "registry_sha256": "30f723771829e0c74d2d83ac073dbe686cb466ffbcbfedd18141ed89ef7d6567"
+    },
+    {
+      "week": "2026-01-12_semana_12enero_18enero_26",
+      "restored_rows": 565,
+      "reasons": {
+        "date_invalid": 199,
+        "date_unknown": 366
+      },
+      "csv_path": "datos/radar_semanal_extraido/2026-01-12_semana_12enero_18enero_26/2026-01-12_semana_12enero_18enero_26_facebook.csv",
+      "csv_sha256": "f9b509d0b45a7a65f582a8dc4fd725799dc9307bc833d009c2e6920087ab8363",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2026-01-12_semana_12enero_18enero_26/facebook_reincorporado.jsonl",
+      "registry_sha256": "3f61b15b2482ef025f4b36834e49ef873ae3c94c7a5779064d2d78e35099ab95"
+    },
+    {
+      "week": "2026-01-19_semana_19enero_25enero_26",
+      "restored_rows": 599,
+      "reasons": {
+        "date_unknown": 264,
+        "date_invalid": 335
+      },
+      "csv_path": "datos/radar_semanal_extraido/2026-01-19_semana_19enero_25enero_26/2026-01-19_semana_19enero_25enero_26_facebook.csv",
+      "csv_sha256": "13800373c7a8ff03f3d4fc8976b5462e518e866fe9a34b1389f3ffbe0e4869cb",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2026-01-19_semana_19enero_25enero_26/facebook_reincorporado.jsonl",
+      "registry_sha256": "dc549e34f780c1a23853e3aae0351a5bbf499b0be73a7c68707edb7847d667c0"
+    },
+    {
+      "week": "2026-01-26_semana_26enero_01febrero_26",
+      "restored_rows": 491,
+      "reasons": {
+        "date_invalid": 14,
+        "date_unknown": 477
+      },
+      "csv_path": "datos/radar_semanal_extraido/2026-01-26_semana_26enero_01febrero_26/2026-01-26_semana_26enero_01febrero_26_facebook.csv",
+      "csv_sha256": "77def6f21e2e95fca070fc14f5e3fb0b2a2dd4f3274e643ee68ee5ebf478cf97",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2026-01-26_semana_26enero_01febrero_26/facebook_reincorporado.jsonl",
+      "registry_sha256": "ecfdcf3eb5ae67cbd9013560238160445a52ff8472aaf63a98b6ab915461f982"
+    },
+    {
+      "week": "2026-02-02_semana_02febrero_08febrero_26",
+      "restored_rows": 382,
+      "reasons": {
+        "date_invalid": 122,
+        "date_unknown": 260
+      },
+      "csv_path": "datos/radar_semanal_extraido/2026-02-02_semana_02febrero_08febrero_26/2026-02-02_semana_02febrero_08febrero_26_facebook.csv",
+      "csv_sha256": "4670e495b2872824262f1ed587ca6772bd817eb8c817a1478a818af1db86c663",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2026-02-02_semana_02febrero_08febrero_26/facebook_reincorporado.jsonl",
+      "registry_sha256": "f9f57bd95ddc332b171007354cb31b614a4b1fd1961db84781b131fa8656033b"
+    },
+    {
+      "week": "2026-02-09_semana_09febrero_15febrero_26",
+      "restored_rows": 286,
+      "reasons": {
+        "date_unknown": 129,
+        "date_invalid": 157
+      },
+      "csv_path": "datos/radar_semanal_extraido/2026-02-09_semana_09febrero_15febrero_26/2026-02-09_semana_09febrero_15febrero_26_facebook.csv",
+      "csv_sha256": "1281b999f923fdf1f8ceeddbbb906278b0981acb8e6858bea29c07e4ae7b99bc",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2026-02-09_semana_09febrero_15febrero_26/facebook_reincorporado.jsonl",
+      "registry_sha256": "74fb3926ce17f478728e2feee32374a8bd1c8ee1b25bca171846d1c89b9e8ae9"
+    },
+    {
+      "week": "2026-02-16_semana_16febrero_22febrero_26",
+      "restored_rows": 306,
+      "reasons": {
+        "date_unknown": 217,
+        "date_invalid": 89
+      },
+      "csv_path": "datos/radar_semanal_extraido/2026-02-16_semana_16febrero_22febrero_26/2026-02-16_semana_16febrero_22febrero_26_facebook.csv",
+      "csv_sha256": "cb31a003079e20174a96b5079e81ccebad77fbe31f8ead3605a86082cd776d02",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2026-02-16_semana_16febrero_22febrero_26/facebook_reincorporado.jsonl",
+      "registry_sha256": "f0c3b4d5629a70e14cd1f74501400b950b58011fec13b1ecb22ef269a5f78308"
+    },
+    {
+      "week": "2026-02-23_semana_23febrero_01marzo_26",
+      "restored_rows": 329,
+      "reasons": {
+        "date_invalid": 161,
+        "date_unknown": 168
+      },
+      "csv_path": "datos/radar_semanal_extraido/2026-02-23_semana_23febrero_01marzo_26/2026-02-23_semana_23febrero_01marzo_26_facebook.csv",
+      "csv_sha256": "3185fdb7076dd57aa6bd058dee65097ac2d3b1d1bf611c24cd47743218289438",
+      "registry_path": "datos/radar_historico_reincorporado/facebook/2026-02-23_semana_23febrero_01marzo_26/facebook_reincorporado.jsonl",
+      "registry_sha256": "e034ca0aeafe486d0f2d978625da774720e7cdad6e1bcf382b7bbf25683a4689"
+    }
+  ],
+  "csv_processed_and_txt_updated": true,
+  "facebook_current": {
+    "weeks": 83,
+    "csv_rows": 9348,
+    "txt_lines": 8996,
+    "empty_after_normalization": 352,
+    "empty_txt_weeks": [
+      "2025-03-03_semana_03marzo_09marzo_25",
+      "2025-03-10_semana_10marzo_16marzo_25",
+      "2025-03-17_semana_17marzo_23marzo_25",
+      "2025-03-24_semana_24marzo_30marzo_25",
+      "2025-09-01_semana_01septiembre_07septiembre_25"
+    ]
+  },
+  "unchanged_other_historical_files": 898,
+  "previous_files_backed_up": 254,
+  "restored_dates_preserved_verbatim": true,
+  "idempotent_txt_files": 249,
+  "tests_passed": 73
+}
