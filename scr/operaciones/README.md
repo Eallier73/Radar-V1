@@ -3,8 +3,8 @@
 | Programa | Propósito |
 |---|---|
 | `analizar_balance_fuentes.py` | Diagnóstico retrospectivo de volumen, longitud y autores observables; calcula escenarios de ponderación sin modificar entradas. |
-| `construir_tabla_indicadores.py` | Calcula primero la tabla completa de las 83 semanas: polaridad, intensidad, presencia, integración ponderada y MA5 hacia atrás. |
-| `generar_conjuntos_temporales.py` | Lee esa tabla completa y parte sus filas en 56/14/13, sin recalcular ni estandarizar valores. |
+| `construir_tabla_indicadores.py` | Genera `tabla_analisis_ponderada.csv`: 83 semanas y 47 columnas, con indicadores conjuntos ya ponderados y MA5. Conserva el soporte de 351 columnas. |
+| `generar_conjuntos_temporales.py` | Lee por defecto la tabla final ponderada y parte sus filas en 56/14/13, sin recalcular ni estandarizar valores. |
 
 Las fórmulas están en [INDICADORES_SEMANALES.md](../../documentos/INDICADORES_SEMANALES.md). Las decisiones están en [PONDERACION_FUENTES.md](../../documentos/PONDERACION_FUENTES.md) y [PARTICION_TEMPORAL_DATOS.md](../../documentos/PARTICION_TEMPORAL_DATOS.md). Ninguno entrena modelos. Ejecutar primero el constructor y después el separador; ambos rechazan sobrescribir salidas.
 

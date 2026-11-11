@@ -1,6 +1,8 @@
 # Indicadores semanales del corpus actual
 
-Se construye una tabla completa de las 83 semanas (2024-09-30 a 2026-05-03) y **después** se dividen sus filas en 56/14/13. El programa `scr/operaciones/construir_tabla_indicadores.py` no entrena ni evalúa modelos.
+Se construye una tabla final de las 83 semanas (2024-09-30 a 2026-05-03) con los **valores conjuntos ya ponderados** y después se dividen sus filas en 56/14/13. El programa `scr/operaciones/construir_tabla_indicadores.py` no entrena ni evalúa modelos.
+
+La tabla de uso es `tabla_analisis_ponderada.csv`: 47 columnas, tres identificadores temporales y 44 valores ponderados (22 indicadores semanales y sus 22 MA5). Los indicadores son dos proporciones de polaridad calculadas con los diccionarios Original/Etiquetado, diez intensidades temáticas y diez presencias temáticas. Las columnas por fuente y los conteos permanecen en el soporte técnico de 351 columnas. No hace falta combinar fuentes ni aplicar otra vez los pesos al usar la tabla final.
 
 ## Reglas históricas recuperadas
 
@@ -59,7 +61,9 @@ No se estandariza la tabla completa ni se seleccionan predictores con prueba o v
 
 No se importaron encuestas, agenda, engagement o autores desconocidos como si procedieran del corpus actual. Tampoco se fabricó un objetivo IAD: el índice histórico de votos por comentario no equivale a esta proporción léxica. La tabla contiene las mediciones que el corpus y los recursos recuperados permiten calcular.
 
-- `datos/radar_indicadores/tabla_indicadores_83_semanas.csv`: 83 filas, 351 columnas, sin valores faltantes en esta ejecución.
+- `datos/radar_indicadores/tabla_analisis_ponderada.csv`: tabla principal de 83 filas y 47 columnas, sin valores faltantes en esta ejecución.
+- `variables_analisis.csv`: definición de las 44 columnas numéricas de la tabla final.
+- `tabla_indicadores_83_semanas.csv`: soporte técnico de 83 filas y 351 columnas, con los valores de cada fuente y los conjuntos.
 - `variables.csv`, en el mismo directorio: nombre, unidad y fórmula de las 347 variables numéricas.
 - `detalle_fuentes.json`: soporte de las 332 combinaciones de fuente y semana.
 - `pesos_fuentes_entrenamiento.json`: coeficientes y hashes de las 224 entradas de calibración.

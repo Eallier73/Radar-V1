@@ -4,7 +4,9 @@ Decisión corregida del 10 de noviembre de 2026: **primero generar la tabla comp
 
 ## Resultado vigente
 
-La tabla `datos/radar_indicadores/tabla_indicadores_83_semanas.csv` tiene 83 filas y 351 columnas: cuatro identificadores y 347 variables numéricas. Cada fila integra las cuatro fuentes en una semana. No hay valores faltantes en esta generación. Las fórmulas, recursos, unidades y adaptaciones están en [INDICADORES_SEMANALES.md](INDICADORES_SEMANALES.md) y las definiciones de columnas en `datos/radar_indicadores/variables.csv`.
+La tabla final de análisis es `datos/radar_indicadores/tabla_analisis_ponderada.csv`: 83 filas y 47 columnas, con tres identificadores temporales y 44 valores conjuntos ya ponderados. Son 22 indicadores semanales (dos de polaridad, diez de intensidad y diez de presencia) y sus 22 versiones MA5. Cada fila integra las cuatro fuentes. No se vuelve a aplicar la ponderación al usarla.
+
+La tabla de 351 columnas `tabla_indicadores_83_semanas.csv` se conserva como soporte técnico por fuente, no como entrada principal del análisis. Las fórmulas están en [INDICADORES_SEMANALES.md](INDICADORES_SEMANALES.md); `variables_analisis.csv` define las 44 columnas numéricas finales y `variables.csv` las del soporte completo. No hay valores faltantes en esta generación.
 
 Después de guardar la tabla completa, el separador lee ese CSV y copia sus filas sin recalcular ni estandarizar:
 
@@ -14,7 +16,7 @@ Después de guardar la tabla completa, el separador lee ese CSV y copia sus fila
 | Prueba de desarrollo | 14 | 2025-10-27 | 2026-02-01 | `desarrollo/prueba/indicadores.csv` |
 | Verificación final | 13 | 2026-02-02 | 2026-05-03 | `verificacion_reservada/indicadores.csv` |
 
-Las 70 semanas de desarrollo son entrenamiento más prueba. Concatenar los tres conjuntos reproduce las 83 filas de la tabla completa, sin cruces ni omisiones. No se han entrenado modelos.
+Las 70 semanas de desarrollo son entrenamiento más prueba. Las tres particiones tienen 47 columnas; concatenarlas reproduce las 83 filas de la tabla final ya ponderada, sin cruces ni omisiones. No se han entrenado modelos.
 
 ## Uso de los conjuntos
 

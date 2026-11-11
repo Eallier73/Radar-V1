@@ -192,7 +192,7 @@ def partition_table(table: Path, weights_path: Path, output: Path) -> dict:
         rows = list(reader)
     if not columns or len(columns) != len(set(columns)):
         raise ValueError("Encabezado vacío o duplicado")
-    if not {"semana_iso", "Fecha_Semana", "Fecha_Fin", "semana_corpus"} <= set(columns):
+    if not {"semana_iso", "Fecha_Semana", "Fecha_Fin"} <= set(columns):
         raise ValueError("Se requiere la tabla de indicadores, no el inventario de textos")
     if len(rows) != sum(SIZES.values()):
         raise ValueError("Se requieren las 83 filas de indicadores")
@@ -203,7 +203,7 @@ def partition_table(table: Path, weights_path: Path, output: Path) -> dict:
         if row["Fecha_Fin"] != (start + timedelta(days=6)).isoformat():
             raise ValueError("La fecha final no coincide con la semana")
         year, number, _ = start.isocalendar()
-        if row["semana_iso"] != f"{year}-W{number:02d}" or row["semana_corpus"][:10] != start.isoformat():
+        if row["semana_iso"] != f"{year}-W{number:02d}" or ("semana_corpus" in row and row["semana_corpus"][:10] != start.isoformat()):
             raise ValueError("Los identificadores de semana no coinciden con la fecha")
     weighting = json.loads(weights_path.read_text())
     if (weighting["calibration_subset"] != "entrenamiento" or
@@ -211,10 +211,23 @@ def partition_table(table: Path, weights_path: Path, output: Path) -> dict:
             weighting["period_start"] != rows[0]["Fecha_Semana"] or
             weighting["period_end"] != rows[SIZES["entrenamiento"] - 1]["Fecha_Fin"]):
         raise ValueError("Los pesos deben calibrarse sólo con las 56 semanas de entrenamiento")
-    training_names = {row["semana_corpus"] for row in rows[:SIZES["entrenamiento"]]}
-    expected_inputs = {f"{source}_semanal_procesado/{week}/{week}_{source}.txt"
-                       for week in training_names for source in SOURCES}
-    if set(weighting["input_hashes"]) != expected_inputs:
+    training_dates = {row["Fecha_Semana"] for row in rows[:SIZES["entrenamiento"]]}
+    training_names = {row["Fecha_Semana"]: row.get("semana_corpus") for row in rows[:SIZES["entrenamiento"]]}
+    observed_inputs = set()
+    for relative in weighting["input_hashes"]:
+        parts = Path(relative).parts
+        if len(parts) != 3:
+            raise ValueError("Ruta de calibración no canónica")
+        folder, week, filename = parts
+        source = folder.removesuffix("_semanal_procesado")
+        key = (source, week[:10])
+        if (source not in SOURCES or folder != f"{source}_semanal_procesado" or
+                week[:10] not in training_dates or "_semana_" not in week or
+                filename != f"{week}_{source}.txt" or key in observed_inputs or
+                (training_names[week[:10]] is not None and training_names[week[:10]] != week)):
+            raise ValueError("Entrada de calibración fuera de entrenamiento o duplicada")
+        observed_inputs.add(key)
+    if observed_inputs != {(source, start) for source in SOURCES for start in training_dates}:
         raise ValueError("Los pesos contienen entradas fuera de entrenamiento o cobertura incompleta")
     if not all(v > 0 for v in weighting["weights"].values()) or abs(sum(weighting["weights"].values()) - 1) > 1e-12:
         raise ValueError("Pesos de fuentes inválidos")
@@ -264,7 +277,7 @@ def cargar_desarrollo(development_dir: Path, conjunto: str):
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--table", type=Path, default=ROOT / "datos/radar_indicadores/tabla_indicadores_83_semanas.csv")
+    parser.add_argument("--table", type=Path, default=ROOT / "datos/radar_indicadores/tabla_analisis_ponderada.csv")
     parser.add_argument("--weights", type=Path, default=ROOT / "datos/radar_indicadores/pesos_fuentes_entrenamiento.json")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "datos/radar_modelado")
     args = parser.parse_args()

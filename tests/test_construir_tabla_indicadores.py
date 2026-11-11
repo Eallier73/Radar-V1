@@ -88,16 +88,21 @@ class IndicatorTests(unittest.TestCase):
             table = first / "tabla_indicadores_83_semanas.csv"
             before = table.read_bytes()
             rows = read_table(table)
+            analysis = read_table(first / "tabla_analisis_ponderada.csv")
+            self.assertEqual(analysis, [{key: value for key, value in row.items()
+                              if key in {"semana_iso", "Fecha_Semana", "Fecha_Fin"} or "_Conjunto_" in key} for row in rows])
+            self.assertTrue(all("_Conjunto_" in key for key in analysis[0] if key not in {"semana_iso", "Fecha_Semana", "Fecha_Fin"}))
+            self.assertNotIn("palabras_Youtube", analysis[0])
             self.assertEqual(report["rows"], 83)
             self.assertEqual(len(rows), 83)
             self.assertFalse(report["smoothing"]["center"])
             output = base / "sets"
-            divided = partition_table(table, first / "pesos_fuentes_entrenamiento.json", output)
+            divided = partition_table(first / "tabla_analisis_ponderada.csv", first / "pesos_fuentes_entrenamiento.json", output)
             self.assertEqual([m["rows"] for m in divided["subsets"].values()], [56, 14, 13])
             recombined = []
             for name, meta in divided["subsets"].items():
                 recombined.extend(read_table(output / meta["table"]))
-            self.assertEqual(rows, recombined)
+            self.assertEqual(analysis, recombined)
             self.assertEqual(table.read_bytes(), before)
             original_open = Path.open
 

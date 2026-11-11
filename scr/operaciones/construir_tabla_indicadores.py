@@ -144,6 +144,15 @@ def write_table(path: Path, rows: list[dict], columns: list[str] | None = None) 
         writer.writerows(rows)
 
 
+def weighted_analysis_rows(rows: list[dict]) -> list[dict]:
+    """Sólo fechas e indicadores conjuntos ya ponderados, semanales y MA5."""
+    identifiers = ["semana_iso", "Fecha_Semana", "Fecha_Fin"]
+    weighted = [column for column in rows[0] if "_Conjunto_" in column]
+    if not weighted or any(not name.endswith("_MA5") and f"{name}_MA5" not in weighted for name in weighted):
+        raise ValueError("Se requieren indicadores conjuntos y sus columnas MA5")
+    return [{column: row[column] for column in identifiers + weighted} for row in rows]
+
+
 def build(processed: Path, resources: Path, output: Path) -> dict:
     processed, resources, output = processed.resolve(), resources.resolve(), output.resolve()
     if output.exists():
@@ -233,10 +242,16 @@ def build(processed: Path, resources: Path, output: Path) -> dict:
     staging = Path(tempfile.mkdtemp(prefix=f".{output.name}-", dir=output.parent))
     try:
         write_table(staging / "tabla_indicadores_83_semanas.csv", rows)
+        analysis_rows = weighted_analysis_rows(rows)
+        write_table(staging / "tabla_analisis_ponderada.csv", analysis_rows)
+        write_table(staging / "variables_analisis.csv", [definition for column, definition in definitions.items()
+                    if column in analysis_rows[0]])
         write_table(staging / "variables.csv", list(definitions.values()))
         write_json(staging / "detalle_fuentes.json", detail)
         write_json(staging / "pesos_fuentes_entrenamiento.json", weighting)
         report = {"status": "indicator_table_generated_before_partition", "rows": len(rows), "columns": len(rows[0]),
+            "primary_table": "tabla_analisis_ponderada.csv", "analysis_rows": len(analysis_rows),
+            "analysis_columns": len(analysis_rows[0]),
             "period_start": weeks[0]["period_start"], "period_end": weeks[-1]["period_end"], "topics": topics,
             "smoothing": {"window": 5, "center": False, "min_periods": 1, "historical_center_was_true": True},
             "input_sha256": hashes, "resource_sha256": resource_hashes, "training_weighting": weighting,
@@ -258,7 +273,7 @@ def main():
     parser.add_argument("--output-dir", type=Path, default=ROOT / "datos/radar_indicadores")
     args = parser.parse_args()
     report = build(args.processed_dir, args.resources_dir, args.output_dir)
-    print(json.dumps({key: report[key] for key in ("status", "rows", "columns", "period_start", "period_end", "missing_values_by_column")}, indent=2))
+    print(json.dumps({key: report[key] for key in ("status", "primary_table", "analysis_rows", "analysis_columns", "period_start", "period_end", "missing_values_by_column")}, indent=2))
 
 
 if __name__ == "__main__":
