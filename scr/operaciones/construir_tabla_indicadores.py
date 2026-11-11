@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Construye primero los indicadores de las 83 semanas, sin entrenar modelos.
 
-Recupera diccionarios fijos y tasas de los notebooks históricos. La media MA5
+Usa el corpus actual de Radar V1 y los diccionarios históricos autorizados. La media MA5
 es retrospectiva hacia atrás para no incorporar información de semanas futuras.
 Los pesos intermedios se calibran sólo con las primeras 56 semanas.
 """
@@ -17,7 +17,7 @@ import sys
 import tempfile
 import unicodedata
 from collections import Counter
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -25,8 +25,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from generar_conjuntos_temporales import SOURCES, SIZES, digest, discover, write_json
 
 LABELS = {"youtube": "Youtube", "twitter": "XTwitter", "facebook": "Facebook", "medios": "Medios"}
-POLARITY_FILES = {"Original": ("diccionario_palabras_positivas.txt", "diccionario_palabras_negativas.txt"),
-                  "Etiquetado": ("diccionario_positivo_etiquetado.txt", "diccionario_negativo_etiquetado.txt")}
+POLARITY_FILES = {"Original": ("diccionario_palabras_positivas.txt", "diccionario_palabras_negativas.txt")}
+CORPUS_ORIGIN_POLICY = "current_repository_only"
 
 
 def normalize(value: str) -> str:
@@ -67,11 +67,17 @@ def load_resources(directory: Path):
     required = [name for pair in POLARITY_FILES.values() for name in pair]
     required += ["Diccionario_Temas_V5.csv", "Stoplists_Por_Tema_1.csv", "stop_list_español.txt",
                  "exclusiones_polaridad.json", "procedencia.json"]
+    manifest = directory / "procedencia.json"
+    if not manifest.is_file():
+        raise ValueError("Faltan los diccionarios autorizados o su procedencia")
+    provenance = json.loads(manifest.read_text())
+    if set(provenance) != set(required) - {"procedencia.json"}:
+        raise ValueError("La procedencia debe cubrir exactamente los diccionarios y stoplists autorizados")
     hashes = {name: digest(directory / name) for name in required}
-    provenance = json.loads((directory / "procedencia.json").read_text())
+    # original_path/original_notebook son evidencia; nunca se abren como entradas.
     for name, evidence in provenance.items():
-        if hashes[name] != evidence["sha256"]:
-            raise ValueError(f"El recurso no coincide con la copia histórica: {name}")
+        if hashes[name] != evidence.get("sha256"):
+            raise ValueError(f"El diccionario no coincide con su procedencia: {name}")
     exclude = {normalize(term) for term in json.loads((directory / "exclusiones_polaridad.json").read_text())}
     polarities = {}
     for version, files in POLARITY_FILES.items():
@@ -145,12 +151,35 @@ def write_table(path: Path, rows: list[dict], columns: list[str] | None = None) 
 
 
 def weighted_analysis_rows(rows: list[dict]) -> list[dict]:
-    """Sólo fechas e indicadores conjuntos ya ponderados, semanales y MA5."""
+    """Sólo fechas e indicadores conjuntos ya ponderados y suavizados MA5."""
     identifiers = ["semana_iso", "Fecha_Semana", "Fecha_Fin"]
-    weighted = [column for column in rows[0] if "_Conjunto_" in column]
-    if not weighted or any(not name.endswith("_MA5") and f"{name}_MA5" not in weighted for name in weighted):
-        raise ValueError("Se requieren indicadores conjuntos y sus columnas MA5")
+    weighted = [column for column in rows[0] if "_Conjunto_" in column and column.endswith("_MA5")]
+    if not weighted or any(name[:-4] not in rows[0] for name in weighted):
+        raise ValueError("Se requieren indicadores conjuntos MA5 con su cálculo de soporte")
     return [{column: row[column] for column in identifiers + weighted} for row in rows]
+
+
+def add_weekly_lags(rows: list[dict], lags=(1, 2, 3, 4)) -> list[dict]:
+    """Agrega x(t-k) sin perder semanas ni rellenar historia inexistente."""
+    if not rows or not lags or any(type(k) is not int or k not in (1, 2, 3, 4) for k in lags):
+        raise ValueError("Se requieren filas y lags enteros entre 1 y 4")
+    if len(set(lags)) != len(lags):
+        raise ValueError("No se permiten lags duplicados")
+    identifiers = {"semana_iso", "Fecha_Semana", "Fecha_Fin"}
+    metrics = [c for c in rows[0] if c not in identifiers]
+    if not metrics or any("_Conjunto_" not in c or not c.endswith("_MA5") for c in metrics):
+        raise ValueError("Los lags se construyen sólo desde indicadores conjuntos MA5, sin rezagos previos")
+    dates = [date.fromisoformat(row["Fecha_Semana"]) for row in rows]
+    if any(d.weekday() != 0 for d in dates) or any(b - a != timedelta(days=7) for a, b in zip(dates, dates[1:])):
+        raise ValueError("Las semanas deben ser consecutivas, únicas y ordenadas")
+    result = []
+    for index, row in enumerate(rows):
+        output = dict(row)
+        for column in metrics:
+            for lag in sorted(lags):
+                output[f"{column}_lag{lag}"] = rows[index - lag][column] if index >= lag else None
+        result.append(output)
+    return result
 
 
 def build(processed: Path, resources: Path, output: Path) -> dict:
@@ -243,21 +272,42 @@ def build(processed: Path, resources: Path, output: Path) -> dict:
     try:
         write_table(staging / "tabla_indicadores_83_semanas.csv", rows)
         analysis_rows = weighted_analysis_rows(rows)
-        write_table(staging / "tabla_analisis_ponderada.csv", analysis_rows)
+        base_columns = [c for c in analysis_rows[0] if c not in {"semana_iso", "Fecha_Semana", "Fecha_Fin"}]
+        for column in base_columns:
+            for lag in (1, 2, 3, 4):
+                definitions[f"{column}_lag{lag}"] = {"column": f"{column}_lag{lag}",
+                    "unit": definitions[column]["unit"], "formula": f"{column} de la semana t-{lag}; ausente sin historia"}
+        analysis_rows = add_weekly_lags(analysis_rows)
+        development_rows = analysis_rows[:SIZES["entrenamiento"] + SIZES["prueba"]]
+        archive = staging / "archivo"
+        archive.mkdir()
+        write_table(archive / "tabla_analisis_completa_83_semanas.csv", analysis_rows)
+        write_table(staging / "tabla_analisis_ponderada.csv", development_rows)
         write_table(staging / "variables_analisis.csv", [definition for column, definition in definitions.items()
                     if column in analysis_rows[0]])
-        write_table(staging / "variables.csv", list(definitions.values()))
+        write_table(staging / "variables.csv", [definition for column, definition in definitions.items() if column in rows[0]])
         write_json(staging / "detalle_fuentes.json", detail)
         write_json(staging / "pesos_fuentes_entrenamiento.json", weighting)
         report = {"status": "indicator_table_generated_before_partition", "rows": len(rows), "columns": len(rows[0]),
-            "primary_table": "tabla_analisis_ponderada.csv", "analysis_rows": len(analysis_rows),
+            "corpus_origin_policy": CORPUS_ORIGIN_POLICY,
+            "corpus_root": str(processed), "lexicon_origin_policy": "historical_dictionaries_authorized",
+            "primary_table": "tabla_analisis_ponderada.csv", "analysis_rows": len(development_rows),
+            "full_analysis_table": "archivo/tabla_analisis_completa_83_semanas.csv",
+            "full_analysis_rows": len(analysis_rows), "reserved_rows": SIZES["verificacion"],
             "analysis_columns": len(analysis_rows[0]),
+            "analysis_complete_rows": sum(all(v is not None for v in row.values()) for row in development_rows),
+            "analysis_missing_cell_count": sum(v is None for row in development_rows for v in row.values()),
+            "lags": {"weeks": [1, 2, 3, 4], "base_numeric_columns": len(base_columns),
+                "lag_columns": 4 * len(base_columns), "missing_history_fill": None,
+                "complete_rows": sum(all(row[c] is not None for c in row) for row in analysis_rows)},
+            "analysis_missing_values_by_column": {c: sum(row[c] is None for row in analysis_rows)
+                for c in analysis_rows[0] if any(row[c] is None for row in analysis_rows)},
             "period_start": weeks[0]["period_start"], "period_end": weeks[-1]["period_end"], "topics": topics,
             "smoothing": {"window": 5, "center": False, "min_periods": 1, "historical_center_was_true": True},
             "input_sha256": hashes, "resource_sha256": resource_hashes, "training_weighting": weighting,
             "models_trained": False, "scaling_fitted": False,
             "missing_values_by_column": {c: sum(r[c] is None for r in rows) for c in rows[0] if any(r[c] is None for r in rows)},
-            "output_sha256": {p.name: digest(p) for p in staging.iterdir() if p.is_file()}}
+            "output_sha256": {str(p.relative_to(staging)): digest(p) for p in staging.rglob("*") if p.is_file()}}
         write_json(staging / "auditoria.json", report)
         staging.rename(output)
     except BaseException:
@@ -272,8 +322,15 @@ def main():
     parser.add_argument("--resources-dir", type=Path, default=ROOT / "datos/recursos_indicadores")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "datos/radar_indicadores")
     args = parser.parse_args()
-    report = build(args.processed_dir, args.resources_dir, args.output_dir)
-    print(json.dumps({key: report[key] for key in ("status", "primary_table", "analysis_rows", "analysis_columns", "period_start", "period_end", "missing_values_by_column")}, indent=2))
+    for directory in (args.processed_dir, args.resources_dir):
+        resolved = directory.resolve()
+        if not resolved.is_relative_to(ROOT / "datos") or resolved.is_relative_to(ROOT / "trash"):
+            parser.error("Las entradas deben estar dentro de datos/ de este repo; no se permiten otros proyectos")
+    try:
+        report = build(args.processed_dir, args.resources_dir, args.output_dir)
+    except (ValueError, FileNotFoundError, FileExistsError) as exc:
+        parser.error(str(exc))
+    print(json.dumps({key: report[key] for key in ("status", "primary_table", "analysis_rows", "analysis_columns", "analysis_complete_rows", "analysis_missing_cell_count", "period_start", "period_end")}, indent=2))
 
 
 if __name__ == "__main__":

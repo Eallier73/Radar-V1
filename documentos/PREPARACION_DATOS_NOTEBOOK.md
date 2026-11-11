@@ -11,7 +11,7 @@ Registro del 10 de noviembre de 2026. Se copiaron al módulo [preparar_indicador
 
 ## 1. Datos de entrada
 
-El módulo recibe un CSV de indicadores semanales ya construidos. El notebook utiliza columnas de sentimiento por fuente y columnas temáticas de presencia e intensidad, incluidas variables integradas. Ejemplos literales: `Sentimiento_Fuentes_Original_Etiquetado_MA5`, `X_Presencia_Youtube_Agua_MA5`, `intensidad_por_1000_Facebook_Alumbrado_MA5` y `presencia_tema_pct_Fuentes_Integradas_Vialidades_MA5`.
+El módulo recibe un CSV de indicadores semanales ya construidos. El notebook utiliza columnas de sentimiento por fuente y columnas temáticas de presencia e intensidad, incluidas variables integradas. Ejemplos literales: `Sentimiento_Fuentes_Original_Original_MA5`, `X_Presencia_Youtube_Agua_MA5`, `intensidad_por_1000_Facebook_Alumbrado_MA5` y `presencia_tema_pct_Fuentes_Integradas_Vialidades_MA5`.
 
 No se establece aquí un esquema completo obligatorio: la función selecciona las columnas numéricas disponibles según las exclusiones que se detallan abajo. No calcula esos indicadores a partir de TXT; tampoco define sus diccionarios, denominadores ni reglas de sentimiento.
 
@@ -21,7 +21,7 @@ El objetivo se detecta, en este orden, como `IAOPD_MA5`, `IAD_global_MA5`, `Indi
 
 `Modelo_ML_MV.ipynb` recibe columnas `MA5` ya calculadas. En la revisión posterior se recuperó el cálculo en `Modelo_ML.ipynb`, celdas 5 y 7: ventana de cinco semanas, centrada, con un mínimo de una observación. El módulo copiado consume esas columnas y no les aplica un segundo suavizado.
 
-La tabla actual se construye con `scr/operaciones/construir_tabla_indicadores.py`. Se adaptó explícitamente la ventana a una media hacia atrás para respetar la independencia de verificación; las reglas recuperadas y las diferencias están en [INDICADORES_SEMANALES.md](INDICADORES_SEMANALES.md).
+El generador `scr/operaciones/construir_tabla_indicadores.py` conserva la fórmula adaptada a una media hacia atrás. Usa exclusivamente el corpus actual, con los diccionarios históricos autorizados por el usuario. El estado está en [INDICADORES_SEMANALES.md](INDICADORES_SEMANALES.md).
 
 ## 3. Preparación de la tabla
 
@@ -48,7 +48,7 @@ tabla_z, tabla_original, objetivo, variables, media_y, escala_y, scaler = (
 )
 ```
 
-La función histórica queda disponible como referencia, pero no se conecta automáticamente a extracción ni a promoción CSV→TXT. Ahora existe una tabla de indicadores de las 83 semanas y sus particiones. La función copiada no se ha ejecutado sobre esa tabla porque su ajuste global incorporaría prueba y verificación.
+La función histórica queda disponible como referencia de código, pero no se conecta automáticamente a extracción ni a promoción CSV→TXT. La tabla de trabajo tiene 70 filas y 108 columnas: 21 indicadores conjuntos ponderados y suavizados, sus 84 lags y tres identificadores. Las 13 semanas finales están aparte; el completo de 83 se conserva en `archivo/`. El usuario eligió Original y retiró Etiquetado. Se usan los diccionarios autorizados y el corpus actual, sin resultados del proyecto anterior. La función histórica no se ha ejecutado sobre el corpus actual.
 
 El ajuste global de la estandarización reproduce el procesamiento retrospectivo del notebook. Para evaluar predicciones futuras, ese ajuste deberá hacerse únicamente con los datos de entrenamiento.
 

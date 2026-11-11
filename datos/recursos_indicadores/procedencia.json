@@ -7,14 +7,6 @@
     "original_path": "/home/emilio/Datos/Ipsel/IPSEL_Tampico/Ml_Monica_Villarreal/Datos/Corpus_Clasificacion_Dividido/Diccionarios/diccionario_palabras_negativas.txt",
     "sha256": "198dab8b730d966090c87231a472d5c0f2309dc6c0ff2750034f6702d9034a3f"
   },
-  "diccionario_positivo_etiquetado.txt": {
-    "original_path": "/home/emilio/Datos/Ipsel/IPSEL_Tampico/Ml_Monica_Villarreal/Datos/Corpus_Clasificacion_Dividido/Diccionarios/diccionario_positivo_etiquetado.txt",
-    "sha256": "74fbab93fbcfb8f4d8e9528cc4dd7542133ebb94073617205a5583a119a8ad8c"
-  },
-  "diccionario_negativo_etiquetado.txt": {
-    "original_path": "/home/emilio/Datos/Ipsel/IPSEL_Tampico/Ml_Monica_Villarreal/Datos/Corpus_Clasificacion_Dividido/Diccionarios/diccionario_negativo_etiquetado.txt",
-    "sha256": "06c0abea445ea2f4b145d56aa5e9c9ca4cc197ec44e7e44c5a1db7ccedd4705f"
-  },
   "stop_list_español.txt": {
     "original_path": "/home/emilio/Datos/Ipsel/IPSEL_Tampico/Ml_Monica_Villarreal/Datos/Corpus_Clasificacion_Dividido/Diccionarios/stop_list_español.txt",
     "sha256": "4802b92b55cdf030eaefbc4d318ed924bde202eb1658ccb9f3e4803ebdf4ed39"

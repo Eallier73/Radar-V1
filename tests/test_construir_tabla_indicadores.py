@@ -31,7 +31,9 @@ class IndicatorTests(unittest.TestCase):
         (folder / "Stoplists_Por_Tema_1.csv").write_text("Agua\nuno\n")
         (folder / "stop_list_español.txt").write_text("de\n")
         (folder / "exclusiones_polaridad.json").write_text("[]")
-        (folder / "procedencia.json").write_text("{}")
+        entries = {p.name: {"original_path": "/proyecto_anterior/solo_diccionarios/" + p.name, "sha256": MODULE.digest(p)}
+                   for p in folder.iterdir() if p.is_file()}
+        (folder / "procedencia.json").write_text(json.dumps(entries))
 
     def corpus(self, folder):
         for index in range(83):
@@ -43,8 +45,7 @@ class IndicatorTests(unittest.TestCase):
                 path.write_text("bueno malo agua agua potable\nbueno\n")
 
     def test_indicator_numerators_denominators_and_missing_polarity(self):
-        polar = MODULE.Matcher({"Original_pos": {"bueno"}, "Original_neg": {"malo"},
-                                "Etiquetado_pos": {"bueno"}, "Etiquetado_neg": {"malo"}})
+        polar = MODULE.Matcher({"Original_pos": {"bueno"}, "Original_neg": {"malo"}})
         thematic = MODULE.Matcher({"Agua": {"agua", "agua potable"}})
         args = (polar, thematic, ["Agua"], set())
         social = MODULE.analyze_text("bueno malo agua agua potable\nbueno\n", "youtube", *args)
@@ -77,6 +78,46 @@ class IndicatorTests(unittest.TestCase):
         self.assertEqual(raw[0], {"x": 1})
         self.assertIsNone(MODULE.trailing_ma5([{"x": None}], ["x"])[0]["x_MA5"])
 
+    def test_dictionary_reuse_is_allowed_but_hashes_and_file_roles_are_checked(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory) / "resources"
+            folder.mkdir()
+            with self.assertRaisesRegex(ValueError, "Faltan los diccionarios"):
+                MODULE.load_resources(folder)
+            folder.rmdir()
+            self.resources(folder)
+            manifest = folder / "procedencia.json"
+            approved = json.loads(manifest.read_text())
+            MODULE.load_resources(folder)
+            manifest.write_text(json.dumps({"corpus.csv": {"original_path": "/otro_proyecto/corpus.csv"}}))
+            with self.assertRaisesRegex(ValueError, "exactamente los diccionarios"):
+                MODULE.load_resources(folder)
+            name = "diccionario_palabras_positivas.txt"
+            manifest.write_text(json.dumps(approved))
+            (folder / name).write_text("cambiado\n")
+            with self.assertRaisesRegex(ValueError, "no coincide"):
+                MODULE.load_resources(folder)
+
+    def test_lags_match_prior_weeks_and_do_not_borrow_future_values(self):
+        column = "intensidad_por_1000_Conjunto_Agua_MA5"
+        rows = []
+        for index in range(8):
+            start = date(2025, 1, 6) + timedelta(weeks=index)
+            rows.append({"semana_iso": str(index), "Fecha_Semana": str(start),
+                         "Fecha_Fin": str(start + timedelta(days=6)), column: index * 10.0})
+        result = MODULE.add_weekly_lags(rows)
+        for index, row in enumerate(result):
+            for lag in (1, 2, 3, 4):
+                self.assertEqual(row[f"{column}_lag{lag}"], (index - lag) * 10.0 if index >= lag else None)
+        self.assertNotIn(f"{column}_lag1", rows[0])
+        changed = [dict(row) for row in rows]
+        changed[-1][column] = 9999.0
+        self.assertEqual(result[:-1], MODULE.add_weekly_lags(changed)[:-1])
+        with self.assertRaises(ValueError):
+            MODULE.add_weekly_lags(rows[:2] + rows[3:])
+        with self.assertRaises(ValueError):
+            MODULE.add_weekly_lags(rows, (0,))
+
     def test_build_then_partition_and_future_mutations_do_not_affect_development(self):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
@@ -88,21 +129,31 @@ class IndicatorTests(unittest.TestCase):
             table = first / "tabla_indicadores_83_semanas.csv"
             before = table.read_bytes()
             rows = read_table(table)
-            analysis = read_table(first / "tabla_analisis_ponderada.csv")
-            self.assertEqual(analysis, [{key: value for key, value in row.items()
-                              if key in {"semana_iso", "Fecha_Semana", "Fecha_Fin"} or "_Conjunto_" in key} for row in rows])
+            analysis = read_table(first / "archivo/tabla_analisis_completa_83_semanas.csv")
+            working = read_table(first / "tabla_analisis_ponderada.csv")
+            self.assertEqual(len(working), 70)
+            self.assertEqual(working, analysis[:70])
+            self.assertFalse({row["Fecha_Semana"] for row in working} & {row["Fecha_Semana"] for row in analysis[70:]})
+            self.assertFalse(any("Etiquetado" in column for column in rows[0]))
+            self.assertFalse(any("Etiquetado" in column for column in analysis[0]))
+            base_rows = [{key: value for key, value in row.items()
+                         if key in {"semana_iso", "Fecha_Semana", "Fecha_Fin"} or ("_Conjunto_" in key and key.endswith("_MA5"))} for row in rows]
+            expected = MODULE.add_weekly_lags(base_rows)
+            self.assertEqual(analysis, [{c: "" if v is None else v for c, v in row.items()} for row in expected])
             self.assertTrue(all("_Conjunto_" in key for key in analysis[0] if key not in {"semana_iso", "Fecha_Semana", "Fecha_Fin"}))
+            self.assertNotIn("Sentimiento_Conjunto_Original_Original", analysis[0])
             self.assertNotIn("palabras_Youtube", analysis[0])
             self.assertEqual(report["rows"], 83)
             self.assertEqual(len(rows), 83)
             self.assertFalse(report["smoothing"]["center"])
             output = base / "sets"
-            divided = partition_table(first / "tabla_analisis_ponderada.csv", first / "pesos_fuentes_entrenamiento.json", output)
+            divided = partition_table(first / "archivo/tabla_analisis_completa_83_semanas.csv", first / "pesos_fuentes_entrenamiento.json", output)
             self.assertEqual([m["rows"] for m in divided["subsets"].values()], [56, 14, 13])
             recombined = []
             for name, meta in divided["subsets"].items():
                 recombined.extend(read_table(output / meta["table"]))
             self.assertEqual(analysis, recombined)
+            self.assertEqual(working, read_table(output / "desarrollo/indicadores.csv"))
             self.assertEqual(table.read_bytes(), before)
             original_open = Path.open
 
@@ -122,6 +173,7 @@ class IndicatorTests(unittest.TestCase):
             second = base / "second_table"
             changed = MODULE.build(processed, resources, second)
             self.assertEqual(rows[:70], read_table(second / table.name)[:70])
+            self.assertEqual(working, read_table(second / "tabla_analisis_ponderada.csv"))
             self.assertNotEqual(rows[70:], read_table(second / table.name)[70:])
             self.assertEqual(report["training_weighting"], changed["training_weighting"])
             for path in processed.rglob("*.txt"):
@@ -130,6 +182,7 @@ class IndicatorTests(unittest.TestCase):
             third = base / "third_table"
             test_changed = MODULE.build(processed, resources, third)
             self.assertEqual(rows[:56], read_table(third / table.name)[:56])
+            self.assertEqual(analysis[:56], read_table(third / "tabla_analisis_ponderada.csv")[:56])
             self.assertEqual(report["training_weighting"], test_changed["training_weighting"])
             with self.assertRaises(FileExistsError):
                 MODULE.build(processed, resources, first)

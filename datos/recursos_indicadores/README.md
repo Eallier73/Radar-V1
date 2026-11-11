@@ -1,14 +1,9 @@
-# Recursos fijos de indicadores
+# Diccionarios y stoplists autorizados
 
-Copias de los recursos históricos de Tampico que alimentaban los notebooks de polaridad y temas. `procedencia.json` conserva las rutas originales y hashes SHA-256; los archivos originales no se modificaron.
+El usuario autorizó reutilizar los diccionarios del proyecto anterior. Sus publicaciones, corpus, CSV extraídos, conteos, resultados y tablas precalculadas no son entradas autorizadas.
 
-| Recurso | Uso |
-|---|---|
-| `diccionario_palabras_positivas.txt`, `diccionario_palabras_negativas.txt` | Polaridad Original. |
-| `diccionario_positivo_etiquetado.txt`, `diccionario_negativo_etiquetado.txt` | Polaridad Etiquetado. |
-| `stop_list_español.txt` | Filtrado de tokens para polaridad, sin alterar los TXT canónicos. |
-| `exclusiones_polaridad.json` | Literal `stoplist` recuperado de la celda 5 de `Anaisis_Polaridad_ML_MV.ipynb`. |
-| `Diccionario_Temas_V5.csv` | Unigramas y expresiones de los diez temas históricos. |
-| `Stoplists_Por_Tema_1.csv` | Exclusiones temáticas históricas. |
+Este directorio contiene el par de diccionarios de polaridad **Original**, el diccionario temático V5, las stoplists generales y temáticas y las exclusiones de polaridad. El usuario pidió retirar Etiquetado, que ya no es una entrada activa. `procedencia.json` registra el origen y SHA-256 de cada recurso vigente.
 
-El constructor comprueba los hashes, normaliza términos al contrato ASCII y usa los recursos como entradas fijas; no aprende nuevas palabras del corpus de prueba o verificación. No son textos históricos promovidos ni resultados de entrenamiento. Las definiciones y adaptaciones están en [INDICADORES_SEMANALES.md](../../documentos/INDICADORES_SEMANALES.md).
+Las rutas originales son sólo evidencia. El programa lee estas copias locales y el corpus de `datos/radar_semanal_procesado/`; no abre datos del proyecto anterior. El constructor comprueba los hashes y exige exactamente la lista de recursos léxicos conocida.
+
+Las [fórmulas y unidades](../../documentos/INDICADORES_SEMANALES.md) explican cómo se calculan de nuevo los valores con el corpus actual. Los diccionarios no contienen resultados semanales importados.

@@ -1,0 +1,56 @@
+{
+  "status": "restored_after_user_clarification",
+  "reason": "El asistente interpreto que la prohibicion incluia diccionarios; el usuario aclaro que si estan autorizados",
+  "quarantine": "trash/descartado_proyecto_anterior_2026-11-10_5e5ypriy",
+  "records": [
+    {
+      "original": "datos/recursos_indicadores",
+      "quarantine": "trash/descartado_proyecto_anterior_2026-11-10_5e5ypriy/recursos_indicadores",
+      "sha256": {
+        "diccionario_negativo_etiquetado.txt": "06c0abea445ea2f4b145d56aa5e9c9ca4cc197ec44e7e44c5a1db7ccedd4705f",
+        "Stoplists_Por_Tema_1.csv": "c50e24c2c3639c819f288dd6d3c10b11acc318c72c2c7a95def86d5c155b3f31",
+        "stop_list_español.txt": "4802b92b55cdf030eaefbc4d318ed924bde202eb1658ccb9f3e4803ebdf4ed39",
+        "diccionario_palabras_negativas.txt": "198dab8b730d966090c87231a472d5c0f2309dc6c0ff2750034f6702d9034a3f",
+        "procedencia.json": "9a6e0bf75d5510da187af6f465ca0c9df1918d9b844ed3ebb8849b64a0c012ec",
+        "Diccionario_Temas_V5.csv": "6b67311c6a76dc38b42a48a3403a2e10338715169421754bf55b06d9dd6b9b02",
+        "diccionario_palabras_positivas.txt": "79cfa63945de3606253608d5c8fce647b125ed9658e883704d77c3c3f3f3cfda",
+        "diccionario_positivo_etiquetado.txt": "74fbab93fbcfb8f4d8e9528cc4dd7542133ebb94073617205a5583a119a8ad8c",
+        "README.md": "d8017d188faa121f1662b031fee740feea2aefeb9a8532f79b37d6e7c0a694bf",
+        "exclusiones_polaridad.json": "a3915f40d6e053f1b75c55a51196009cd52321a6ccff64cf5b6219cd5721777b"
+      }
+    },
+    {
+      "original": "datos/radar_indicadores",
+      "quarantine": "trash/descartado_proyecto_anterior_2026-11-10_5e5ypriy/radar_indicadores",
+      "sha256": {
+        "._tabla_indicadores_83_semanas.csv": "2caa9e46d329506b8eaf48e05ba84d59c15da7864c54690670634a20bcf1a5ab",
+        "variables_analisis.csv": "2c4ce6fcf0b3f51bb6b728397fc9444350bae583d622f668be92ef7400e6a183",
+        "detalle_fuentes.json": "0b5233a09c48d68c54ca7807d6535d9f3797ec3ff0512096c89aed8b35b90473",
+        "tabla_indicadores_83_semanas.csv": "d5f593fc116764d1c8bf9f73e989e3b4987d6fb3ae4e4dbb2edebfa3d7dd5ff2",
+        "tabla_analisis_ponderada.csv": "b312c9c358b3cc34fbdb867873ef7ae79dedec1ddc4bdae5c19af9b05b17aa36",
+        "auditoria.json": "9f4057322e2c41a79ccc08bd9f175543105f0a8e0b6abdfda9e1fa2e2c502a79",
+        "._tabla_analisis_ponderada.csv": "f29500e5ea15b6ef9b3af1bf70e211e5adb68bc3c6c43c18a0c15e9c871ba404",
+        "pesos_fuentes_entrenamiento.json": "8a8047756bb55c2cd4c3dc1bb7711ee4f25ff4be9a780a6a526a7f8457cbd80d",
+        "variables.csv": "47d1a6fdca7d001335aa305ea531c807966d396f5ce588422ed42e52f0b8ef43"
+      }
+    },
+    {
+      "original": "datos/radar_modelado",
+      "quarantine": "trash/descartado_proyecto_anterior_2026-11-10_5e5ypriy/radar_modelado",
+      "sha256": {
+        "auditoria.json": "3edc7910e51786219983581ec2c77e79fea0bf9493b1bcc915a6f663559361ee",
+        "particion_semanas.csv": "923cda97314c478be63125e9ceecda50dffe3bbcee43f1e34a3e12ed784eed3a",
+        "verificacion_reservada/indicadores.csv": "9f02e0c47ec3be5eb10eb013b0b5030001f925336a038a48dfbac0904b0b5ea1",
+        "desarrollo/entrenamiento/indicadores.csv": "feb0577a5cf880f7cb545da3bb7b12c5fab9a9dcd9e75e8396a017c56ada1ec3",
+        "desarrollo/entrenamiento/pesos_fuentes.json": "8a8047756bb55c2cd4c3dc1bb7711ee4f25ff4be9a780a6a526a7f8457cbd80d",
+        "desarrollo/prueba/indicadores.csv": "5784d7f2aa86a00574a0e5001daa6b010f054beb37027ecfe6f7fa7c7e3c1d33"
+      }
+    }
+  ],
+  "current_corpus_unchanged": true,
+  "current_corpus_files_verified": 581,
+  "valid_indicator_table_exists": true,
+  "initial_status": "external_resources_and_derived_tables_withdrawn",
+  "user_clarification": "Diccionarios permitidos; corpus y resultados del proyecto anterior prohibidos",
+  "restoration_evidence": "documentos/auditorias/restauracion_diccionarios_y_corpus_actual_2026-11-10.json"
+}

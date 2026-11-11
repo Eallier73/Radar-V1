@@ -1,72 +1,42 @@
-# Indicadores semanales del corpus actual
+# Indicadores conjuntos del corpus actual
 
-Se construye una tabla final de las 83 semanas (2024-09-30 a 2026-05-03) con los **valores conjuntos ya ponderados** y después se dividen sus filas en 56/14/13. El programa `scr/operaciones/construir_tabla_indicadores.py` no entrena ni evalúa modelos.
+## Alcance acordado
 
-La tabla de uso es `tabla_analisis_ponderada.csv`: 47 columnas, tres identificadores temporales y 44 valores ponderados (22 indicadores semanales y sus 22 MA5). Los indicadores son dos proporciones de polaridad calculadas con los diccionarios Original/Etiquetado, diez intensidades temáticas y diez presencias temáticas. Las columnas por fuente y los conteos permanecen en el soporte técnico de 351 columnas. No hace falta combinar fuentes ni aplicar otra vez los pesos al usar la tabla final.
+El usuario aclaró el 10 de noviembre de 2026 que **sí se pueden reutilizar los diccionarios del proyecto anterior**, junto con código y metodología. Lo prohibido es reutilizar sus publicaciones, corpus, CSV extraídos, conteos, resultados numéricos y tablas precalculadas.
 
-## Reglas históricas recuperadas
+Los indicadores se calcularon con los 332 TXT de `datos/radar_semanal_procesado/` de este repo: 83 semanas de YouTube, Twitter/X, Facebook y Medios. Los hashes se verificaron antes de recuperar la tabla. Las rutas del proyecto anterior en `datos/recursos_indicadores/procedencia.json` son evidencia de los diccionarios; el programa no las abre como corpus ni como resultados.
 
-Las reglas faltantes se localizaron en notebooks relacionados de la misma carpeta que `Modelo_ML_MV.ipynb`:
+## Tabla de uso
 
-- `Anaisis_Polaridad_ML_MV.ipynb`, celdas 1, 3 y 5: stoplist, diccionarios Original/Etiquetado y proporción de coincidencias positivas entre positivas y negativas.
-- `Anaisis_Polaridad_ML_MV.ipynb`, celda 7: diccionario temático V5, stoplists temáticas, intensidad por 1000 palabras y presencia por unidad de texto.
-- `Modelo_ML.ipynb`, celda 3: segmentación en bloques de 30 palabras.
-- `Modelo_ML.ipynb`, celdas 5 y 7: media móvil de cinco semanas, originalmente centrada y con `min_periods=1`.
+`datos/radar_indicadores/tabla_analisis_ponderada.csv` es la **tabla de trabajo de 70 filas y 108 columnas**, hasta la semana que termina el 1 de febrero de 2026. Las últimas 13 semanas están fuera de este archivo. Tiene tres identificadores, 21 indicadores conjuntos ponderados y suavizados MA5 y sus 84 lags de 1 a 4 semanas. Los indicadores son polaridad **Original**, diez intensidades y diez presencias temáticas. El usuario eligió Original como respuesta y retiró Etiquetado. Son 105 candidatos numéricos.
 
-Los índices de celda usan base cero. Los notebooks se leyeron como JSON, sin ejecutarlos. Se encuentran en `/home/emilio/Datos/Ipsel/IPSEL_Tampico/Ml_Monica_Villarreal/Datos/Jupyter/`.
+La tabla completa de 83 filas se conserva únicamente en `datos/radar_indicadores/archivo/tabla_analisis_completa_83_semanas.csv`, para reproducir la separación. Las 13 semanas finales tienen su propio archivo reservado en `datos/radar_modelado/verificacion_reservada/indicadores.csv`. `datos/radar_modelado/desarrollo/indicadores.csv` es otra copia idéntica de las 70 filas de trabajo, divididas en 56 de entrenamiento y 14 de prueba.
 
-Los siete diccionarios/stoplists necesarios y la exclusión literal de polaridad se copiaron a `datos/recursos_indicadores/`, conservando los originales. `procedencia.json` registra origen y SHA-256. Son recursos históricos fijos: no se reestiman con el corpus reservado.
+El soporte técnico `tabla_indicadores_83_semanas.csv` conserva 333 columnas para rastrear conteos, denominadores, resultados por fuente y tasas sin suavizar. No es la tabla principal de uso. `variables_analisis.csv` define los 105 candidatos temporales y `variables.csv` las 329 variables numéricas del soporte. Los diccionarios Etiquetado y sus resultados anteriores se retiraron a respaldo; no se leen ni se calculan en la ejecución vigente.
 
-## Polaridad léxica
+## Cálculo
 
-Se conservan las dos versiones históricas: Original y Etiquetado. Sus términos se normalizan al contrato ASCII, se aplica la exclusión interna y se eliminan stopwords generales del texto sólo para el cálculo de polaridad. Los TXT canónicos no cambian.
+- **Polaridad:** `100 * positivas / (positivas + negativas)`, con unigramas y expresiones de los diccionarios autorizados. Es proporción léxica, no porcentaje de personas favorables. Se aplican las stoplists y exclusiones autorizadas; no se alteran los TXT.
+- **Intensidad temática:** `1000 * coincidencias_del_tema / palabras_del_TXT`. Se conservan los diez temas del diccionario V5 y sus exclusiones. Un término puede contar en varios temas.
+- **Presencia conjunta:** porcentaje de segmentos consecutivos de hasta 30 palabras que mencionan el tema, para comparar las cuatro fuentes con una unidad común. Los segmentos no se presentan como publicaciones o noticias. El soporte social también conserva presencia por registro; en Medios no se inventan noticias.
+- **Integración:** `suma(peso_fuente * tasa_fuente)`, con la ponderación intermedia acordada y calibrada sólo con las primeras 56 semanas. No se aplican los pesos otra vez a la tabla final.
+- **MA5:** media de la semana actual y cuatro anteriores, con al menos una observación disponible. Se conserva la ventana de cinco del método anterior y se adapta a una dirección hacia atrás para no incorporar semanas futuras. No se suaviza nuevamente al usar la tabla.
+- **Lags:** para cada indicador MA5, `_lag1` copia su valor en `t-1`, y análogamente hasta `_lag4`. Se comprueba que las semanas sean únicas, consecutivas y ordenadas antes de desplazar. No se generan rezagos de rezagos ni se usan semanas futuras.
 
-Se cuentan unigramas y n-gramas, admitiendo coincidencias superpuestas y coincidencias en ambos diccionarios. La búsqueda usa palabras completas y no cruza líneas. La normalización ASCII y evitar coincidencias dentro de otras palabras son adaptaciones explícitas al contrato actual.
+Las expresiones se buscan por palabras completas, con normalización ASCII. Las coincidencias pueden superponerse; no se cruzan líneas para los indicadores por registro. La presencia en segmentos usa la envoltura común y puede cruzar límites de registros. Sin denominador observado, una tasa queda ausente; no se inventa neutralidad.
 
-`Sentimiento_<fuente>_Original_<diccionario> = 100 * positivas / (positivas + negativas)`.
+Los 21 indicadores actuales tienen valores en las 83 semanas históricas. Los rezagos dejan 210 celdas vacías por falta de historia al inicio: 21 por cada semana de desfase acumulada (1+2+3+4). No se rellenan con cero ni con valores posteriores. El archivo completo tiene 79 filas con todos los lags; la tabla de trabajo de 70 tiene 66, y el bloque de entrenamiento de 56 tiene 52.
 
-Es una proporción de coincidencias léxicas positivas, no un porcentaje de personas favorables ni una clasificación contextual de opinión. Sin coincidencias, la tasa queda ausente; no se inventa un cero neutral. Todas las tasas de la ejecución actual tienen denominador observado.
+## Procedencia y comprobaciones
 
-La exclusión se recuperó evaluando el literal del notebook. Se conserva incluso `chiledeberian`, concatenado por una coma ausente en el original; no se hizo pasar una corrección por una regla histórica.
+El constructor sólo admite entradas dentro de `datos/` de este repo en su CLI. Los diccionarios tienen una lista exacta de recursos y hashes; se rechazan archivos adicionales como entradas léxicas. La auditoría distingue `corpus_origin_policy: current_repository_only` de `lexicon_origin_policy: historical_dictionaries_authorized`.
 
-## Temas, intensidad y presencia
+El separador y el cargador verifican esa procedencia del corpus y el hash de la tabla. Las pruebas confirman que cambiar semanas posteriores no altera los indicadores anteriores ni los pesos calculados con las primeras 56 semanas.
 
-Se utiliza `Diccionario_Temas_V5.csv` y `Stoplists_Por_Tema_1.csv`: Corrupcion, Inseguridad, Basura, Alumbrado, Agua, Vialidades, Presencia_MV, Bienestar, Morena y Economia. Un término puede contribuir a varios temas; una expresión y su unigrama pueden contarse ambos.
+No se recortó automáticamente la matriz ni se entrenó un pronosticador. Se realizó una [inspección descriptiva y regresiones exploratorias](INSPECCION_ESTADISTICA.md), usando Original exclusivamente como respuesta. Por instrucción del usuario, sus cuatro rezagos están excluidos de la inspección de candidatas y de las regresiones: las explicativas son sólo temáticas. La estandarización usa sólo los casos completos del bloque inicial. El código histórico que ajustaba escalas globales no se ejecuta sobre toda la tabla.
 
-`intensidad_por_1000 = 1000 * coincidencias_temáticas / palabras_totales_del_TXT`.
+## Recuperación tras la aclaración
 
-Las coincidencias temáticas se cuentan sin cruzar líneas. El denominador son palabras canónicas antes de quitar stopwords. Se conserva la precisión completa, sin el redondeo prematuro a tres decimales de la exportación histórica.
+La retirada temporal se debió a interpretar que la prohibición incluía diccionarios. Tras la aclaración del usuario se restauraron las copias autorizadas y los resultados generados aquí, comprobando los hashes del corpus y la igualdad de las particiones. No se importó ninguna tabla de resultados del proyecto anterior.
 
-Para las redes, `presencia_tema_pct` es el porcentaje de registros con texto que mencionan el tema al menos una vez. Una línea social corresponde a una fila promovida, que puede ser publicación o comentario según la fuente. No se incluyen filas cuyo texto quedó vacío en la promoción.
-
-En Medios sólo existe texto continuo envuelto: sus líneas no son noticias. No se fabrica un conteo de noticias ni una presencia por publicaciones.
-
-Para comparar las cuatro fuentes se calcula `presencia_segmentos30_pct`: se reenvuelve en memoria el texto de cada fuente y semana en segmentos consecutivos de hasta 30 palabras, incluido el fragmento final, siguiendo la segmentación histórica. Se mide qué porcentaje de segmentos menciona cada tema. La segmentación puede atravesar límites de registros sociales y no representa unidades documentales. No modifica los TXT ni las tasas por registro.
-
-La presencia **conjunta** utiliza únicamente estos segmentos comunes; no mezcla porcentajes de comentarios con supuestos porcentajes de noticias.
-
-## Integración y MA5
-
-Los nombres de fuente son `Youtube`, `XTwitter`, `Facebook`, `Medios` y `Conjunto`. No se equipara el antiguo nombre ambiguo «Fuentes» con una fuente concreta.
-
-Los indicadores conjuntos son `suma(peso_fuente * tasa_fuente)`. Se aplica la ponderación intermedia acordada a tasas normalizadas, sin multiplicar otra vez conteos brutos por esos pesos. La calibración usa sólo el volumen de las primeras 56 semanas, un límite conocido antes de construir la tabla, sin partir físicamente los textos. Los coeficientes están en `pesos_fuentes_entrenamiento.json` y [PONDERACION_FUENTES.md](PONDERACION_FUENTES.md). Si falta una tasa, su indicador conjunto queda ausente; no se renormalizan los pesos silenciosamente.
-
-Se conserva la ventana de cinco semanas y el mínimo de una observación, pero se adapta `center=True` a una media **hacia atrás**, de `t-4` a `t`. El centrado histórico incorporaría hasta dos semanas futuras y contaminaría la verificación. Esta diferencia responde a la independencia solicitada por el usuario.
-
-Se guardan las tasas e intensidades originales y sus columnas `_MA5`, junto con los conteos de soporte. No se suavizan identificadores ni se añaden rezagos. Las primeras cuatro semanas usan los antecedentes disponibles. Los ausentes se omiten del promedio; una ventana sin observaciones queda ausente.
-
-No se estandariza la tabla completa ni se seleccionan predictores con prueba o verificación. Los ajustes que aprenden de los datos se realizarán sólo con entrenamiento.
-
-## Alcance y archivos
-
-No se importaron encuestas, agenda, engagement o autores desconocidos como si procedieran del corpus actual. Tampoco se fabricó un objetivo IAD: el índice histórico de votos por comentario no equivale a esta proporción léxica. La tabla contiene las mediciones que el corpus y los recursos recuperados permiten calcular.
-
-- `datos/radar_indicadores/tabla_analisis_ponderada.csv`: tabla principal de 83 filas y 47 columnas, sin valores faltantes en esta ejecución.
-- `variables_analisis.csv`: definición de las 44 columnas numéricas de la tabla final.
-- `tabla_indicadores_83_semanas.csv`: soporte técnico de 83 filas y 351 columnas, con los valores de cada fuente y los conjuntos.
-- `variables.csv`, en el mismo directorio: nombre, unidad y fórmula de las 347 variables numéricas.
-- `detalle_fuentes.json`: soporte de las 332 combinaciones de fuente y semana.
-- `pesos_fuentes_entrenamiento.json`: coeficientes y hashes de las 224 entradas de calibración.
-- `auditoria.json`: hashes de entradas, recursos y salidas, cobertura y suavizado.
-
-Las tres particiones de esta tabla se describen en [PARTICION_TEMPORAL_DATOS.md](PARTICION_TEMPORAL_DATOS.md). Las particiones textuales anteriores están respaldadas y ya no sustituyen a los indicadores.
+La evidencia está en [restauracion_diccionarios_y_corpus_actual_2026-11-10.json](auditorias/restauracion_diccionarios_y_corpus_actual_2026-11-10.json). La [decisión de partición](PARTICION_TEMPORAL_DATOS.md) conserva 56/14/13; la [ponderación](PONDERACION_FUENTES.md) conserva el método intermedio.

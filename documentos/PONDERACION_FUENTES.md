@@ -38,6 +38,6 @@ Se guardaron en `datos/radar_indicadores/pesos_fuentes_entrenamiento.json` y se 
 
 ## Estado y evidencia
 
-La elección queda aprobada y aplicada a la tabla de indicadores; su aplicación a un modelo sigue pendiente. No se ejecutó entrenamiento ni se modificó el corpus.
+La elección de ponderación queda aprobada y aplicada a los indicadores conjuntos de la tabla actual. El usuario aclaró que los diccionarios del proyecto anterior sí están autorizados; los datos y resultados semanales deben proceder exclusivamente de este repo. La tabla y sus particiones se recuperaron tras verificar esa procedencia. No se entrenó un modelo. Véase [INDICADORES_SEMANALES.md](INDICADORES_SEMANALES.md).
 
 El [diagnóstico del corpus](../datos/radar_analisis/ponderacion_fuentes/analisis_ponderacion_fuentes.md), el [detalle de cálculo](../datos/radar_analisis/ponderacion_fuentes/diagnostico_ponderacion_fuentes.json) y los [coeficientes calculados](../datos/radar_analisis/ponderacion_fuentes/pesos_fuentes_propuestos.json) documentan el análisis previo a esta decisión. El estado de propuesta en esos JSON corresponde a ese diagnóstico anterior; este documento registra la adopción posterior por el usuario.

@@ -186,6 +186,15 @@ def partition_table(table: Path, weights_path: Path, output: Path) -> dict:
     if any(path == output or path.is_relative_to(output) for path in (table, weights_path)):
         raise ValueError("La salida no puede contener las entradas")
     table_hash, weights_hash = digest(table), digest(weights_path)
+    origin_audit_path = table.parent / "auditoria.json"
+    if table.parent.name == "archivo":
+        origin_audit_path = table.parent.parent / "auditoria.json"
+    if not origin_audit_path.is_file():
+        raise ValueError("La tabla no acredita el corpus actual de este repo")
+    origin_audit = json.loads(origin_audit_path.read_text())
+    if (origin_audit.get("corpus_origin_policy") != "current_repository_only" or
+            origin_audit.get("output_sha256", {}).get(str(table.relative_to(origin_audit_path.parent))) != table_hash):
+        raise ValueError("La tabla no acredita resultados del corpus actual; no se puede dividir")
     with table.open(encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
         columns = reader.fieldnames
@@ -247,6 +256,11 @@ def partition_table(table: Path, weights_path: Path, output: Path) -> dict:
                 "period_end": selected[-1]["Fecha_Fin"], "table": str(path.relative_to(staging)), "sha256": digest(path)}
             manifest.extend({"conjunto": name, "semana_iso": row["semana_iso"], "Fecha_Semana": row["Fecha_Semana"]} for row in selected)
             offset += size
+        development_table = staging / "desarrollo/indicadores.csv"
+        with development_table.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=columns)
+            writer.writeheader()
+            writer.writerows(rows[:SIZES["entrenamiento"] + SIZES["prueba"]])
         shutil.copyfile(weights_path, staging / LOCATIONS["entrenamiento"] / "pesos_fuentes.json")
         with (staging / "particion_semanas.csv").open("w", encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(handle, fieldnames=list(manifest[0]))
@@ -256,7 +270,10 @@ def partition_table(table: Path, weights_path: Path, output: Path) -> dict:
             raise ValueError("Cambió la tabla o su calibración durante la partición")
         report = {"status": "indicator_table_partitioned", "pipeline_order": ["build_83_week_indicator_table", "partition_existing_table_56_14_13"],
             "input_table": str(table), "input_table_sha256": table_hash, "input_weights_sha256": weights_hash,
+            "corpus_origin_policy": "current_repository_only",
             "columns": len(columns), "rows": len(rows), "subsets": subsets,
+            "development_table": "desarrollo/indicadores.csv", "development_rows": SIZES["entrenamiento"] + SIZES["prueba"],
+            "development_table_sha256": digest(development_table),
             "values_recalculated_during_partition": False, "models_trained": False,
             "scaling_fitted": False, "verification_used_for_fit": False}
         write_json(staging / "auditoria.json", report)
@@ -271,13 +288,18 @@ def cargar_desarrollo(development_dir: Path, conjunto: str):
     """Carga indicadores exclusivamente de entrenamiento o prueba."""
     if conjunto not in {"entrenamiento", "prueba"}:
         raise ValueError("El cargador de desarrollo no permite verificación")
-    with (development_dir / conjunto / "indicadores.csv").open(encoding="utf-8", newline="") as handle:
+    path = development_dir / conjunto / "indicadores.csv"
+    evidence = json.loads((development_dir.parent / "auditoria.json").read_text())
+    if (evidence.get("corpus_origin_policy") != "current_repository_only" or
+            evidence.get("subsets", {}).get(conjunto, {}).get("sha256") != digest(path)):
+        raise ValueError("El conjunto no acredita resultados del corpus actual")
+    with path.open(encoding="utf-8", newline="") as handle:
         yield from csv.DictReader(handle)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--table", type=Path, default=ROOT / "datos/radar_indicadores/tabla_analisis_ponderada.csv")
+    parser.add_argument("--table", type=Path, default=ROOT / "datos/radar_indicadores/archivo/tabla_analisis_completa_83_semanas.csv")
     parser.add_argument("--weights", type=Path, default=ROOT / "datos/radar_indicadores/pesos_fuentes_entrenamiento.json")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "datos/radar_modelado")
     args = parser.parse_args()
