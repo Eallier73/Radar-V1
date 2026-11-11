@@ -178,6 +178,13 @@ def cargar_corpus_desarrollo(development_dir: Path, conjunto: str):
             yield record
 
 
+def validate_weekly_columns(columns):
+    if not columns or len(columns) != len(set(columns)):
+        raise ValueError("Encabezado vacío o duplicado")
+    if any("_MA5" in column or "_lag" in column for column in columns):
+        raise ValueError("Reconstruye la tabla semanal: no se permiten MA5 ni rezagos de X o Y")
+
+
 def partition_table(table: Path, weights_path: Path, output: Path) -> dict:
     """Parte filas de la tabla existente, sin recalcular ni estandarizar."""
     table, weights_path, output = table.resolve(), weights_path.resolve(), output.resolve()
@@ -199,8 +206,7 @@ def partition_table(table: Path, weights_path: Path, output: Path) -> dict:
         reader = csv.DictReader(handle)
         columns = reader.fieldnames
         rows = list(reader)
-    if not columns or len(columns) != len(set(columns)):
-        raise ValueError("Encabezado vacío o duplicado")
+    validate_weekly_columns(columns)
     if not {"semana_iso", "Fecha_Semana", "Fecha_Fin"} <= set(columns):
         raise ValueError("Se requiere la tabla de indicadores, no el inventario de textos")
     if len(rows) != sum(SIZES.values()):
@@ -270,7 +276,7 @@ def partition_table(table: Path, weights_path: Path, output: Path) -> dict:
             raise ValueError("Cambió la tabla o su calibración durante la partición")
         report = {"status": "indicator_table_partitioned", "pipeline_order": ["build_83_week_indicator_table", "partition_existing_table_56_14_13"],
             "input_table": str(table), "input_table_sha256": table_hash, "input_weights_sha256": weights_hash,
-            "corpus_origin_policy": "current_repository_only",
+            "corpus_origin_policy": "current_repository_only", "indicator_schema": "weekly_unsmoothed_v1",
             "columns": len(columns), "rows": len(rows), "subsets": subsets,
             "development_table": "desarrollo/indicadores.csv", "development_rows": SIZES["entrenamiento"] + SIZES["prueba"],
             "development_table_sha256": digest(development_table),
@@ -294,7 +300,9 @@ def cargar_desarrollo(development_dir: Path, conjunto: str):
             evidence.get("subsets", {}).get(conjunto, {}).get("sha256") != digest(path)):
         raise ValueError("El conjunto no acredita resultados del corpus actual")
     with path.open(encoding="utf-8", newline="") as handle:
-        yield from csv.DictReader(handle)
+        reader = csv.DictReader(handle)
+        validate_weekly_columns(reader.fieldnames)
+        yield from reader
 
 
 def main() -> None:

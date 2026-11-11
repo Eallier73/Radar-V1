@@ -69,14 +69,16 @@ class IndicatorTests(unittest.TestCase):
         values = MODULE.analyze_text("agua\npotable\n", "youtube", polar, topics, ["Agua"], set())
         self.assertEqual(values["topics"]["Agua"]["mentions"], 1)
 
-    def test_ma5_is_causal_with_partial_windows_and_does_not_fill_missing_as_zero(self):
-        raw = [{"x": x} for x in (1, 2, None, 4, 5, 100)]
-        result = MODULE.trailing_ma5(raw, ["x"])
-        self.assertEqual(result[0]["x_MA5"], 1)
-        self.assertEqual(result[4]["x_MA5"], 3)
-        self.assertEqual(result[5]["x_MA5"], 27.75)
-        self.assertEqual(raw[0], {"x": 1})
-        self.assertIsNone(MODULE.trailing_ma5([{"x": None}], ["x"])[0]["x_MA5"])
+    def test_analysis_keeps_exact_weekly_values_and_rejects_smoothed_support(self):
+        names = ("semana_iso", "Fecha_Semana", "Fecha_Fin")
+        rows = [{**dict.fromkeys(names, str(i)), "intensidad_por_1000_Conjunto_Agua": value,
+                 "palabras_Youtube": 100} for i, value in enumerate([1, 500, 2])]
+        selected = MODULE.weighted_analysis_rows(rows)
+        self.assertEqual([r["intensidad_por_1000_Conjunto_Agua"] for r in selected], [1, 500, 2])
+        self.assertTrue(all(len(r) == 4 for r in selected))
+        rows[0]["intensidad_por_1000_Conjunto_Agua_MA5"] = 123
+        with self.assertRaisesRegex(ValueError, "sin suavizado"):
+            MODULE.weighted_analysis_rows(rows)
 
     def test_dictionary_reuse_is_allowed_but_hashes_and_file_roles_are_checked(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -98,26 +100,6 @@ class IndicatorTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "no coincide"):
                 MODULE.load_resources(folder)
 
-    def test_lags_match_prior_weeks_and_do_not_borrow_future_values(self):
-        column = "intensidad_por_1000_Conjunto_Agua_MA5"
-        rows = []
-        for index in range(8):
-            start = date(2025, 1, 6) + timedelta(weeks=index)
-            rows.append({"semana_iso": str(index), "Fecha_Semana": str(start),
-                         "Fecha_Fin": str(start + timedelta(days=6)), column: index * 10.0})
-        result = MODULE.add_weekly_lags(rows)
-        for index, row in enumerate(result):
-            for lag in (1, 2, 3, 4):
-                self.assertEqual(row[f"{column}_lag{lag}"], (index - lag) * 10.0 if index >= lag else None)
-        self.assertNotIn(f"{column}_lag1", rows[0])
-        changed = [dict(row) for row in rows]
-        changed[-1][column] = 9999.0
-        self.assertEqual(result[:-1], MODULE.add_weekly_lags(changed)[:-1])
-        with self.assertRaises(ValueError):
-            MODULE.add_weekly_lags(rows[:2] + rows[3:])
-        with self.assertRaises(ValueError):
-            MODULE.add_weekly_lags(rows, (0,))
-
     def test_build_then_partition_and_future_mutations_do_not_affect_development(self):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
@@ -137,15 +119,16 @@ class IndicatorTests(unittest.TestCase):
             self.assertFalse(any("Etiquetado" in column for column in rows[0]))
             self.assertFalse(any("Etiquetado" in column for column in analysis[0]))
             base_rows = [{key: value for key, value in row.items()
-                         if key in {"semana_iso", "Fecha_Semana", "Fecha_Fin"} or ("_Conjunto_" in key and key.endswith("_MA5"))} for row in rows]
-            expected = MODULE.add_weekly_lags(base_rows)
-            self.assertEqual(analysis, [{c: "" if v is None else v for c, v in row.items()} for row in expected])
+                         if key in {"semana_iso", "Fecha_Semana", "Fecha_Fin"} or "_Conjunto_" in key} for row in rows]
+            self.assertEqual(analysis, base_rows)
+            self.assertFalse(any("_MA5" in c or "_lag" in c for c in analysis[0]))
             self.assertTrue(all("_Conjunto_" in key for key in analysis[0] if key not in {"semana_iso", "Fecha_Semana", "Fecha_Fin"}))
-            self.assertNotIn("Sentimiento_Conjunto_Original_Original", analysis[0])
+            self.assertIn("Sentimiento_Conjunto_Original_Original", analysis[0])
             self.assertNotIn("palabras_Youtube", analysis[0])
             self.assertEqual(report["rows"], 83)
             self.assertEqual(len(rows), 83)
-            self.assertFalse(report["smoothing"]["center"])
+            self.assertFalse(report["smoothing"]["applied"])
+            self.assertEqual(report["predictor_lags"], [])
             output = base / "sets"
             divided = partition_table(first / "archivo/tabla_analisis_completa_83_semanas.csv", first / "pesos_fuentes_entrenamiento.json", output)
             self.assertEqual([m["rows"] for m in divided["subsets"].values()], [56, 14, 13])

@@ -1,0 +1,103 @@
+{
+  "date": "2026-11-11",
+  "scope": "repo_overview_and_current_pipeline_status",
+  "head_before_commit": "3ba5ab0525e54f5b7783009f62eefa2b3d363dfc",
+  "corpus_validation": {
+    "status": "ok",
+    "scope": "csv_to_txt",
+    "nonempty_text_required": true,
+    "root": "/home/emilio/Documentos/Radar V1/datos/radar_semanal_procesado",
+    "summary": {
+      "youtube": {
+        "weeks": 83,
+        "nonempty_weeks": 83,
+        "empty_weeks": 0,
+        "empty_text_weeks": 0,
+        "rows": 76986
+      },
+      "twitter": {
+        "weeks": 83,
+        "nonempty_weeks": 83,
+        "empty_weeks": 0,
+        "empty_text_weeks": 0,
+        "rows": 9391
+      },
+      "medios": {
+        "weeks": 83,
+        "nonempty_weeks": 83,
+        "empty_weeks": 0,
+        "empty_text_weeks": 0,
+        "words": 3869708,
+        "structured_weeks": 0,
+        "text_only_weeks": 83,
+        "historical_txt_accepted": true,
+        "csv_content_checked": false
+      },
+      "facebook": {
+        "weeks": 83,
+        "nonempty_weeks": 83,
+        "empty_weeks": 0,
+        "empty_text_weeks": 0,
+        "rows": 10027,
+        "historical_unverified_date_rows": 6789,
+        "historical_date_exception_weeks": 20
+      }
+    },
+    "errors": []
+  },
+  "tests_passed": 108,
+  "test_log": "/tmp/radar-tests-semanal-sin-suavizado-2026-11-11.log",
+  "pipeline_stages": {
+    "extraccion": {
+      "runner": "scr/extraccion/run_extraccion.py",
+      "available": true
+    },
+    "preprocesamiento": {
+      "runner": "scr/preprocesamiento/promover_csv_a_texto.py",
+      "available": true
+    },
+    "nlp": {
+      "runner": "scr/nlp/run_nlp.py",
+      "available": false
+    },
+    "modelado": {
+      "runner": "scr/modelado/run_modelado.py",
+      "available": false
+    },
+    "tablero": {
+      "runner": "scr/tablero/run_tablero.py",
+      "available": false
+    },
+    "reporte": {
+      "runner": "scr/reporte/run_reporte.py",
+      "available": false
+    }
+  },
+  "indicators": {
+    "working_rows": 70,
+    "columns": 24,
+    "weekly_numeric_indicators": 21,
+    "candidate_X": 20,
+    "smoothing": false,
+    "X_lags": false,
+    "split": [
+      56,
+      14,
+      13
+    ]
+  },
+  "common_predictor_selection_final": false,
+  "production_model_created": false,
+  "live_extraction_run_during_overview": false,
+  "legacy_findings": {
+    "external_RAdAR_paths_remain_in_nlp": true,
+    "experiment_logger_expected_path": "scr/Modeling/experiment_logger.py",
+    "experiment_logger_expected_path_exists": false
+  },
+  "local_generated_directories_not_in_commit": [
+    "datos/radar_semanal_procesado",
+    "datos/radar_indicadores",
+    "datos/radar_modelado",
+    "datos/radar_analisis"
+  ]
+}

@@ -24,7 +24,7 @@ from scipy.stats import rankdata
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from generar_conjuntos_temporales import cargar_desarrollo, digest
-from inspeccionar_indicadores import DEFAULT_TARGET, HORIZONS, META, write_rows
+from inspeccionar_indicadores import DEFAULT_TARGET, HORIZONS, META, write_rows, validate_weekly_columns
 
 LABELS = ("Youtube", "XTwitter", "Facebook", "Medios")
 CUTS = (28, 35, 42, 49)
@@ -41,8 +41,9 @@ PROTOCOL = {
     "loss": "mean_over_horizons_of_MSE_divided_by_prefix_training_target_variance",
     "include_intercept_only_k0": True, "missing_values_imputed": False,
     "external_test_or_verification_used": False,
+    "predictor_lags": [], "smoothing_applied": False, "target_window_weeks": 1,
     "SE_interpretation": "parsimony_heuristic_across_4_temporal_blocks_not_a_confidence_interval",
-    "monica_ablation": ["exclude_presence_measure_and_its_4_lags", "exclude_both_MV_measures_and_their_4_lags"],
+    "monica_ablation": ["exclude_weekly_presence_measure", "exclude_both_weekly_MV_measures"],
 }
 
 
@@ -66,9 +67,10 @@ def load_inputs(development: Path, support: Path) -> Inputs:
         raise ValueError("Las semanas deben ser consecutivas y estar ordenadas")
     if any(d.weekday() != 0 for d in dates):
         raise ValueError("Las semanas deben comenzar en lunes")
-    bases = [c for c in rows[0] if c.endswith("_MA5")]
+    validate_weekly_columns(rows[0])
+    bases = [c for c in rows[0] if c not in META]
     if DEFAULT_TARGET not in bases:
-        raise ValueError("Falta la respuesta Original MA5")
+        raise ValueError("Falta la respuesta Original semanal")
     names = [c for c in rows[0] if c not in META and c != DEFAULT_TARGET
              and not c.startswith(DEFAULT_TARGET + "_lag")]
     if (not names or any(not c.startswith(("intensidad_por_1000_Conjunto_", "presencia_segmentos30_pct_Conjunto_"))
@@ -78,7 +80,7 @@ def load_inputs(development: Path, support: Path) -> Inputs:
     if audit.get("corpus_origin_policy") != "current_repository_only":
         raise ValueError("El soporte debe proceder del corpus actual")
     columns = [f"palabras_{label}" for label in LABELS]
-    columns += [base.removesuffix("_MA5").replace("_Conjunto_", f"_{label}_")
+    columns += [base.replace("_Conjunto_", f"_{label}_")
                 for label in LABELS for base in bases]
     prefix = []
     # Se consumen exactamente 56 filas; no se carga ni analiza el resto del soporte.
@@ -90,7 +92,7 @@ def load_inputs(development: Path, support: Path) -> Inputs:
                 raise ValueError("El soporte y el bloque inicial no tienen las mismas semanas")
             prefix.append({c: row[c] for c in list(META) + columns})
     words = np.array([[float(row[f"palabras_{label}"]) for label in LABELS] for row in prefix])
-    rates = np.array([[[float(row[base.removesuffix("_MA5").replace("_Conjunto_", f"_{label}_")])
+    rates = np.array([[[float(row[base.replace("_Conjunto_", f"_{label}_")])
                         for base in bases] for label in LABELS] for row in prefix])
     if not np.isfinite(words).all() or not np.isfinite(rates).all() or (words <= 0).any():
         raise ValueError("El soporte inicial requiere tasas finitas y volúmenes positivos")
@@ -109,19 +111,17 @@ def load_inputs(development: Path, support: Path) -> Inputs:
 
 
 def rebuild(inputs: Inputs, prefix_size: int):
-    """Pesos ajustados sólo al prefijo; MA5 causal y lags sobre tasas por fuente."""
+    """Pesos ajustados sólo al prefijo y tasas de cada semana, sin MA5 ni lags."""
     scores = np.sqrt(inputs.words[:prefix_size].sum(axis=0))
     weights = scores / scores.sum()
     joint = np.einsum("nsb,s->nb", inputs.rates, weights)
-    smooth = np.array([joint[max(0, t - 4):t + 1].mean(axis=0) for t in range(len(joint))])
-    lookup = {base: smooth[:, i] for i, base in enumerate(inputs.bases)}
-    for base in inputs.bases:
-        for lag in (1, 2, 3, 4):
-            lookup[f"{base}_lag{lag}"] = np.r_[np.full(lag, np.nan), lookup[base][:-lag]]
+    lookup = {base: joint[:, i] for i, base in enumerate(inputs.bases)}
     return np.column_stack([lookup[name] for name in inputs.names]), lookup[DEFAULT_TARGET], weights
 
 
 def paired(x, y, prefix_size: int, horizon: int):
+    if type(horizon) is not int or horizon not in HORIZONS:
+        raise ValueError("El horizonte debe ser 1, 2, 3 o 4 semanas")
     origins = np.arange(prefix_size - horizon)
     valid = np.isfinite(x[origins]).all(axis=1) & np.isfinite(y[origins + horizon])
     origins = origins[valid]
@@ -323,6 +323,7 @@ def analyze(inputs: Inputs):
         "scales_and_ranking_fitted_inside_each_cut": True,
         "original_indicator_table_modified": False,
         "production_forecast_model_created": False,
+        "smoothing_applied": False, "predictor_lags": [], "target_window_weeks": 1,
         "selection_is_provisional": True}
     return report, {"curva_numero_columnas.csv": curve, "comparacion_horizontes.csv": by_horizon,
         "curvas_por_horizonte.csv": horizon_curves, "estabilidad_indicadores_sin_rezago.csv": families,
@@ -334,12 +335,12 @@ def analyze(inputs: Inputs):
 def monica_diagnostic(inputs: Inputs, baseline: dict, baseline_tables: dict):
     """Redundancia observada y comparación de rutas sin usar reservas externas.
 
-    Se excluyen primero las cinco versiones de presencia y después las diez
-    versiones del tema MV, para que intensidad no sustituya al mismo indicador.
+    Se excluye primero presencia y después las dos medidas semanales del tema
+    MV, para que intensidad no sustituya al mismo indicador.
     No es una estimación causal ni una prueba de aporte predictivo independiente.
     """
-    presence = [name for name in inputs.names if name.startswith("presencia_segmentos30_pct_Conjunto_Visibilidad_MV_MA5")]
-    topic = [name for name in inputs.names if "_Conjunto_Visibilidad_MV_MA5" in name]
+    presence = [name for name in inputs.names if name == "presencia_segmentos30_pct_Conjunto_Visibilidad_MV"]
+    topic = [name for name in inputs.names if name.endswith("_Conjunto_Visibilidad_MV")]
     if not presence or not topic:
         return {"applicable": False}, {}
     x, _, weights = rebuild(inputs, 56)
@@ -362,7 +363,7 @@ def monica_diagnostic(inputs: Inputs, baseline: dict, baseline_tables: dict):
                 "supera_umbral_085": max(abs(p), abs(s)) >= .85})
     pairs.sort(key=lambda row: row["max_correlacion_absoluta"], reverse=True)
     scenarios = [("completo", baseline, baseline_tables)]
-    for label, excluded in (("sin_presencia_MV_5_columnas", presence), ("sin_tema_MV_10_columnas", topic)):
+    for label, excluded in (("sin_presencia_visibilidad_MV", presence), ("sin_tema_visibilidad_MV", topic)):
         subset = Inputs(inputs.rows, inputs.bases, [name for name in inputs.names if name not in excluded],
                         inputs.rates, inputs.words, inputs.evidence)
         result, tables = analyze(subset)
@@ -387,18 +388,11 @@ def monica_diagnostic(inputs: Inputs, baseline: dict, baseline_tables: dict):
             loss = float(np.mean(values))
             losses.append({"escenario": label, "horizonte_semanas": h, "k": result["selected_k"],
                 "error_medio_normalizado": loss, "diferencia_frente_a_completo": loss - baseline_loss[h]})
-    # Contraste de las dos medidas del mismo tema antes y después del MA5,
-    # sobre las mismas 52 semanas. Permite distinguir duplicación de suavizado.
-    raw = np.einsum("nsb,s->nb", inputs.rates, weights)[valid]
-    a = "presencia_segmentos30_pct_Conjunto_Visibilidad_MV_MA5"
-    b = "intensidad_por_1000_Conjunto_Visibilidad_MV_MA5"
-    raw_corr = float(np.corrcoef(raw[:, inputs.bases.index(a)], raw[:, inputs.bases.index(b)])[0, 1])
-    smooth_corr = float(pearson[inputs.names.index(a), inputs.names.index(b)])
-    lag23 = float(pearson[inputs.names.index(a + "_lag2"), inputs.names.index(a + "_lag3")])
+    a = "presencia_segmentos30_pct_Conjunto_Visibilidad_MV"
+    b = "intensidad_por_1000_Conjunto_Visibilidad_MV"
+    raw_corr = float(pearson[inputs.names.index(a), inputs.names.index(b)])
     report = {"applicable": True, "presence_columns": presence, "all_MV_topic_columns": topic,
-        "comparable_weeks": len(complete), "raw_presence_intensity_pearson": raw_corr,
-        "MA5_presence_intensity_pearson": smooth_corr,
-        "MA5_presence_lag2_lag3_pearson": lag23,
+        "comparable_weeks": len(complete), "weekly_presence_intensity_pearson": raw_corr,
         "within_MV_pairs_above_085": sum(row["ambas_del_tema_MV"] and row["supera_umbral_085"] for row in pairs),
         "scenario_summary": sizes,
         "comparison_scope": "internal_column_selection_not_independent_performance_assessment",
@@ -441,7 +435,7 @@ def generate(development: Path, support: Path, output: Path):
             "Los errores sirven para escoger columnas dentro del bloque inicial, no acreditan rendimiento externo. No se abrieron prueba ni las 13 semanas reservadas. Se consumieron únicamente las primeras 56 filas del soporte por fuente, y se comprobó que reconstruyen la tabla vigente.", "",
             "## Procedimiento", "",
             "1. Cuatro cortes cronológicos: prefijos de 28, 35, 42 y 49 semanas. Se comparan orígenes de las siete siguientes, limitados para que todos los objetivos hasta t+4 permanezcan dentro de las 56 semanas. No se mezclan aleatoriamente las semanas.",
-            "2. En cada corte se recalculan los pesos intermedios de fuentes con su propio prefijo; se reconstruyen MA5 causal y lags. Sólo se usan pares cuya respuesta ya está dentro del prefijo para ajustar escalas y regresiones.",
+            "2. En cada corte se recalculan los pesos intermedios de fuentes con su propio prefijo. X contiene sólo los temas de t; Y es la polaridad de la semana t+h, sin suavizado ni rezagos de X. Sólo se usan pares cuya respuesta ya está dentro del prefijo para ajustar escalas y regresiones.",
             "3. Se ordenan candidatas por la mediana de sus rangos de magnitud de coeficiente estandarizado: cuatro horizontes por tres alphas (0.1, 1 y 10). Es una regla de ordenación explícita, no un porcentaje de importancia.",
             "4. Se retiran candidatas redundantes: correlación absoluta de Pearson o Spearman de al menos 0.85 con una retenida, o VIF conjunto mayor que 5. Son umbrales metodológicos explícitos, no pruebas de significación. No se usa la polaridad ni sus rezagos como explicativas.",
             "5. Se comparan todos los tamaños identificables en los cuatro cortes con Ridge alpha=1, incluido el intercepto solo. El error de cada horizonte se divide por la varianza de su respuesta en el prefijo; los cuatro horizontes pesan igual.",
@@ -460,18 +454,18 @@ def generate(development: Path, support: Path, output: Path):
         text += [f"| {h} | {values['selected_k']} | {values['k_minimum_mean_error']} |"
                  for h, values in report["per_horizon_size_diagnostics"].items()]
         text += ["", "Estos tamaños por horizonte son diagnósticos separados; no sustituyen silenciosamente el tamaño común elegido con los cuatro horizontes ponderados por igual.", "",
-            "## Recurrencia de indicadores aunque cambie el rezago", "",
+            "## Recurrencia de indicadores semanales", "",
             "| Indicador | Cortes | Versiones observadas |", "|---|---:|---|"]
         text += [f"| {row['indicador_sin_rezago']} | {row['cortes_que_retienen_alguna_version']}/4 | {row['versiones_observadas']} |"
                  for row in tables["estabilidad_indicadores_sin_rezago.csv"] if row["cortes_que_retienen_alguna_version"]]
-        text += ["", "La recurrencia de una familia no autoriza a fijar un rezago ni a crear una nueva combinación de columnas. Si cambia la variable al reajustar con las 56 semanas, la lista candidata no se considera una selección definitiva.", "",
+        text += ["", "Si cambia la variable al reajustar con las 56 semanas, la lista candidata no se considera una selección definitiva. No se añaden rezagos ni se combinan indicadores para ocultar esa inestabilidad.", "",
             "La selección final se recalcula con las 56 semanas una vez elegido el tamaño. La tabla reducida conserva esas 56 filas y los faltantes originales; la tabla base de 70 y el archivo reservado permanecen intactos. Si hay poca estabilidad entre cortes, la lista es provisional y debe tratarse como tal.", "",
             "Para una evaluación posterior, aplicar dentro de cada corte toda esta selección, sus pesos y escalas. Los errores usados para elegir el tamaño no son una evaluación independiente del conjunto definitivo. No se exportó un modelo operativo.", "",
         ]
         if monica["applicable"]:
             text += ["## ¿Es redundante la visibilidad de Mónica Villarreal?", "",
-                f"Sobre las mismas {monica['comparable_weeks']} semanas, la correlación de Pearson entre presencia e intensidad del tema MV es {monica['raw_presence_intensity_pearson']:.4f} sin suavizar y {monica['MA5_presence_intensity_pearson']:.4f} con MA5. Entre los rezagos 2 y 3 de presencia MA5 es {monica['MA5_presence_lag2_lag3_pearson']:.4f}.", "",
-                "Se recalculó la selección excluyendo primero sus cinco versiones de presencia y después las diez columnas del tema MV, incluidas intensidad y rezagos. La tabla original conserva todas sus columnas.", "",
+                f"Sobre las mismas {monica['comparable_weeks']} semanas, la correlación de Pearson entre presencia e intensidad semanales del tema MV es {monica['weekly_presence_intensity_pearson']:.4f}. No se aplicó suavizado ni se generaron rezagos.", "",
+                "Se recalculó la selección excluyendo primero la medida semanal de presencia y después las dos columnas del tema MV. La tabla original conserva todas sus columnas.", "",
                 "| Escenario | Candidatas | Tamaño candidato | Error del tamaño candidato | Menor error de la ruta |",
                 "|---|---:|---:|---:|---:|"]
             text += [f"| {row['escenario']} | {row['candidatas']} | {row['k_candidato_comun']} | {row['error_medio_normalizado']:.4f} | {row['minimo_error_medio']:.4f} |"

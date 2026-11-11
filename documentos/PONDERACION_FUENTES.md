@@ -36,6 +36,8 @@ Al generar la [partición temporal acordada](PARTICION_TEMPORAL_DATOS.md) se man
 
 Se guardaron en `datos/radar_indicadores/pesos_fuentes_entrenamiento.json` y se copiaron a `datos/radar_modelado/desarrollo/entrenamiento/pesos_fuentes.json`, junto con los volúmenes y hashes de las entradas de entrenamiento. Se aplicaron a los indicadores conjuntos de la tabla completa antes de partirla; no se han aplicado a un modelo. Los de 83 semanas conservan su propósito retrospectivo. La prueba y la verificación no intervienen en esta recalibración.
 
+La corrección del 11 de noviembre de 2026 retira MA5 y lags de X; conserva estas tasas y estos pesos. Los valores de cada fila corresponden a una semana concreta. La tabla con pesos del ajuste completo de 56 semanas no se usa directamente para evaluar cortes anteriores: `seleccionar_indicadores.py` reconstruye los pesos usando exclusivamente las palabras disponibles en cada prefijo y los congela para sus comparaciones posteriores. Las escalas y la selección se ajustan también dentro de ese corte.
+
 ## Estado y evidencia
 
 La elección de ponderación queda aprobada y aplicada a los indicadores conjuntos de la tabla actual. El usuario aclaró que los diccionarios del proyecto anterior sí están autorizados; los datos y resultados semanales deben proceder exclusivamente de este repo. La tabla y sus particiones se recuperaron tras verificar esa procedencia. No se entrenó un modelo. Véase [INDICADORES_SEMANALES.md](INDICADORES_SEMANALES.md).

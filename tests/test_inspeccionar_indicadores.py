@@ -26,8 +26,7 @@ class IndicatorInspectionTests(unittest.TestCase):
             start = date(2025, 1, 6) + timedelta(weeks=i)
             rows.append({"semana_iso": str(i), "Fecha_Semana": str(start),
                 "Fecha_Fin": str(start + timedelta(days=6)),
-                "x": i, "doble": 2 * i, "constante": 7,
-                "x_lag4": i - 4 if i >= 4 else ""})
+                "x": i, "doble": 2 * i, "constante": 7})
         with path.open("w", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=list(rows[0]))
             writer.writeheader()
@@ -51,14 +50,13 @@ class IndicatorInspectionTests(unittest.TestCase):
             with patch.object(Path, "open", guarded):
                 report, summaries, pairs = MODULE.inspect_training(development)
             self.assertEqual(report["training_rows"], 10)
-            self.assertEqual(report["complete_rows"], 6)
-            self.assertEqual(report["numeric_candidates"], 4)
+            self.assertEqual(report["complete_rows"], 10)
+            self.assertEqual(report["numeric_candidates"], 3)
             self.assertEqual(report["centered_matrix_rank"], 1)
             self.assertEqual(report["constant_columns"], ["constante"])
             self.assertFalse(report["regressions_run"])
             self.assertFalse(report["heldout_data_opened"])
-            self.assertEqual(next(r for r in summaries if r["variable"] == "x")["media"], 6.5)
-            self.assertEqual(next(r for r in summaries if r["variable"] == "x_lag4")["faltantes_en_bloque"], 4)
+            self.assertEqual(next(r for r in summaries if r["variable"] == "x")["media"], 4.5)
             self.assertAlmostEqual(pairs[0]["abs_pearson"], 1)
             self.assertEqual(path.read_bytes(), before)
 
@@ -100,7 +98,7 @@ class IndicatorInspectionTests(unittest.TestCase):
             self.assertFalse(report["p_values_reported"])
             self.assertNotIn("x", [row["variable"] for row in ridge])
             self.assertNotIn("x_lag4", [row["variable"] for row in ridge])
-            self.assertEqual(report["excluded_target_history"], ["x_lag4"])
+            self.assertEqual(report["excluded_target_history"], [])
             raw_x = (2 * np.arange(9)).reshape(-1, 1)
             x = (raw_x - raw_x.mean(axis=0)) / raw_x.std(axis=0)
             y = np.arange(1, 10, dtype=float)
@@ -149,15 +147,12 @@ class IndicatorInspectionTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     MODULE.regress_training(development, "x", horizon=h)
 
-    def test_target_only_missing_history_and_purged_predictors_do_not_affect_results(self):
+    def test_unused_early_targets_and_purged_predictors_do_not_affect_results(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             development, path = self.fixture(root)
-            # La historia de una explicativa también debe estar observada en t.
             with path.open() as handle:
                 rows = list(csv.DictReader(handle))
-            for i, row in enumerate(rows):
-                row["doble_lag4"] = 2 * (i - 4) if i >= 4 else ""
             def save():
                 with path.open("w", newline="") as handle:
                     writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
@@ -168,22 +163,39 @@ class IndicatorInspectionTests(unittest.TestCase):
             save()
             for h in (1, 2, 3):
                 report, _, _ = MODULE.regress_training(development, "x", horizon=h)
-                self.assertEqual(report["regression_rows"], 10 - 4 - h)
-                self.assertEqual(report["eligible_origins_without_complete_history"], 4)
-            # Para h=3, ni X de los últimos tres orígenes ni Y de los primeros
-            # siete se usan en pares elegibles. Cambiarlos no debe mover el ajuste.
+                self.assertEqual(report["regression_rows"], 10 - h)
+                self.assertEqual(report["eligible_origins_without_complete_history"], 0)
+            # Para h=3, X de los últimos tres orígenes e Y de las primeras tres
+            # semanas no se usan. Cambiarlos no debe mover el ajuste.
             before, uni_before, ridge_before = MODULE.regress_training(development, "x", horizon=3)
             for i, row in enumerate(rows):
-                if i < 7:
+                if i < 3:
                     row["x"] = 10000 + i
                 if i >= 7:
                     row["doble"] = 100000 + i
-                    row["doble_lag4"] = -100000 + i
             save()
             after, uni_after, ridge_after = MODULE.regress_training(development, "x", horizon=3)
             self.assertEqual(before, after)
             self.assertEqual(uni_before, uni_after)
             self.assertEqual(ridge_before, ridge_after)
+
+    def test_legacy_smoothed_or_lagged_schema_is_rejected(self):
+        for column in ("x_MA5", "doble_lag1", "x_lag4"):
+            with self.subTest(column=column), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                development, path = self.fixture(root)
+                with path.open() as handle:
+                    rows = list(csv.DictReader(handle))
+                for row in rows:
+                    row[column] = row["doble"]
+                with path.open("w", newline="") as handle:
+                    writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+                    writer.writeheader()
+                    writer.writerows(rows)
+                (root / "auditoria.json").write_text(json.dumps({"corpus_origin_policy": "current_repository_only",
+                    "subsets": {"entrenamiento": {"sha256": MODULE.digest(path)}}}))
+                with self.assertRaisesRegex(ValueError, "no se permiten MA5"):
+                    MODULE.regress_training(development, "x")
 
     def test_regression_export_records_chosen_target(self):
         with tempfile.TemporaryDirectory() as directory:

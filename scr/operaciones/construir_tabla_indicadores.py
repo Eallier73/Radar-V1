@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Construye primero los indicadores de las 83 semanas, sin entrenar modelos.
 
-Usa el corpus actual de Radar V1 y los diccionarios históricos autorizados. La media MA5
-es retrospectiva hacia atrás para no incorporar información de semanas futuras.
+Usa el corpus actual de Radar V1 y los diccionarios históricos autorizados.
+Los indicadores representan exclusivamente su semana, sin MA5 ni lags de X.
 Los pesos intermedios se calibran sólo con las primeras 56 semanas.
 """
 from __future__ import annotations
@@ -17,7 +17,7 @@ import sys
 import tempfile
 import unicodedata
 from collections import Counter
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -134,15 +134,6 @@ def analyze_text(text: str, source: str, polar: Matcher, thematic: Matcher, topi
     return result
 
 
-def trailing_ma5(rows: list[dict], columns: list[str]) -> list[dict]:
-    result = [dict(row) for row in rows]
-    for index, target in enumerate(result):
-        for column in columns:
-            values = [row[column] for row in rows[max(0, index - 4):index + 1] if row[column] is not None]
-            target[f"{column}_MA5"] = math.fsum(values) / len(values) if values else None
-    return result
-
-
 def write_table(path: Path, rows: list[dict], columns: list[str] | None = None) -> None:
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=columns or list(rows[0]))
@@ -151,35 +142,12 @@ def write_table(path: Path, rows: list[dict], columns: list[str] | None = None) 
 
 
 def weighted_analysis_rows(rows: list[dict]) -> list[dict]:
-    """Sólo fechas e indicadores conjuntos ya ponderados y suavizados MA5."""
+    """Fechas y tasas conjuntas de la propia semana, sin historia añadida."""
     identifiers = ["semana_iso", "Fecha_Semana", "Fecha_Fin"]
-    weighted = [column for column in rows[0] if "_Conjunto_" in column and column.endswith("_MA5")]
-    if not weighted or any(name[:-4] not in rows[0] for name in weighted):
-        raise ValueError("Se requieren indicadores conjuntos MA5 con su cálculo de soporte")
+    weighted = [column for column in rows[0] if "_Conjunto_" in column]
+    if not weighted or any("_MA" in name or "_lag" in name for name in weighted):
+        raise ValueError("Se requieren indicadores semanales sin suavizado ni rezagos")
     return [{column: row[column] for column in identifiers + weighted} for row in rows]
-
-
-def add_weekly_lags(rows: list[dict], lags=(1, 2, 3, 4)) -> list[dict]:
-    """Agrega x(t-k) sin perder semanas ni rellenar historia inexistente."""
-    if not rows or not lags or any(type(k) is not int or k not in (1, 2, 3, 4) for k in lags):
-        raise ValueError("Se requieren filas y lags enteros entre 1 y 4")
-    if len(set(lags)) != len(lags):
-        raise ValueError("No se permiten lags duplicados")
-    identifiers = {"semana_iso", "Fecha_Semana", "Fecha_Fin"}
-    metrics = [c for c in rows[0] if c not in identifiers]
-    if not metrics or any("_Conjunto_" not in c or not c.endswith("_MA5") for c in metrics):
-        raise ValueError("Los lags se construyen sólo desde indicadores conjuntos MA5, sin rezagos previos")
-    dates = [date.fromisoformat(row["Fecha_Semana"]) for row in rows]
-    if any(d.weekday() != 0 for d in dates) or any(b - a != timedelta(days=7) for a, b in zip(dates, dates[1:])):
-        raise ValueError("Las semanas deben ser consecutivas, únicas y ordenadas")
-    result = []
-    for index, row in enumerate(rows):
-        output = dict(row)
-        for column in metrics:
-            for lag in sorted(lags):
-                output[f"{column}_lag{lag}"] = rows[index - lag][column] if index >= lag else None
-        result.append(output)
-    return result
 
 
 def build(processed: Path, resources: Path, output: Path) -> dict:
@@ -193,7 +161,7 @@ def build(processed: Path, resources: Path, output: Path) -> dict:
     if len(weeks) != sum(SIZES.values()):
         raise ValueError("Se requieren las 83 semanas completas antes de construir la tabla")
     polar, thematic, topics, stopwords, resource_hashes = load_resources(resources)
-    rows, detail, hashes, totals, definitions, smooth_columns = [], [], {}, dict.fromkeys(SOURCES, 0), {}, []
+    rows, detail, hashes, totals, definitions = [], [], {}, dict.fromkeys(SOURCES, 0), {}
     # Primero indicadores individuales: ni particiones físicas ni aprendizaje.
     per_week = []
     for index, week in enumerate(weeks):
@@ -214,11 +182,9 @@ def build(processed: Path, resources: Path, output: Path) -> dict:
         row = {"semana_iso": f"{year}-W{number:02d}", "Fecha_Semana": week["period_start"],
                "Fecha_Fin": week["period_end"], "semana_corpus": week["week"]}
 
-        def add(name, value, unit, formula, smooth=False):
+        def add(name, value, unit, formula):
             row[name] = value
             definitions.setdefault(name, {"column": name, "unit": unit, "formula": formula})
-            if smooth and name not in smooth_columns:
-                smooth_columns.append(name)
 
         for source, values in measurements.items():
             label = LABELS[source]
@@ -230,33 +196,28 @@ def build(processed: Path, resources: Path, output: Path) -> dict:
                 add(f"positivas_{label}_{version}", values_p["positive"], "coincidencias léxicas", "unigramas y n-gramas positivos tras stoplists")
                 add(f"negativas_{label}_{version}", values_p["negative"], "coincidencias léxicas", "unigramas y n-gramas negativos tras stoplists")
                 add(f"Sentimiento_{label}_Original_{version}", values_p["sentiment_pct"], "% de coincidencias con polaridad",
-                    "100 * positivas / (positivas + negativas); vacío si no hay coincidencias", True)
+                    "100 * positivas / (positivas + negativas); vacío si no hay coincidencias")
             for topic, values_t in values["topics"].items():
                 add(f"menciones_{label}_{topic}", values_t["mentions"], "coincidencias léxicas", "unigramas y n-gramas temáticos, sin cruzar líneas")
                 add(f"intensidad_por_1000_{label}_{topic}", values_t["intensity_per_1000"], "coincidencias / 1000 palabras",
-                    "1000 * menciones / palabras", True)
+                    "1000 * menciones / palabras")
                 if source != "medios":
                     add(f"presencia_tema_pct_{label}_{topic}", values_t["record_presence_pct"], "% de registros con texto",
-                        "100 * registros que mencionan el tema / registros con texto", True)
+                        "100 * registros que mencionan el tema / registros con texto")
                 add(f"presencia_segmentos30_pct_{label}_{topic}", values_t["segment30_presence_pct"], "% de segmentos de 30 palabras",
-                    "100 * segmentos con tema / segmentos; envoltura común de todo el texto semanal", True)
+                    "100 * segmentos con tema / segmentos; envoltura común de todo el texto semanal")
         for version in POLARITY_FILES:
             vals = {s: measurements[s]["polarities"][version]["sentiment_pct"] for s in SOURCES}
             # No se convierte ausencia de polaridad en neutralidad ni se renormalizan pesos silenciosamente.
             joint = math.fsum(weights[s] * vals[s] for s in SOURCES) if all(v is not None for v in vals.values()) else None
             add(f"Sentimiento_Conjunto_Original_{version}", joint, "% de coincidencias con polaridad ponderado",
-                "suma(peso_fuente * sentimiento_fuente); vacío si falta una fuente", True)
+                "suma(peso_fuente * sentimiento_fuente); vacío si falta una fuente")
         for topic in topics:
             add(f"intensidad_por_1000_Conjunto_{topic}", math.fsum(weights[s] * measurements[s]["topics"][topic]["intensity_per_1000"] for s in SOURCES),
-                "coincidencias / 1000 palabras ponderadas", "suma(peso_fuente * intensidad_fuente)", True)
+                "coincidencias / 1000 palabras ponderadas", "suma(peso_fuente * intensidad_fuente)")
             add(f"presencia_segmentos30_pct_Conjunto_{topic}", math.fsum(weights[s] * measurements[s]["topics"][topic]["segment30_presence_pct"] for s in SOURCES),
-                "% de segmentos de 30 palabras ponderado", "suma(peso_fuente * presencia_segmentos_fuente)", True)
+                "% de segmentos de 30 palabras ponderado", "suma(peso_fuente * presencia_segmentos_fuente)")
         rows.append(row)
-    raw_rows = rows
-    rows = trailing_ma5(raw_rows, smooth_columns)
-    for column in smooth_columns:
-        definitions[f"{column}_MA5"] = {"column": f"{column}_MA5", "unit": definitions[column]["unit"],
-            "formula": f"media de {column} entre t-4 y t; mínimo 1 observación no ausente"}
     weighting = {"alpha": .5, "calibration_subset": "entrenamiento", "calibration_weeks": SIZES["entrenamiento"],
         "period_start": weeks[0]["period_start"], "period_end": weeks[SIZES["entrenamiento"] - 1]["period_end"],
         "words": totals, "weights": weights, "status": "applied_to_indicators_not_a_trained_model",
@@ -272,12 +233,6 @@ def build(processed: Path, resources: Path, output: Path) -> dict:
     try:
         write_table(staging / "tabla_indicadores_83_semanas.csv", rows)
         analysis_rows = weighted_analysis_rows(rows)
-        base_columns = [c for c in analysis_rows[0] if c not in {"semana_iso", "Fecha_Semana", "Fecha_Fin"}]
-        for column in base_columns:
-            for lag in (1, 2, 3, 4):
-                definitions[f"{column}_lag{lag}"] = {"column": f"{column}_lag{lag}",
-                    "unit": definitions[column]["unit"], "formula": f"{column} de la semana t-{lag}; ausente sin historia"}
-        analysis_rows = add_weekly_lags(analysis_rows)
         development_rows = analysis_rows[:SIZES["entrenamiento"] + SIZES["prueba"]]
         archive = staging / "archivo"
         archive.mkdir()
@@ -289,7 +244,7 @@ def build(processed: Path, resources: Path, output: Path) -> dict:
         write_json(staging / "detalle_fuentes.json", detail)
         write_json(staging / "pesos_fuentes_entrenamiento.json", weighting)
         report = {"status": "indicator_table_generated_before_partition", "rows": len(rows), "columns": len(rows[0]),
-            "corpus_origin_policy": CORPUS_ORIGIN_POLICY,
+            "corpus_origin_policy": CORPUS_ORIGIN_POLICY, "indicator_schema": "weekly_unsmoothed_v1",
             "corpus_root": str(processed), "lexicon_origin_policy": "historical_dictionaries_authorized",
             "primary_table": "tabla_analisis_ponderada.csv", "analysis_rows": len(development_rows),
             "full_analysis_table": "archivo/tabla_analisis_completa_83_semanas.csv",
@@ -297,13 +252,13 @@ def build(processed: Path, resources: Path, output: Path) -> dict:
             "analysis_columns": len(analysis_rows[0]),
             "analysis_complete_rows": sum(all(v is not None for v in row.values()) for row in development_rows),
             "analysis_missing_cell_count": sum(v is None for row in development_rows for v in row.values()),
-            "lags": {"weeks": [1, 2, 3, 4], "base_numeric_columns": len(base_columns),
-                "lag_columns": 4 * len(base_columns), "missing_history_fill": None,
-                "complete_rows": sum(all(row[c] is not None for c in row) for row in analysis_rows)},
+            "predictor_lags": [], "forecast_horizons": [1, 2, 3, 4],
+            "table_weight_scope": "fixed_initial_56_week_fit_not_for_direct_inner_backtesting",
+            "inner_temporal_analysis_requires_prefix_reweighting": True,
             "analysis_missing_values_by_column": {c: sum(row[c] is None for row in analysis_rows)
                 for c in analysis_rows[0] if any(row[c] is None for row in analysis_rows)},
             "period_start": weeks[0]["period_start"], "period_end": weeks[-1]["period_end"], "topics": topics,
-            "smoothing": {"window": 5, "center": False, "min_periods": 1, "historical_center_was_true": True},
+            "smoothing": {"applied": False, "target_window_weeks": 1, "predictor_window_weeks": 1},
             "input_sha256": hashes, "resource_sha256": resource_hashes, "training_weighting": weighting,
             "models_trained": False, "scaling_fitted": False,
             "missing_values_by_column": {c: sum(r[c] is None for r in rows) for c in rows[0] if any(r[c] is None for r in rows)},

@@ -24,13 +24,13 @@ class IndicatorSelectionTests(unittest.TestCase):
     def inputs(self, monica=False):
         rng = np.random.default_rng(724)
         target = MODULE.DEFAULT_TARGET
-        bases = [target, "intensidad_por_1000_Conjunto_Agua_MA5",
-                 "presencia_segmentos30_pct_Conjunto_Agua_MA5",
-                 "intensidad_por_1000_Conjunto_Economia_MA5",
-                 "presencia_segmentos30_pct_Conjunto_Economia_MA5"]
+        bases = [target, "intensidad_por_1000_Conjunto_Agua",
+                 "presencia_segmentos30_pct_Conjunto_Agua",
+                 "intensidad_por_1000_Conjunto_Economia",
+                 "presencia_segmentos30_pct_Conjunto_Economia"]
         if monica:
-            bases = [base.replace("_Agua_", "_Visibilidad_MV_") for base in bases]
-        names = [base + (f"_lag{lag}" if lag else "") for base in bases[1:] for lag in range(5)]
+            bases = [base.replace("_Agua", "_Visibilidad_MV") for base in bases]
+        names = bases[1:]
         rates = rng.uniform(20, 80, (56, 4, len(bases)))
         # Duplicado exacto: debe identificarse como redundante para cualquier corte.
         rates[:, :, 2] = rates[:, :, 1] * 1.5
@@ -43,7 +43,6 @@ class IndicatorSelectionTests(unittest.TestCase):
             row = {"semana_iso": f"{year}-W{week:02d}", "Fecha_Semana": str(start),
                    "Fecha_Fin": str(start + timedelta(days=6)), target: y[i]}
             row.update({name: x[i, j] if np.isfinite(x[i, j]) else "" for j, name in enumerate(names)})
-            row.update({f"{target}_lag{lag}": y[i - lag] if i >= lag else "" for lag in range(1, 5)})
             result.rows.append(row)
         return result
 
@@ -66,7 +65,7 @@ class IndicatorSelectionTests(unittest.TestCase):
         for i, meta in enumerate(data.rows):
             row = {c: meta[c] for c in MODULE.META}
             row.update({f"palabras_{label}": data.words[i, s] for s, label in enumerate(MODULE.LABELS)})
-            row.update({base.removesuffix("_MA5").replace("_Conjunto_", f"_{label}_"): data.rates[i, s, j]
+            row.update({base.replace("_Conjunto_", f"_{label}_"): data.rates[i, s, j]
                         for s, label in enumerate(MODULE.LABELS) for j, base in enumerate(data.bases)})
             rows.append(row)
         with support.open("w", newline="") as handle:
@@ -92,7 +91,7 @@ class IndicatorSelectionTests(unittest.TestCase):
             self.assertEqual(inputs.rates.shape, (56, 4, 5))
             self.assertEqual(inputs.evidence["support_numeric_rows_consumed"], 56)
             self.assertFalse(any("Sentimiento" in name for name in inputs.names))
-            self.assertEqual(len(inputs.names), 20)
+            self.assertEqual(len(inputs.names), 4)
 
     def test_rebuild_recalibrates_prefix_weights_and_never_borrows_future(self):
         inputs = self.inputs()
@@ -117,20 +116,35 @@ class IndicatorSelectionTests(unittest.TestCase):
         x, y, _ = MODULE.rebuild(inputs, 28)
         for h in MODULE.HORIZONS:
             paired_x, paired_y, origins = MODULE.paired(x, y, 28, h)
-            self.assertEqual(len(origins), 28 - 4 - h)
+            self.assertEqual(len(origins), 28 - h)
             self.assertTrue((origins + h < 28).all())
             np.testing.assert_allclose(paired_x, x[origins])
             np.testing.assert_allclose(paired_y, y[origins + h])
+
+    def test_a_weekly_spike_does_not_spread_to_other_rows_or_the_response(self):
+        inputs = self.inputs()
+        before_x, before_y, _ = MODULE.rebuild(inputs, 28)
+        changed = copy.deepcopy(inputs)
+        changed.rates[35, :, 1] += 1000
+        after_x, after_y, _ = MODULE.rebuild(changed, 28)
+        others = np.arange(56) != 35
+        np.testing.assert_allclose(before_x[others], after_x[others])
+        np.testing.assert_allclose(before_y, after_y)
+        self.assertFalse(np.allclose(before_x[35], after_x[35]))
+        changed = copy.deepcopy(inputs)
+        changed.rates[35, :, 0] += 1000
+        after_x, after_y, _ = MODULE.rebuild(changed, 28)
+        np.testing.assert_allclose(before_x, after_x)
+        np.testing.assert_allclose(before_y[others], after_y[others])
+        self.assertNotEqual(before_y[35], after_y[35])
 
     def test_redundancy_removes_duplicate_and_controls_joint_vif(self):
         inputs = self.inputs()
         result = MODULE.rank_and_prune(inputs, 56)
         names = {inputs.names[j] for j in result["path"]}
-        for lag in range(5):
-            suffix = f"_lag{lag}" if lag else ""
-            a = f"intensidad_por_1000_Conjunto_Agua_MA5{suffix}"
-            b = f"presencia_segmentos30_pct_Conjunto_Agua_MA5{suffix}"
-            self.assertFalse({a, b} <= names)
+        a = "intensidad_por_1000_Conjunto_Agua"
+        b = "presencia_segmentos30_pct_Conjunto_Agua"
+        self.assertFalse({a, b} <= names)
         kept = result["complete_x"][:, result["path"]]
         self.assertLessEqual(MODULE.vifs(kept).max(), 5.)
         if len(names) > 1:
@@ -191,11 +205,10 @@ class IndicatorSelectionTests(unittest.TestCase):
         baseline, tables = MODULE.analyze(inputs)
         report, results = MODULE.monica_diagnostic(inputs, baseline, tables)
         self.assertTrue(report["applicable"])
-        self.assertAlmostEqual(report["raw_presence_intensity_pearson"], 1.)
-        self.assertAlmostEqual(report["MA5_presence_intensity_pearson"], 1.)
-        self.assertEqual(len(report["presence_columns"]), 5)
-        self.assertEqual(len(report["all_MV_topic_columns"]), 10)
-        self.assertEqual([row["candidatas"] for row in report["scenario_summary"]], [20, 15, 10])
+        self.assertAlmostEqual(report["weekly_presence_intensity_pearson"], 1.)
+        self.assertEqual(len(report["presence_columns"]), 1)
+        self.assertEqual(len(report["all_MV_topic_columns"]), 2)
+        self.assertEqual([row["candidatas"] for row in report["scenario_summary"]], [4, 3, 2])
         self.assertNotIn("Visibilidad_MV", report["scenario_summary"][-1]["columnas_candidatas_reajuste_56"])
         self.assertFalse(report["table_modified"])
         self.assertFalse(report["heldout_data_opened"])

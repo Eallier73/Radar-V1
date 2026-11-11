@@ -1,46 +1,39 @@
-# Indicadores conjuntos del corpus actual
+# Indicadores semanales sin suavizado
 
-## Alcance acordado
+Decisión del 11 de noviembre de 2026: retirar MA5 de explicativas y respuesta y retirar los rezagos adicionales de las explicativas. Se conserva la ponderación intermedia y el nombre `Visibilidad_MV`. Sólo se usa el corpus de Radar V1 y los diccionarios autorizados; no se importan datos o resultados del proyecto anterior.
 
-El usuario aclaró el 10 de noviembre de 2026 que **sí se pueden reutilizar los diccionarios del proyecto anterior**, junto con código y metodología. Lo prohibido es reutilizar sus publicaciones, corpus, CSV extraídos, conteos, resultados numéricos y tablas precalculadas.
+## Tabla vigente
 
-Los indicadores se calcularon con los 332 TXT de `datos/radar_semanal_procesado/` de este repo: 83 semanas de YouTube, Twitter/X, Facebook y Medios. Los hashes se verificaron antes de recuperar la tabla. Las rutas del proyecto anterior en `datos/recursos_indicadores/procedencia.json` son evidencia de los diccionarios; el programa no las abre como corpus ni como resultados.
+`datos/radar_indicadores/tabla_analisis_ponderada.csv` tiene **70 filas completas y 24 columnas**:
 
-## Tabla de uso
+- Tres identificadores: `semana_iso`, `Fecha_Semana`, `Fecha_Fin`.
+- Una respuesta observada: `Sentimiento_Conjunto_Original_Original`, polaridad de esa semana.
+- Veinte candidatas X: diez intensidades y diez presencias temáticas, de esa misma semana.
 
-`datos/radar_indicadores/tabla_analisis_ponderada.csv` es la **tabla de trabajo de 70 filas y 108 columnas**, hasta la semana que termina el 1 de febrero de 2026. Las últimas 13 semanas están fuera de este archivo. Tiene tres identificadores, 21 indicadores conjuntos ponderados y suavizados MA5 y sus 84 lags de 1 a 4 semanas. Los indicadores son polaridad **Original**, diez intensidades y diez presencias temáticas. El usuario eligió Original como respuesta y retiró Etiquetado. Son 105 candidatos numéricos.
+No hay columnas MA5, lags ni valores estandarizados en esta tabla. Las 13 semanas finales se guardan fuera de ella. El archivo completo de 83 filas queda únicamente en `archivo/` para reproducir la separación 56/14/13. El soporte por fuente conserva **198 columnas**, sin versiones suavizadas, para recalcular pesos dentro de cortes temporales. `variables_analisis.csv` define 21 indicadores numéricos; `variables.csv` define el soporte.
 
-La tabla completa de 83 filas se conserva únicamente en `datos/radar_indicadores/archivo/tabla_analisis_completa_83_semanas.csv`, para reproducir la separación. Las 13 semanas finales tienen su propio archivo reservado en `datos/radar_modelado/verificacion_reservada/indicadores.csv`. `datos/radar_modelado/desarrollo/indicadores.csv` es otra copia idéntica de las 70 filas de trabajo, divididas en 56 de entrenamiento y 14 de prueba.
+## Fórmulas que se conservan
 
-El soporte técnico `tabla_indicadores_83_semanas.csv` conserva 333 columnas para rastrear conteos, denominadores, resultados por fuente y tasas sin suavizar. No es la tabla principal de uso. `variables_analisis.csv` define los 105 candidatos temporales y `variables.csv` las 329 variables numéricas del soporte. Los diccionarios Etiquetado y sus resultados anteriores se retiraron a respaldo; no se leen ni se calculan en la ejecución vigente.
+- Polaridad Original: `100 * positivas / (positivas + negativas)`. Sin coincidencias queda ausente; no se inventa neutralidad.
+- Intensidad: `1000 * coincidencias_del_tema / palabras_totales`. El factor mil expresa la tasa por mil palabras.
+- Presencia comparable: porcentaje de segmentos de hasta 30 palabras que mencionan el tema. Los segmentos no equivalen a publicaciones ni personas.
+- Integración conjunta: `suma(peso_fuente * tasa_fuente)`, con `peso_fuente = sqrt(palabras_fuente) / suma(sqrt(palabras))`.
 
-## Cálculo
+Los diccionarios, exclusiones y coincidencias superpuestas se conservan. `Visibilidad_MV` incluye nombres personales y referencias institucionales; es visibilidad léxica, no aprobación.
 
-- **Polaridad:** `100 * positivas / (positivas + negativas)`, con unigramas y expresiones de los diccionarios autorizados. Es proporción léxica, no porcentaje de personas favorables. Se aplican las stoplists y exclusiones autorizadas; no se alteran los TXT.
-- **Intensidad temática:** `1000 * coincidencias_del_tema / palabras_del_TXT`. Se conservan los diez temas del diccionario V5 y sus exclusiones. Un término puede contar en varios temas.
-- **Presencia conjunta:** porcentaje de segmentos consecutivos de hasta 30 palabras que mencionan el tema, para comparar las cuatro fuentes con una unidad común. Los segmentos no se presentan como publicaciones o noticias. El soporte social también conserva presencia por registro; en Medios no se inventan noticias.
-- **Integración:** `suma(peso_fuente * tasa_fuente)`, con la ponderación intermedia acordada y calibrada sólo con las primeras 56 semanas. No se aplican los pesos otra vez a la tabla final.
-- **MA5:** media de la semana actual y cuatro anteriores, con al menos una observación disponible. Se conserva la ventana de cinco del método anterior y se adapta a una dirección hacia atrás para no incorporar semanas futuras. No se suaviza nuevamente al usar la tabla.
-- **Lags:** para cada indicador MA5, `_lag1` copia su valor en `t-1`, y análogamente hasta `_lag4`. Se comprueba que las semanas sean únicas, consecutivas y ordenadas antes de desplazar. No se generan rezagos de rezagos ni se usan semanas futuras.
+## Tiempo y prevención de fugas
 
-Las expresiones se buscan por palabras completas, con normalización ASCII. Las coincidencias pueden superponerse; no se cruzan líneas para los indicadores por registro. La presencia en segmentos usa la envoltura común y puede cruzar límites de registros. Sin denominador observado, una tasa queda ausente; no se inventa neutralidad.
+Cada tasa de una semana se calcula sólo con su propio material. Cambiar una tasa semanal no se propaga a semanas vecinas. Los pesos de la tabla publicada son una calibración fija con las primeras 56 semanas, congelada para prueba y verificación. Esa tabla es un ajuste de desarrollo completo: **no debe usarse directamente para un backtest de cortes anteriores**.
 
-Los 21 indicadores actuales tienen valores en las 83 semanas históricas. Los rezagos dejan 210 celdas vacías por falta de historia al inicio: 21 por cada semana de desfase acumulada (1+2+3+4). No se rellenan con cero ni con valores posteriores. El archivo completo tiene 79 filas con todos los lags; la tabla de trabajo de 70 tiene 66, y el bloque de entrenamiento de 56 tiene 52.
+La selección temporal parte de las tasas por fuente y recalcula pesos dentro de cada prefijo. También ajusta escalas, constantes, orden de candidatas y controles de redundancia exclusivamente con la información disponible en el corte. La respuesta semanal se desplaza a t+1, t+2, t+3 o t+4; no promedia semanas pasadas. Ningún par cuyo objetivo quede fuera del bloque de ajuste se usa para ajustar.
 
-## Procedencia y comprobaciones
+Se supone que X(t) está disponible al cerrar la semana t. Prueba y las 13 semanas reservadas no se abren para elegir columnas. Los cargadores rechazan encabezados MA5 o rezagos para impedir reutilizar la matriz anterior por error.
 
-El constructor sólo admite entradas dentro de `datos/` de este repo en su CLI. Los diccionarios tienen una lista exacta de recursos y hashes; se rechazan archivos adicionales como entradas léxicas. La auditoría distingue `corpus_origin_policy: current_repository_only` de `lexicon_origin_policy: historical_dictionaries_authorized`.
+## Procedencia y reproducción
 
-El separador y el cargador verifican esa procedencia del corpus y el hash de la tabla. Las pruebas confirman que cambiar semanas posteriores no altera los indicadores anteriores ni los pesos calculados con las primeras 56 semanas.
+1. `scr/operaciones/construir_tabla_indicadores.py`: calcula las semanas desde el corpus actual, con hashes de textos y diccionarios.
+2. `scr/operaciones/generar_conjuntos_temporales.py`: separa la tabla ya calculada, sin recalcular valores.
+3. `scr/operaciones/inspeccionar_indicadores.py`: describe las 56 iniciales; sus ajustes son exploratorios, no una evaluación cronológica.
+4. `scr/operaciones/seleccionar_indicadores.py`: reconstruye pesos por corte y revisa redundancia, tamaño y estabilidad.
 
-No se recortó automáticamente la matriz ni se entrenó un pronosticador. Se realizó una [inspección descriptiva y regresiones exploratorias](INSPECCION_ESTADISTICA.md), usando Original exclusivamente como respuesta. Por instrucción del usuario, sus cuatro rezagos están excluidos de la inspección de candidatas y de las regresiones: las explicativas son sólo temáticas. La estandarización usa sólo los casos completos del bloque inicial. El código histórico que ajustaba escalas globales no se ejecuta sobre toda la tabla.
-
-La [revisión de redundancia y estabilidad](SELECCION_INDICADORES.md) compara tamaños en cortes cronológicos dentro de las primeras 56 semanas. Recalcula los pesos y las escalas de cada prefijo, y conserva visibilidad de Mónica y sus rezagos en la tabla base según la última indicación del usuario. La salida reducida de esa revisión es provisional; la tabla de trabajo de 70 filas conserva sus 108 columnas.
-
-El 11 de noviembre de 2026 el usuario renombró el tema a `Visibilidad_MV` para reflejar que incluye tanto nombres personales como cargos y referencias al gobierno municipal. El cambio abarca encabezados de diccionario y stoplist, columnas de intensidad y presencia, MA5, lags y referencias activas. No cambian términos, exclusiones, fórmulas, filas ni valores; las huellas se actualizan para el nuevo esquema.
-
-## Recuperación tras la aclaración
-
-La retirada temporal se debió a interpretar que la prohibición incluía diccionarios. Tras la aclaración del usuario se restauraron las copias autorizadas y los resultados generados aquí, comprobando los hashes del corpus y la igualdad de las particiones. No se importó ninguna tabla de resultados del proyecto anterior.
-
-La evidencia está en [restauracion_diccionarios_y_corpus_actual_2026-11-10.json](auditorias/restauracion_diccionarios_y_corpus_actual_2026-11-10.json). La [decisión de partición](PARTICION_TEMPORAL_DATOS.md) conserva 56/14/13; la [ponderación](PONDERACION_FUENTES.md) conserva el método intermedio.
+Las versiones con MA5, los resultados anteriores y el código retirado se conservan en el respaldo indicado en `documentos/auditorias/correccion_temporal_sin_suavizado_2026-11-11.json`. Las fórmulas base, los textos y los diccionarios permanecen intactos. No se reextrajo material ni se entrenó un pronosticador operativo.

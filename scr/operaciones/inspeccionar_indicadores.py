@@ -19,10 +19,10 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from generar_conjuntos_temporales import cargar_desarrollo, digest
+from generar_conjuntos_temporales import cargar_desarrollo, digest, validate_weekly_columns
 
 META = ("semana_iso", "Fecha_Semana", "Fecha_Fin")
-DEFAULT_TARGET = "Sentimiento_Conjunto_Original_Original_MA5"
+DEFAULT_TARGET = "Sentimiento_Conjunto_Original_Original"
 HORIZONS = (1, 2, 3, 4)
 
 
@@ -32,6 +32,7 @@ def inspect_training(development_dir: Path, target: str | None = None) -> tuple[
     rows = list(cargar_desarrollo(development_dir, "entrenamiento"))
     if not rows:
         raise ValueError("Entrenamiento está vacío")
+    validate_weekly_columns(rows[0])
     excluded_history = [c for c in rows[0] if target is not None and c.startswith(target + "_lag")]
     columns = [c for c in rows[0] if c not in META and c not in excluded_history]
     if not columns:
@@ -43,7 +44,7 @@ def inspect_training(development_dir: Path, target: str | None = None) -> tuple[
     complete_mask = values.notna().all(axis=1)
     complete = values.loc[complete_mask]
     if len(complete) < 3:
-        raise ValueError("No hay suficientes filas con todos los lags observados")
+        raise ValueError("No hay suficientes filas semanales completas")
     summaries = []
     for column in columns:
         series = complete[column]
@@ -101,7 +102,7 @@ def write_rows(path: Path, rows: list[dict], columns=None):
 
 
 def regress_training(development_dir: Path, target: str, horizon: int = 1):
-    """Asocia X(t) y su historia con Y(t+h), dentro del bloque inicial.
+    """Asocia X(t) con Y(t+h) semanal sin promedios, dentro del bloque inicial.
 
     Ridge usa alpha=1 fijado de antemano; 0.1 y 10 sólo muestran sensibilidad.
     No se reportan p-valores iid para estas observaciones temporales.
@@ -113,6 +114,7 @@ def regress_training(development_dir: Path, target: str, horizon: int = 1):
     rows = list(cargar_desarrollo(development_dir, "entrenamiento"))
     if not rows:
         raise ValueError("El bloque inicial está vacío")
+    validate_weekly_columns(rows[0])
     columns = [c for c in rows[0] if c not in META]
     if target not in columns:
         raise ValueError(f"La variable dependiente no existe: {target}")
@@ -160,8 +162,7 @@ def regress_training(development_dir: Path, target: str, horizon: int = 1):
     for index, name in enumerate(predictors):
         values = [float(coefficients[alpha][index]) for alpha in (.1, 1., 10.)]
         signs = [int(np.sign(v)) if abs(v) > 1e-12 else 0 for v in values]
-        lag = int(name.rsplit("_lag", 1)[1]) if "_lag" in name else 0
-        ridge.append({"horizonte_semanas": horizon, "variable": name, "lag_semanas": lag,
+        ridge.append({"horizonte_semanas": horizon, "variable": name,
             "tipo": "tematico",
             "beta_ridge_alpha_01": values[0], "beta_ridge_alpha_1": values[1],
             "beta_ridge_alpha_10": values[2], "abs_beta_ridge_alpha_1": abs(values[1]),
@@ -191,7 +192,8 @@ def regress_training(development_dir: Path, target: str, horizon: int = 1):
         "ridge_r2_in_sample_not_validation": fits, "p_values_reported": False,
         "interpretation": "standardized_associations_not_causal_effects_or_validated_forecast_importances",
         "heldout_data_opened": False, "forecast_model_trained": False}
-    report["regression_alignment"] = f"y(t+{horizon}) versus thematic x(t), x(t-1), x(t-2), x(t-3), x(t-4)"
+    report["regression_alignment"] = f"weekly y(t+{horizon}) versus weekly thematic x(t)"
+    report.update({"smoothing_applied": False, "predictor_lags": [], "target_window_weeks": 1})
     return report, univariate, ridge
 
 
@@ -226,10 +228,10 @@ def generate(development_dir: Path, output: Path, target: str | None = None):
         report["output_sha256"] = {p.name: digest(p) for p in staging.iterdir()}
         (staging / "diagnostico.json").write_text(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False) + "\n")
         lines = ["# Inspección descriptiva de indicadores", "",
-            f"Sólo entrenamiento: {report['training_rows']} semanas; {report['complete_rows']} con todos los lags observados. Las {report['rows_without_full_history']} primeras se conservan en el corpus, pero no se usan para comparar columnas con historia desigual.", "",
+            f"Sólo bloque inicial: {report['training_rows']} semanas; {report['complete_rows']} con indicadores semanales completos. No se añade historia ni se suaviza X o Y.", "",
             f"Hay {report['numeric_candidates']} candidatos numéricos y {report['nonconstant_candidates']} no constantes. El rango de la matriz centrada es {report['centered_matrix_rank']}.", "",
             f"Pares con correlación absoluta de Pearson de al menos 0.90: {report['pairs_abs_pearson_ge_090']}.", "",
-            "Las correlaciones describen asociación entre columnas; no constituyen pesos de una regresión ni efectos causales. Los lags y el suavizado pueden producir redundancia.", "",
+            "Las correlaciones describen asociación entre columnas; no constituyen pesos de una regresión ni efectos causales. Presencia e intensidad de un mismo tema pueden ser redundantes incluso sin suavizado.", "",
             (f"Variable dependiente elegida: `{target}` en t+1, t+2, t+3 y t+4, con explicativas disponibles hasta t. Se ejecutaron regresiones lineales por candidato y una regresión conjunta Ridge estandarizada para cada horizonte con alpha=1, fijado de antemano. Los coeficientes con alpha=0.1 y 10 muestran sensibilidad; no se eligió alpha usando datos reservados."
              if target is not None else "No se ejecutaron regresiones: falta que el usuario fije la variable dependiente.") + " No se abrieron prueba ni verificación. No se rellenaron faltantes.", "",
             "Los detalles por columna están en `descriptivos.csv` y los pares en `correlaciones.csv`. Las columnas constantes y el rango se registran en `diagnostico.json`.", "",
@@ -237,7 +239,7 @@ def generate(development_dir: Path, output: Path, target: str | None = None):
         if target is not None:
             lines += ["## Coeficientes conjuntos de mayor magnitud", "",
                 "Estos coeficientes describen asociación condicionada y penalizada dentro del bloque inicial. No son efectos causales, porcentajes de importancia ni resultados validados fuera de muestra. No se reportan p-valores que supongan semanas independientes.", "",
-                "La respuesta se desplaza sólo dentro de las 56 semanas iniciales. Para cada horizonte se retiran sus últimas h filas de origen; tampoco se imputan las primeras filas sin historia. La estandarización se ajusta por separado a los casos elegibles de cada horizonte.", ""]
+                "La respuesta semanal se desplaza sólo dentro del bloque inicial. Para cada horizonte se retiran sus últimas h filas de origen. La estandarización se ajusta por separado a los pares elegibles de cada horizonte. Esta inspección usa los pesos del ajuste completo inicial y no acredita un backtest cronológico; la selección temporal reconstruye los pesos por prefijo.", ""]
             for result in horizons:
                 h = result["horizon_weeks"]
                 lines += [f"### Horizonte {h}: {result['regression_rows']} pares completos", "",
@@ -245,7 +247,7 @@ def generate(development_dir: Path, output: Path, target: str | None = None):
                     "| Variable | Beta Ridge estandarizado, alpha=1 | Signo estable (0.1, 1, 10) |", "|---|---:|---|"]
                 lines += [f"| {row['variable']} | {row['beta_ridge_alpha_1']:.4f} | {'sí' if row['signo_estable_en_tres_alphas'] else 'no'} |" for row in ridge if row["horizonte_semanas"] == h and row["rango"] <= 10]
                 lines += [""]
-            lines += ["Los coeficientes completos están en `regresion_ridge.csv`; las asociaciones por separado están en `regresiones_univariadas.csv`. Cada fila identifica su horizonte. `alineacion_horizontes.csv` registra las fechas de origen y respuesta para auditar el desplazamiento. Se excluyeron de X tanto la polaridad actual como sus cuatro rezagos. Las explicativas son temáticas. La tabla de indicadores de trabajo sigue siendo una sola y no fue modificada.", ""]
+            lines += ["Los coeficientes completos están en `regresion_ridge.csv`; las asociaciones por separado están en `regresiones_univariadas.csv`. Cada fila identifica su horizonte. `alineacion_horizontes.csv` registra las fechas de origen y respuesta para auditar el desplazamiento. La polaridad está fuera de X. Las explicativas son temáticas y de la semana t. La tabla de indicadores de trabajo sigue siendo una sola y no fue modificada por la inspección.", ""]
         (staging / "inspeccion.md").write_text("\n".join(lines), encoding="utf-8")
         staging.rename(output)
     except BaseException:

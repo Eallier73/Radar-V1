@@ -21,12 +21,12 @@ no deben usarse como alternativa al flujo vigente.
 
 ## Preparación de indicadores para el análisis
 
-`preparar_indicadores_semanales.py` recupera las tres funciones de preparación
-de tablas del notebook `Modelo_ML_MV.ipynb`: detección de columnas, ordenación,
-selección de variables y estandarización. Recibe indicadores ya calculados;
-no transforma TXT en indicadores ni calcula `MA5`. Es un módulo de uso explícito,
-sin ejecución automática en el flujo CSV→TXT. Su procedencia, reglas y límites
-se documentan en [PREPARACION_DATOS_NOTEBOOK.md](../../documentos/PREPARACION_DATOS_NOTEBOOK.md).
+Los indicadores se construyen en `scr/operaciones/construir_tabla_indicadores.py`
+como tasas semanales ponderadas, sin suavizado ni rezagos adicionales.
+`preparar_indicadores_semanales.py` se archivó íntegro en `trash/respaldos/`
+porque ajustaba escalas sobre toda la tabla. La selección vigente ajusta pesos
+y escalas dentro de cada corte temporal. Su alcance y el respaldo se documentan
+en [PREPARACION_DATOS_NOTEBOOK.md](../../documentos/PREPARACION_DATOS_NOTEBOOK.md).
 
 ## Material antiguo archivado
 

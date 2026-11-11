@@ -1,0 +1,89 @@
+{
+  "status": "weekly_unsmoothed_pipeline_verified",
+  "date": "2026-11-11",
+  "backup": "trash/respaldos/correccion_sin_suavizado_2026-11-11_vzi2rys5",
+  "old_analysis_columns": 108,
+  "current_analysis_rows": 70,
+  "current_analysis_columns": 24,
+  "target": "Sentimiento_Conjunto_Original_Original",
+  "target_window_weeks": 1,
+  "predictor_window_weeks": 1,
+  "predictor_lags": [],
+  "smoothing_applied": false,
+  "candidate_predictors": 20,
+  "partitions": {
+    "entrenamiento": 56,
+    "prueba": 14,
+    "verificacion": 13
+  },
+  "complete_rows": 70,
+  "source_corpus_files_verified_unchanged": 581,
+  "raw_source_rates_and_counts_match_previous_support": true,
+  "dictionaries_changed": false,
+  "initial_56_week_source_weights_unchanged": true,
+  "static_table_weight_scope": "initial_56_week_fit_not_for_direct_inner_backtesting",
+  "inner_cut_weights_scales_and_selection_refitted": true,
+  "horizon_pairs_inside_initial_block": {
+    "1": 55,
+    "2": 54,
+    "3": 53,
+    "4": 52
+  },
+  "cross_boundary_fit_targets": 0,
+  "test_or_verification_opened_for_selection": false,
+  "leakage_guard_tests": [
+    "future_mutations_leave_prefix_weights_and_coefficients_unchanged",
+    "weekly_spikes_do_not_spread_to_adjacent_weeks",
+    "future_target_alignment_and_horizon_purge",
+    "heldout_file_access_guard",
+    "legacy_MA5_and_lag_headers_rejected"
+  ],
+  "tests_passed": 108,
+  "test_log": "/tmp/radar-tests-semanal-sin-suavizado-2026-11-11.log",
+  "legacy_scripts_archived": [
+    {
+      "original": "scr/preprocesamiento/preparar_indicadores_semanales.py",
+      "archivado": "trash/respaldos/correccion_sin_suavizado_2026-11-11_vzi2rys5/codigo_retirado/scr/preprocesamiento/preparar_indicadores_semanales.py",
+      "sha256": "626fa68c71f09078e42648605c7de7f2e8b2be27499a8162fd63a7d422c9e270",
+      "reason": "Escala global y/o entradas del proyecto anterior; sin consumidores en el flujo actual"
+    },
+    {
+      "original": "scr/nlp/Modelo_Radar_1.py",
+      "archivado": "trash/respaldos/correccion_sin_suavizado_2026-11-11_vzi2rys5/codigo_retirado/scr/nlp/Modelo_Radar_1.py",
+      "sha256": "96d3c1dc364248242baf8f0712a34d909bfa7ecc4c23c4041363746e0b35a92f",
+      "reason": "Escala global y/o entradas del proyecto anterior; sin consumidores en el flujo actual"
+    }
+  ],
+  "production_forecast_model_created": false,
+  "selection_is_final": false,
+  "common_selected_k": 0,
+  "input_table_sha256": "a4ae57d5a97e1a484c17f2e05459b0a8d0169dbf5f24032c8eb43c0dae181b13",
+  "active_analysis_outputs": {
+    "inspeccion_indicadores": {
+      "inspeccion.md": "ee8984acad41e8920e9bc5f0af87c89d6e7b2419d220e7b4a27a9d376575cc22",
+      "alineacion_horizontes.csv": "ef4e1101bc495817470fdfda5f8d3cecd68b9fc6f041381d7492ed43a41ad7b3",
+      "correlaciones.csv": "e60779481a0373351c854c62c542ce2675afbfa48d74158352a9b3177120ab73",
+      "regresiones_univariadas.csv": "4c9871414f05723ad454eac13fd0405cad12f33f2bb03f2a3f7a5c00a2cf74d3",
+      "descriptivos.csv": "5b23ca4faf02bf719e6beae26aec8a4ad9cc31fc931ab6f607c8c8b9da04ff78",
+      "diagnostico.json": "632b0a5381e6ea2fbab05556f2cd2a2b71d7fa18662eac39a3d26285d8437261",
+      "regresion_ridge.csv": "7c09056128a9aab3735f8dd8ce7674fbc0d0082a7892a85c7c24ac3f47158734"
+    },
+    "seleccion_indicadores": {
+      "comparacion_sin_MV_por_horizonte.csv": "b772dd699c4414d30d224f26aed89a3920a06096f1a3f1f8c212807e5e39b3c1",
+      "tabla_inspeccion_reducida.csv": "24f2aed02d2b922ef9f31bb2fe9edb9fc913010784415fb87dc9a3189c689f6a",
+      "curva_numero_columnas.csv": "f7dcbb920e9f7f85b696a9990dede25bd2b0615deaf5effb97ec9b1a904a33e0",
+      "curvas_por_horizonte.csv": "b1ed37c4d79e7918f87cbbb11a2b473bc5ccfdaec5b1ccf9336c019d4b53c8a8",
+      "correlaciones_MV.csv": "7c22fade61a21ee7f92ef12e4db81e1b3989bb6626acf1d3940b482995f8a9e0",
+      "comparacion_horizontes.csv": "a65d7e08c302b276d7ca0206801c66a4d79b07ba39089a5158c030559a131842",
+      "coeficientes_por_corte.csv": "172a2daf64231b319645663b826050a2e50cbd2d2ec42943b79f617e4c1dbc3c",
+      "columnas_seleccionadas.json": "76b68fb6cffa7a54cf2ac8968686ad2c82e86da3ff316b761a04fbbfafbbbfea",
+      "comparacion_sin_MV.csv": "01af96db5f534272e95b70303b2694daf649795a2b6349701f09981ebffb4719",
+      "redundancia_columnas.csv": "9c063ec86aa107cbe0caa417c74149bd2a1c58def223df1555cef1d01ca77ac9",
+      "limites_temporales.csv": "7b1f47f3082551c0fb84ad087001aa5a981ace1c98a86f9dcd1eec58c18de9e3",
+      "estabilidad_indicadores_sin_rezago.csv": "dbf8e30a2a39ec982c35100062678199d3e8976240236767b7831db5382f1568",
+      "seleccion.md": "21acce8d5124b7ca4f5ec01f7e020e68b1cabbd968124a6efedf1ff681ce8328",
+      "diagnostico.json": "da298de26915937a1c3ba17f2112ca01a85c680f3e4620905a980e1538b6235f",
+      "estabilidad_columnas.csv": "1e8db1cd34332d0e3959360c6722d9ca781c81553416edd928e109ee0dafeca6"
+    }
+  }
+}
