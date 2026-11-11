@@ -46,7 +46,7 @@ No se reportan p-valores que supongan semanas independientes. Los R² guardados 
 |---|---|---:|
 | 1 | Presencia de Agua, t | -0.2084 |
 | 1 | Intensidad de Agua, t | -0.2072 |
-| 2 | Presencia de MV, lag 2 | 0.1923 |
+| 2 | Visibilidad de MV (presencia), lag 2 | 0.1923 |
 | 2 | Intensidad de Alumbrado, lag 1 | 0.1742 |
 | 3 | Presencia de Economía, lag 1 | -0.1918 |
 | 3 | Intensidad de Alumbrado, t | 0.1841 |
@@ -57,7 +57,7 @@ El signo de estos ocho coeficientes se conserva en los tres valores de alpha est
 
 Las regresiones anteriores, primero con rezagos de polaridad y después con respuesta contemporánea, se retiraron a respaldo y fueron sustituidas. La lista de cinco variables propuesta con Y(t) queda reemplazada por esta inspección con Y(t+h); todavía no se fija una selección final. La tabla histórica sigue siendo una sola y no se recortó ni se modificó durante esta inspección.
 
-Los pesos de fuentes siguen calibrados en las primeras 56 semanas. Si después se evalúan pronósticos con cortes temporales internos, deberán recalibrarse los pesos y cualquier transformación aprendida dentro de cada corte; estos ajustes exploratorios no implementan ni acreditan esa validación.
+Los pesos de esta inspección inicial siguen calibrados en las primeras 56 semanas. La revisión posterior en [SELECCION_INDICADORES.md](SELECCION_INDICADORES.md) sí reconstruye pesos y ajusta escalas dentro de cada corte temporal interno. Sus errores se usan para elegir tamaño, no acreditan rendimiento externo; prueba y verificación siguen fuera de ambas revisiones.
 
 ## Archivos y reproducción
 

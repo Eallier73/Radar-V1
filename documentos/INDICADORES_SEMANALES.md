@@ -35,6 +35,10 @@ El separador y el cargador verifican esa procedencia del corpus y el hash de la 
 
 No se recortó automáticamente la matriz ni se entrenó un pronosticador. Se realizó una [inspección descriptiva y regresiones exploratorias](INSPECCION_ESTADISTICA.md), usando Original exclusivamente como respuesta. Por instrucción del usuario, sus cuatro rezagos están excluidos de la inspección de candidatas y de las regresiones: las explicativas son sólo temáticas. La estandarización usa sólo los casos completos del bloque inicial. El código histórico que ajustaba escalas globales no se ejecuta sobre toda la tabla.
 
+La [revisión de redundancia y estabilidad](SELECCION_INDICADORES.md) compara tamaños en cortes cronológicos dentro de las primeras 56 semanas. Recalcula los pesos y las escalas de cada prefijo, y conserva visibilidad de Mónica y sus rezagos en la tabla base según la última indicación del usuario. La salida reducida de esa revisión es provisional; la tabla de trabajo de 70 filas conserva sus 108 columnas.
+
+El 11 de noviembre de 2026 el usuario renombró el tema a `Visibilidad_MV` para reflejar que incluye tanto nombres personales como cargos y referencias al gobierno municipal. El cambio abarca encabezados de diccionario y stoplist, columnas de intensidad y presencia, MA5, lags y referencias activas. No cambian términos, exclusiones, fórmulas, filas ni valores; las huellas se actualizan para el nuevo esquema.
+
 ## Recuperación tras la aclaración
 
 La retirada temporal se debió a interpretar que la prohibición incluía diccionarios. Tras la aclaración del usuario se restauraron las copias autorizadas y los resultados generados aquí, comprobando los hashes del corpus y la igualdad de las particiones. No se importó ninguna tabla de resultados del proyecto anterior.
