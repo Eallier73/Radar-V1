@@ -3,9 +3,10 @@
 | Programa | Propósito |
 |---|---|
 | `analizar_balance_fuentes.py` | Diagnóstico retrospectivo de volumen, longitud y autores observables; calcula escenarios de ponderación sin modificar entradas. |
-| `generar_conjuntos_temporales.py` | Genera los tres corpus conjuntos por semanas (56/14/13), separa verificación de desarrollo y calibra pesos sólo con entrenamiento. |
+| `construir_tabla_indicadores.py` | Calcula primero la tabla completa de las 83 semanas: polaridad, intensidad, presencia, integración ponderada y MA5 hacia atrás. |
+| `generar_conjuntos_temporales.py` | Lee esa tabla completa y parte sus filas en 56/14/13, sin recalcular ni estandarizar valores. |
 
-Las decisiones vigentes están en [PONDERACION_FUENTES.md](../../documentos/PONDERACION_FUENTES.md) y [PARTICION_TEMPORAL_DATOS.md](../../documentos/PARTICION_TEMPORAL_DATOS.md). Estos programas no construyen indicadores de sentimiento o `MA5` ni entrenan modelos.
+Las fórmulas están en [INDICADORES_SEMANALES.md](../../documentos/INDICADORES_SEMANALES.md). Las decisiones están en [PONDERACION_FUENTES.md](../../documentos/PONDERACION_FUENTES.md) y [PARTICION_TEMPORAL_DATOS.md](../../documentos/PARTICION_TEMPORAL_DATOS.md). Ninguno entrena modelos. Ejecutar primero el constructor y después el separador; ambos rechazan sobrescribir salidas.
 
 ```python
 from pathlib import Path
@@ -15,4 +16,6 @@ entrenamiento = cargar_desarrollo(Path("datos/radar_modelado/desarrollo"), "entr
 prueba = cargar_desarrollo(Path("datos/radar_modelado/desarrollo"), "prueba")
 ```
 
-Cada elemento es el texto íntegro de una fuente en una semana, con su procedencia. El cargador rechaza verificación; los parámetros aprendidos se ajustan sólo con entrenamiento. Los corpus y diagnósticos generados se conservan localmente y no se incluyen en los commits de código.
+Cada elemento es una fila de indicadores semanales leída de CSV; los valores numéricos se reciben como texto hasta su conversión por el consumidor. El cargador rechaza verificación. Los ajustes posteriores se calculan sólo con entrenamiento. Las tablas generadas se conservan localmente y no se incluyen en los commits de código.
+
+`generate` y `cargar_corpus_desarrollo` conservan la operación textual anterior como referencia reproducible del respaldo. El CLI y el cargador vigente `cargar_desarrollo` trabajan con indicadores.

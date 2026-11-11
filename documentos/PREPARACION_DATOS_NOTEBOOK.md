@@ -19,9 +19,9 @@ El objetivo se detecta, en este orden, como `IAOPD_MA5`, `IAD_global_MA5`, `Indi
 
 ## 2. Suavizado
 
-Se conserva el uso de los indicadores de entrada con sufijo `MA5`. El notebook no contiene el cálculo de esa media: no especifica mediante una implementación la alineación, el mínimo de observaciones ni el tratamiento de los extremos. El módulo copiado consume esas columnas y no les aplica un segundo suavizado.
+`Modelo_ML_MV.ipynb` recibe columnas `MA5` ya calculadas. En la revisión posterior se recuperó el cálculo en `Modelo_ML.ipynb`, celdas 5 y 7: ventana de cinco semanas, centrada, con un mínimo de una observación. El módulo copiado consume esas columnas y no les aplica un segundo suavizado.
 
-Por ello no se ha añadido una implementación supuesta de `MA5` ni se presentan como calculados los indicadores que todavía no existen en el flujo actual.
+La tabla actual se construye con `scr/operaciones/construir_tabla_indicadores.py`. Se adaptó explícitamente la ventana a una media hacia atrás para respetar la independencia de verificación; las reglas recuperadas y las diferencias están en [INDICADORES_SEMANALES.md](INDICADORES_SEMANALES.md).
 
 ## 3. Preparación de la tabla
 
@@ -48,7 +48,7 @@ tabla_z, tabla_original, objetivo, variables, media_y, escala_y, scaler = (
 )
 ```
 
-La función queda disponible para reutilizar con una tabla de indicadores. No se conecta automáticamente a extracción ni a promoción CSV→TXT, y no se ha ejecutado sobre el corpus histórico: esos archivos contienen textos, no esta tabla de indicadores.
+La función histórica queda disponible como referencia, pero no se conecta automáticamente a extracción ni a promoción CSV→TXT. Ahora existe una tabla de indicadores de las 83 semanas y sus particiones. La función copiada no se ha ejecutado sobre esa tabla porque su ajuste global incorporaría prueba y verificación.
 
 El ajuste global de la estandarización reproduce el procesamiento retrospectivo del notebook. Para evaluar predicciones futuras, ese ajuste deberá hacerse únicamente con los datos de entrenamiento.
 

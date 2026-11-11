@@ -34,10 +34,10 @@ Al generar la [partición temporal acordada](PARTICION_TEMPORAL_DATOS.md) se man
 | Facebook | 0.10030692333217596 | 10.03% |
 | Medios | 0.4574178073653949 | 45.74% |
 
-Se guardaron en `datos/radar_modelado/desarrollo/entrenamiento/pesos_fuentes.json`, junto con los volúmenes y hashes de las entradas de entrenamiento. Éstos son los coeficientes preparados para el desarrollo predictivo; los de 83 semanas conservan su propósito retrospectivo. La prueba y la verificación no intervienen en esta recalibración. No se ha entrenado un modelo.
+Se guardaron en `datos/radar_indicadores/pesos_fuentes_entrenamiento.json` y se copiaron a `datos/radar_modelado/desarrollo/entrenamiento/pesos_fuentes.json`, junto con los volúmenes y hashes de las entradas de entrenamiento. Se aplicaron a los indicadores conjuntos de la tabla completa antes de partirla; no se han aplicado a un modelo. Los de 83 semanas conservan su propósito retrospectivo. La prueba y la verificación no intervienen en esta recalibración.
 
 ## Estado y evidencia
 
-La elección queda aprobada y se generó la calibración para entrenamiento; su aplicación a un modelo sigue pendiente. Este registro no ejecuta entrenamiento ni modifica el corpus.
+La elección queda aprobada y aplicada a la tabla de indicadores; su aplicación a un modelo sigue pendiente. No se ejecutó entrenamiento ni se modificó el corpus.
 
 El [diagnóstico del corpus](../datos/radar_analisis/ponderacion_fuentes/analisis_ponderacion_fuentes.md), el [detalle de cálculo](../datos/radar_analisis/ponderacion_fuentes/diagnostico_ponderacion_fuentes.json) y los [coeficientes calculados](../datos/radar_analisis/ponderacion_fuentes/pesos_fuentes_propuestos.json) documentan el análisis previo a esta decisión. El estado de propuesta en esos JSON corresponde a ese diagnóstico anterior; este documento registra la adopción posterior por el usuario.

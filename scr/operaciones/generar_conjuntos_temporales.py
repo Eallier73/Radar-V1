@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Separa el corpus semanal en 56/14/13 sin ajustar con el bloque reservado.
+"""Divide la tabla de indicadores ya generada en 56/14/13, sin reajustes.
 
-Una fila JSONL es el texto completo de una fuente en una semana, no un post
-ni una noticia. La verificación se escribe fuera del directorio de desarrollo.
-No construye indicadores de sentimiento, MA5 ni objetivos predictivos.
+El CLI exige la tabla completa: primero construir_tabla_indicadores.py, después
+este programa. La función generate conserva la generación anterior de corpus
+sólo como referencia reproducible del respaldo; no es la operación del CLI.
 """
 from __future__ import annotations
 
@@ -161,7 +161,7 @@ def generate(processed: Path, output: Path, sizes: dict[str, int] | None = None)
     return report
 
 
-def cargar_desarrollo(development_dir: Path, conjunto: str):
+def cargar_corpus_desarrollo(development_dir: Path, conjunto: str):
     """Carga sólo entrenamiento o prueba; nunca abre el directorio reservado.
 
     Los parámetros del aprendizaje se ajustan con entrenamiento. Prueba sirve
@@ -178,14 +178,98 @@ def cargar_desarrollo(development_dir: Path, conjunto: str):
             yield record
 
 
+def partition_table(table: Path, weights_path: Path, output: Path) -> dict:
+    """Parte filas de la tabla existente, sin recalcular ni estandarizar."""
+    table, weights_path, output = table.resolve(), weights_path.resolve(), output.resolve()
+    if output.exists():
+        raise FileExistsError(f"Se conserva la salida existente: {output}")
+    if any(path == output or path.is_relative_to(output) for path in (table, weights_path)):
+        raise ValueError("La salida no puede contener las entradas")
+    table_hash, weights_hash = digest(table), digest(weights_path)
+    with table.open(encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        columns = reader.fieldnames
+        rows = list(reader)
+    if not columns or len(columns) != len(set(columns)):
+        raise ValueError("Encabezado vacío o duplicado")
+    if not {"semana_iso", "Fecha_Semana", "Fecha_Fin", "semana_corpus"} <= set(columns):
+        raise ValueError("Se requiere la tabla de indicadores, no el inventario de textos")
+    if len(rows) != sum(SIZES.values()):
+        raise ValueError("Se requieren las 83 filas de indicadores")
+    starts = [date.fromisoformat(row["Fecha_Semana"]) for row in rows]
+    if any(start.weekday() != 0 for start in starts) or any(b - a != timedelta(days=7) for a, b in zip(starts, starts[1:])):
+        raise ValueError("Las filas deben ser semanas únicas, ordenadas y consecutivas")
+    for row, start in zip(rows, starts):
+        if row["Fecha_Fin"] != (start + timedelta(days=6)).isoformat():
+            raise ValueError("La fecha final no coincide con la semana")
+        year, number, _ = start.isocalendar()
+        if row["semana_iso"] != f"{year}-W{number:02d}" or row["semana_corpus"][:10] != start.isoformat():
+            raise ValueError("Los identificadores de semana no coinciden con la fecha")
+    weighting = json.loads(weights_path.read_text())
+    if (weighting["calibration_subset"] != "entrenamiento" or
+            weighting["calibration_weeks"] != SIZES["entrenamiento"] or
+            weighting["period_start"] != rows[0]["Fecha_Semana"] or
+            weighting["period_end"] != rows[SIZES["entrenamiento"] - 1]["Fecha_Fin"]):
+        raise ValueError("Los pesos deben calibrarse sólo con las 56 semanas de entrenamiento")
+    training_names = {row["semana_corpus"] for row in rows[:SIZES["entrenamiento"]]}
+    expected_inputs = {f"{source}_semanal_procesado/{week}/{week}_{source}.txt"
+                       for week in training_names for source in SOURCES}
+    if set(weighting["input_hashes"]) != expected_inputs:
+        raise ValueError("Los pesos contienen entradas fuera de entrenamiento o cobertura incompleta")
+    if not all(v > 0 for v in weighting["weights"].values()) or abs(sum(weighting["weights"].values()) - 1) > 1e-12:
+        raise ValueError("Pesos de fuentes inválidos")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=f".{output.name}-", dir=output.parent))
+    subsets, offset, manifest = {}, 0, []
+    try:
+        for name, size in SIZES.items():
+            selected = rows[offset:offset + size]
+            path = staging / LOCATIONS[name] / "indicadores.csv"
+            path.parent.mkdir(parents=True)
+            with path.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=columns)
+                writer.writeheader()
+                writer.writerows(selected)
+            subsets[name] = {"rows": len(selected), "period_start": selected[0]["Fecha_Semana"],
+                "period_end": selected[-1]["Fecha_Fin"], "table": str(path.relative_to(staging)), "sha256": digest(path)}
+            manifest.extend({"conjunto": name, "semana_iso": row["semana_iso"], "Fecha_Semana": row["Fecha_Semana"]} for row in selected)
+            offset += size
+        shutil.copyfile(weights_path, staging / LOCATIONS["entrenamiento"] / "pesos_fuentes.json")
+        with (staging / "particion_semanas.csv").open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=list(manifest[0]))
+            writer.writeheader()
+            writer.writerows(manifest)
+        if digest(table) != table_hash or digest(weights_path) != weights_hash:
+            raise ValueError("Cambió la tabla o su calibración durante la partición")
+        report = {"status": "indicator_table_partitioned", "pipeline_order": ["build_83_week_indicator_table", "partition_existing_table_56_14_13"],
+            "input_table": str(table), "input_table_sha256": table_hash, "input_weights_sha256": weights_hash,
+            "columns": len(columns), "rows": len(rows), "subsets": subsets,
+            "values_recalculated_during_partition": False, "models_trained": False,
+            "scaling_fitted": False, "verification_used_for_fit": False}
+        write_json(staging / "auditoria.json", report)
+        staging.rename(output)
+    except BaseException:
+        shutil.rmtree(staging)
+        raise
+    return report
+
+
+def cargar_desarrollo(development_dir: Path, conjunto: str):
+    """Carga indicadores exclusivamente de entrenamiento o prueba."""
+    if conjunto not in {"entrenamiento", "prueba"}:
+        raise ValueError("El cargador de desarrollo no permite verificación")
+    with (development_dir / conjunto / "indicadores.csv").open(encoding="utf-8", newline="") as handle:
+        yield from csv.DictReader(handle)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--processed-dir", type=Path, default=PROCESSED_DATA_DIR)
+    parser.add_argument("--table", type=Path, default=ROOT / "datos/radar_indicadores/tabla_indicadores_83_semanas.csv")
+    parser.add_argument("--weights", type=Path, default=ROOT / "datos/radar_indicadores/pesos_fuentes_entrenamiento.json")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "datos/radar_modelado")
     args = parser.parse_args()
-    result = generate(args.processed_dir, args.output_dir)
-    print(json.dumps({"status": result["status"], "subsets": result["subsets"],
-                      "training_weights": result["training_weighting"]["weights"]}, indent=2))
+    result = partition_table(args.table, args.weights, args.output_dir)
+    print(json.dumps({"status": result["status"], "subsets": result["subsets"]}, indent=2))
 
 
 if __name__ == "__main__":

@@ -86,11 +86,11 @@ class TemporalSetTests(unittest.TestCase):
                 return original_open(path, *args, **kwargs)
 
             with patch.object(Path, "open", guarded_open):
-                self.assertEqual(len(list(MODULE.cargar_desarrollo(output / "desarrollo", "entrenamiento"))), 12)
-                self.assertEqual(len(list(MODULE.cargar_desarrollo(output / "desarrollo", "prueba"))), 8)
+                self.assertEqual(len(list(MODULE.cargar_corpus_desarrollo(output / "desarrollo", "entrenamiento"))), 12)
+                self.assertEqual(len(list(MODULE.cargar_corpus_desarrollo(output / "desarrollo", "prueba"))), 8)
                 for forbidden in ("verificacion", "verificacion_reservada", "../verificacion_reservada"):
                     with self.assertRaises(ValueError):
-                        list(MODULE.cargar_desarrollo(output / "desarrollo", forbidden))
+                        list(MODULE.cargar_corpus_desarrollo(output / "desarrollo", forbidden))
 
     def test_invalid_coverage_or_sizes_cannot_create_partial_sets(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -1,66 +1,49 @@
-# Separación temporal de entrenamiento, prueba y verificación
+# Tabla de indicadores y separación temporal
 
-Decisión del usuario registrada el 10 de noviembre de 2026: generar 56 semanas de entrenamiento, 14 de prueba y 13 de verificación final. La verificación queda fuera del entrenamiento y de los ajustes durante el desarrollo. Se generaron los tres corpus; no se han entrenado modelos.
+Decisión corregida del 10 de noviembre de 2026: **primero generar la tabla completa de indicadores de las 83 semanas y después partir sus filas** en 56 de entrenamiento, 14 de prueba y 13 de verificación final.
 
-## Función de cada conjunto
+## Resultado vigente
 
-- **Entrenamiento:** ajustar los parámetros del modelo y las transformaciones que aprenden del corpus.
-- **Prueba de desarrollo:** comparar variantes y elegir la configuración. Cumple la función habitualmente llamada validación; se conserva el nombre «prueba» usado por el usuario.
-- **Verificación final:** evaluar la configuración congelada, sin usar sus resultados para elegir variables, pesos, umbrales ni modelos. Sus entradas se entregan al modelo únicamente al realizar la evaluación final; no se incorporan al ajuste. Si los resultados se usan para modificar el sistema, este bloque deja de ser una evaluación final independiente del desarrollo.
+La tabla `datos/radar_indicadores/tabla_indicadores_83_semanas.csv` tiene 83 filas y 351 columnas: cuatro identificadores y 347 variables numéricas. Cada fila integra las cuatro fuentes en una semana. No hay valores faltantes en esta generación. Las fórmulas, recursos, unidades y adaptaciones están en [INDICADORES_SEMANALES.md](INDICADORES_SEMANALES.md) y las definiciones de columnas en `datos/radar_indicadores/variables.csv`.
 
-## División por semanas
+Después de guardar la tabla completa, el separador lee ese CSV y copia sus filas sin recalcular ni estandarizar:
 
-Los bloques deben seguir el orden cronológico: entrenamiento primero, prueba después y verificación al final. No se barajan semanas. Todas las fuentes de una misma semana pertenecen al mismo bloque.
+| Conjunto | Filas | Inicio | Fin inclusive | Archivo relativo a `datos/radar_modelado/` |
+|---|---:|---|---|---|
+| Entrenamiento | 56 | 2024-09-30 | 2025-10-26 | `desarrollo/entrenamiento/indicadores.csv` |
+| Prueba de desarrollo | 14 | 2025-10-27 | 2026-02-01 | `desarrollo/prueba/indicadores.csv` |
+| Verificación final | 13 | 2026-02-02 | 2026-05-03 | `verificacion_reservada/indicadores.csv` |
 
-Se verificó que las cuatro fuentes tienen los mismos 83 inicios semanales consecutivos, del 30 de septiembre de 2024 al 27 de abril de 2026; la última semana termina el 3 de mayo de 2026. El reparto generado es:
+Las 70 semanas de desarrollo son entrenamiento más prueba. Concatenar los tres conjuntos reproduce las 83 filas de la tabla completa, sin cruces ni omisiones. No se han entrenado modelos.
 
-| Conjunto | Semanas | Inicio | Fin inclusive | Registros de fuente-semana |
-|---|---:|---|---|---:|
-| Entrenamiento | 56 | 2024-09-30 | 2025-10-26 | 224 |
-| Prueba de desarrollo | 14 | 2025-10-27 | 2026-02-01 | 56 |
-| Verificación final | 13 | 2026-02-02 | 2026-05-03 | 52 |
+## Uso de los conjuntos
 
-Las cifras son semanas del corpus, no una garantía del número de ejemplos utilizables después de construir indicadores, ventanas temporales u objetivos futuros. Las 70 semanas de desarrollo son las 56 de entrenamiento más las 14 de prueba.
+- **Entrenamiento:** aprender parámetros y ajustar transformaciones.
+- **Prueba de desarrollo:** comparar variantes y elegir la configuración; cumple la función habitualmente llamada validación.
+- **Verificación final:** evaluar únicamente la configuración congelada. Sus resultados no se usan para elegir variables, pesos, umbrales ni modelos. Si sirven para modificar el sistema, este bloque deja de ser una evaluación final independiente del desarrollo.
 
-## Evitar filtración de información
+Los bloques son cronológicos y mantienen juntas las cuatro fuentes de cada semana. La separación no elimina la autocorrelación temporal.
 
-La partición se fija antes de cualquier ajuste que aprenda del conjunto de datos. Selección de variables, eliminación de constantes, imputación, estandarización, vocabularios o diccionarios aprendidos y otros parámetros se calculan con entrenamiento. A prueba y verificación se aplican las reglas ya fijadas, sin reajustarlas con sus valores.
+Calcular determinísticamente los indicadores de las 83 semanas no autoriza aprender parámetros con todas ellas. Los diccionarios históricos permanecen fijos. La ponderación intermedia usa sólo el volumen de las primeras 56 semanas y se mantiene fija para las otras 27; conocer ese límite no implica partir físicamente el corpus antes de construir la tabla.
 
-Se mantiene la [ponderación intermedia acordada](PONDERACION_FUENTES.md), `alpha = 0.5`. Los porcentajes calculados con las 83 semanas son un diagnóstico retrospectivo que ya incluyó todos los periodos. Se recalcularon los coeficientes sólo con entrenamiento y se guardaron separados; los porcentajes retrospectivos no se presentan como una calibración independiente del bloque reservado. Ningún modelo se ha ajustado todavía.
+La media MA5 se adaptó del centrado histórico a una ventana hacia atrás (semana actual y cuatro anteriores, mínimo una observación). Así ninguna semana futura interviene en una fila anterior. Puede usar antecedentes conocidos de otro bloque; esos antecedentes no pasan al ajuste del modelo.
 
-El suavizado temporal deberá ser causal: ninguna variable de una semana puede usar publicaciones u observaciones posteriores al momento en que se habría producido la predicción. Su cálculo original todavía no se ha localizado. Si posteriormente se construyen objetivos futuros, se excluirán los ejemplos cuyo objetivo invada el siguiente bloque, según el horizonte. No se fija aquí un horizonte ni se añade un suavizado supuesto.
+Las tablas están **sin estandarizar**. Selección de variables, eliminación de constantes, imputación y estandarización se ajustarán sólo con entrenamiento. La función histórica que ajusta la tabla completa no debe aplicarse a esta evaluación. Si se construyen objetivos futuros, habrá que excluir los ejemplos cuyo objetivo invada el siguiente bloque según el horizonte; 56/14/13 son filas disponibles antes de esa construcción.
 
-La [función copiada del notebook](PREPARACION_DATOS_NOTEBOOK.md) conserva su ajuste global para documentar y reproducir el método histórico. No se debe aplicar a las 83 semanas antes de dividirlas para una evaluación predictiva. La adaptación para ajustar exclusivamente con entrenamiento sigue pendiente.
+El cargador `cargar_desarrollo` sólo abre `indicadores.csv` de entrenamiento o prueba y rechaza verificación. No existe aún un cargador de evaluación final ni se han conectado modelos. La separación de carpetas no es un control de acceso del sistema operativo: no se debe cargar la tabla completa para ajustar un modelo.
 
-Separar bloques temporales evita compartir filas y entrenar con el futuro; no hace estadísticamente independientes las semanas consecutivas.
+## Reproducción
 
-## Archivos generados y reproducción
+1. Ejecutar `scr/operaciones/construir_tabla_indicadores.py` con el intérprete de Radar.
+2. Después ejecutar `scr/operaciones/generar_conjuntos_temporales.py`.
 
-```bash
-PYTHONDONTWRITEBYTECODE=1 /home/emilio/anaconda3/envs/radar-v1/bin/python \
-  scr/operaciones/generar_conjuntos_temporales.py
-```
+Ambos se niegan a sobrescribir salidas. Admiten `--output-dir`; el constructor admite `--processed-dir` y `--resources-dir`, y el separador `--table` y `--weights`. Publican las salidas únicamente cuando terminan.
 
-El generador lee los TXT canónicos de `datos/radar_semanal_procesado/` y escribe:
+La auditoría de construcción conserva hashes de los 332 TXT y de los recursos. La de partición registra el hash de la tabla y de sus tres subconjuntos. Las tablas generadas permanecen locales; los commits conservan código, recursos de cálculo, pruebas y documentación.
 
-- `datos/radar_modelado/desarrollo/entrenamiento/corpus.jsonl`.
-- `datos/radar_modelado/desarrollo/prueba/corpus.jsonl`.
-- `datos/radar_modelado/verificacion_reservada/corpus.jsonl`.
-- `datos/radar_modelado/desarrollo/entrenamiento/pesos_fuentes.json`: ponderación calculada sólo con las 56 semanas de entrenamiento y sus hashes de procedencia.
-- `datos/radar_modelado/particion_semanas.csv`: asignación de las 83 semanas, fechas y hashes por fuente.
-- `datos/radar_modelado/auditoria.json`: conteos, hashes de entradas y salidas y estado de la generación.
+## Respaldo del intento anterior
 
-Una fila JSONL contiene el texto completo de **una fuente en una semana**, junto con `conjunto`, `week`, `period_start`, `period_end`, `source`, `source_path` y `source_sha256`. Se preservan literalmente el texto y sus saltos de línea; esas filas no se presentan como publicaciones ni noticias. Las cuatro fuentes se reúnen en el mismo archivo de cada conjunto conservando su identidad para la ponderación.
-
-El cargador `cargar_desarrollo` del generador sólo admite `entrenamiento` y `prueba`. No abre el corpus de verificación y rechaza ese nombre. No se ha añadido un cargador de evaluación final ni se han conectado modelos. La separación de directorios no es un control de acceso del sistema operativo: otro código no debe recorrer indiscriminadamente `datos/radar_modelado/`.
-
-El generador exige las cuatro fuentes, semanas únicas y consecutivas y una cobertura que sume 83. Rechaza textos vacíos, no modifica entradas y comprueba sus hashes al terminar. Escribe en un directorio temporal y sólo publica la salida completa; se niega a sobrescribir una salida existente. Se puede indicar otra ruta con `--output-dir` para una nueva ejecución.
-
-Los corpus generados permanecen locales; el commit conserva código, pruebas y documentación para reproducirlos.
-
-## Estado de la tabla de indicadores
-
-En la revisión previa se inspeccionaron los encabezados de 501 CSV de `datos/` sin encontrar una tabla de indicadores `MA5`, sentimiento, presencia temática, intensidad o IAD/IAOPD. Ahora están generados los tres conjuntos de corpus textual. Todavía no se ha generado la tabla de indicadores del nuevo corpus; no se han inventado esas mediciones para completar columnas.
+Los seis archivos de los conjuntos textuales anteriores se conservaron íntegros en `trash/respaldos/corpus_partido_antes_indicadores_2026-11-10/`, con hashes en `respaldo_integridad.json`. No son la entrada vigente. La función `generate` conserva esa operación sólo como referencia reproducible; el CLI vigente parte indicadores.
 
 ## Referencias
 
