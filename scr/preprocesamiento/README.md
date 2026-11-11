@@ -1,6 +1,6 @@
 # Preprocesamiento vigente
 
-Sólo estos seis programas forman la etapa operativa:
+Estos seis programas forman la etapa operativa de CSV→TXT:
 
 | Programa | Propósito |
 | --- | --- |
@@ -18,6 +18,15 @@ promoción como etapa independiente. La limpieza textual se describe en
 
 El código histórico retirado y los TXT antiguos se conservan en `trash/`;
 no deben usarse como alternativa al flujo vigente.
+
+## Preparación de indicadores para el análisis
+
+`preparar_indicadores_semanales.py` recupera las tres funciones de preparación
+de tablas del notebook `Modelo_ML_MV.ipynb`: detección de columnas, ordenación,
+selección de variables y estandarización. Recibe indicadores ya calculados;
+no transforma TXT en indicadores ni calcula `MA5`. Es un módulo de uso explícito,
+sin ejecución automática en el flujo CSV→TXT. Su procedencia, reglas y límites
+se documentan en [PREPARACION_DATOS_NOTEBOOK.md](../../documentos/PREPARACION_DATOS_NOTEBOOK.md).
 
 ## Material antiguo archivado
 
