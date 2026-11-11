@@ -1,6 +1,6 @@
 # Diccionarios y stoplists autorizados
 
-El usuario autorizó reutilizar los diccionarios del proyecto anterior. Sus publicaciones, corpus, CSV extraídos, conteos, resultados y tablas precalculadas no son entradas autorizadas.
+El usuario autorizó reutilizar los diccionarios, el código y las reglas de procesamiento del proyecto anterior. La lógica adaptada para aplicarlos se encuentra en `scr/operaciones/`. Sus publicaciones, corpus, CSV extraídos, conteos, resultados y tablas precalculadas no son entradas autorizadas.
 
 Este directorio contiene el par de diccionarios de polaridad **Original**, el diccionario temático V5, las stoplists generales y temáticas y las exclusiones de polaridad. El usuario pidió retirar Etiquetado, que ya no es una entrada activa. `procedencia.json` registra el origen y SHA-256 de cada recurso vigente.
 

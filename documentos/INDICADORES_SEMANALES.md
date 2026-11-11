@@ -1,6 +1,6 @@
 # Indicadores semanales sin suavizado
 
-Decisión del 11 de noviembre de 2026: retirar MA5 de explicativas y respuesta y retirar los rezagos adicionales de las explicativas. Se conserva la ponderación intermedia y el nombre `Visibilidad_MV`. Sólo se usa el corpus de Radar V1 y los diccionarios autorizados; no se importan datos o resultados del proyecto anterior.
+Decisión del 11 de noviembre de 2026: retirar MA5 de explicativas y respuesta y retirar los rezagos adicionales de las explicativas. Se conserva la ponderación intermedia y el nombre `Visibilidad_MV`. Se reutilizaron diccionarios, código y reglas de procesamiento del proyecto anterior, adaptados al flujo actual. Los datos y valores se calculan exclusivamente con el corpus de Radar V1; no se importan corpus ni resultados numéricos anteriores.
 
 ## Tabla vigente
 

@@ -1,6 +1,6 @@
 # Operaciones sobre el corpus
 
-**Alcance:** se reutilizan los diccionarios y la metodología autorizados. El corpus y todos los valores semanales se calculan con los datos de Radar V1; no se importan publicaciones, CSV extraídos ni resultados del proyecto anterior.
+**Alcance:** se reutilizan diccionarios, código y reglas de procesamiento autorizados, adaptados al flujo actual. Incluyen la aplicación de diccionarios, el conteo y las fórmulas de los indicadores. El corpus y todos los valores semanales se calculan con los datos de Radar V1; no se importan publicaciones, CSV extraídos ni resultados numéricos del proyecto anterior.
 
 | Programa | Propósito |
 |---|---|
@@ -22,7 +22,7 @@ prueba = cargar_desarrollo(Path("datos/radar_modelado/desarrollo"), "prueba")
 
 Cada elemento es una fila de indicadores semanales leída de CSV; los valores numéricos se reciben como texto hasta su conversión por el consumidor. El cargador rechaza verificación. Los ajustes posteriores se calculan sólo con entrenamiento. Las tablas generadas se conservan localmente y no se incluyen en los commits de código.
 
-`generate` y `cargar_corpus_desarrollo` conservan la operación textual anterior como referencia reproducible del respaldo. El CLI y el cargador vigente `cargar_desarrollo` trabajan con indicadores.
+El CLI y el cargador `cargar_desarrollo` trabajan exclusivamente con indicadores. Las funciones anteriores de partición de corpus TXT y sus pruebas quedaron archivadas con su versión de origen; no se conserva un flujo alternativo dentro del separador vigente.
 
 Después de generar y partir la tabla, ejecutar `inspeccionar_indicadores.py`. Relaciona los veinte indicadores temáticos de t con Original semanal en t+1, t+2, t+3 y t+4, sin promediar la respuesta ni añadir lags de X. Desplaza la respuesta sólo dentro de las 56 semanas iniciales y retira los últimos h orígenes: quedan 55, 54, 53 y 52 pares, respectivamente. No imputa huecos ni abre prueba o verificación. Ridge usa alpha=1 fijado y compara 0.1/10 como sensibilidad. Los coeficientes son exploratorios, sin validación externa ni interpretación causal. La salida está en `datos/radar_analisis/inspeccion_indicadores/`; los CSV identifican el horizonte y `alineacion_horizontes.csv` registra cada origen y respuesta.
 

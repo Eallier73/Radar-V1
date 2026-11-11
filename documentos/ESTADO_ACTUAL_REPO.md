@@ -26,7 +26,7 @@ Corte: 11 de noviembre de 2026. El flujo actual llega desde la extracción y nor
 
 La validación de cobertura y contratos respeta estas excepciones. Los controles temporales del análisis no convierten las fechas históricas desconocidas de Facebook ni los metadatos ausentes de Medios en fechas certificadas.
 
-Los datos y valores semanales del análisis proceden de este repo. Del proyecto anterior se reutilizaron únicamente metodología y diccionarios autorizados. `Visibilidad_MV` conserva los términos aprobados, incluidas referencias a cargos y al gobierno municipal.
+Los datos y valores semanales del análisis proceden de este repo. Del proyecto anterior se reutilizaron diccionarios, código y reglas de procesamiento autorizados, adaptados al flujo actual. Esa reutilización incluye la lógica para aplicar los diccionarios, contar coincidencias y calcular polaridad e indicadores temáticos; no se importaron sus corpus ni resultados numéricos. `Visibilidad_MV` conserva los términos aprobados, incluidas referencias a cargos y al gobierno municipal.
 
 ## Decisiones ya aplicadas
 
@@ -42,15 +42,17 @@ Los datos y valores semanales del análisis proceden de este repo. Del proyecto 
 1. Resolver el planteamiento de selección y modelado por horizonte a partir del resultado corregido. La revisión ya se hizo; no ha producido una lista común definitiva de columnas con respaldo suficiente bajo el criterio actual.
 2. Construir el flujo de modelado con el contrato semanal y un protocolo de evaluación definido. Usar las 14 semanas de prueba en su fase y mantener las 13 reservadas para la comprobación final.
 3. Integrar indicadores y análisis en el orquestador/GUI mediante un runner NLP. La existencia de los scripts de operaciones no implica que esa etapa general ya esté implementada.
-4. Revisar los experimentos heredados de `scr/nlp/`: varios conservan rutas a `/home/emilio/Documentos/RAdAR`. El wrapper `experiment_logger.py` apunta a `scr/Modeling/experiment_logger.py`, que no existe en este checkout. Su adaptación o archivo queda pendiente; no se ejecutaron durante esta revisión.
+4. Implementar el runner NLP cuando se integre el flujo. Los diez scripts experimentales de `scr/nlp/`, incluido el logger con dependencia inexistente, quedaron archivados. El notebook `Anaisis_Polaridad_ML_MV.ipynb` se conserva como referencia autorizada para emular el modelo y su salida tabular para el tablero, usando exclusivamente los datos actuales. Las implementaciones usadas para calcular los indicadores permanecen en `scr/operaciones/`.
 5. Implementar los runners de tablero y reporte y conectarlos con resultados del modelo actual.
 
 ## Verificación y Git
 
-Hay 108 pruebas aprobadas para los contratos y el flujo actual. Se comprobó además el corpus real con el validador semanal, exigiendo mismas semanas y texto no vacío: resultado OK. Esta revisión no lanzó nuevas descargas ni certifica que todas las integraciones externas funcionen hoy.
+Tras la limpieza hay 103 pruebas para los contratos y el flujo actual. Las cinco pruebas de la partición obsoleta de corpus TXT se archivaron junto con su implementación; la partición vigente de indicadores y sus controles temporales siguen cubiertos. La validación más reciente del corpus real, exigiendo mismas semanas y texto no vacío, terminó OK. Esta revisión no lanzó nuevas descargas ni certifica que todas las integraciones externas funcionen hoy.
 
 La corrección comprobó que los 581 archivos CSV/TXT del corpus procesado permanecen intactos. Los valores semanales de soporte y la ponderación acordada se conservaron al retirar las transformaciones.
 
 Los originales históricos y diccionarios ya tienen archivos versionados. El commit de esta etapa registra código, pruebas y documentación; las carpetas de resultados y tablas derivadas siguen locales y reproducibles. `trash/` conserva los respaldos locales y está excluido de Git salvo sus manifiestos previstos. Hay commits locales pendientes de push.
 
-Evidencias: [panorama y validación del corpus](auditorias/panorama_repo_2026-11-11.json), [corrección temporal](auditorias/correccion_temporal_sin_suavizado_2026-11-11.json), [contratos históricos](HOMOLOGACION_HISTORICA.md), [indicadores](INDICADORES_SEMANALES.md), [selección](SELECCION_INDICADORES.md).
+La limpieza retiró además propuestas antiguas no adoptadas, funciones sustituidas y metadatos del sistema. Las declaraciones de Matplotlib, Plotly y OpenPyXL se retiraron del entorno declarado al no quedar consumidores; SciPy se declara directamente porque lo usa la selección actual. No se desinstaló ningún paquete del entorno local.
+
+Evidencias: [manifiesto de limpieza recuperable](../trash/manifest_limpieza_2026-11-11.json), [panorama y validación del corpus antes de la limpieza](auditorias/panorama_repo_2026-11-11.json), [corrección temporal](auditorias/correccion_temporal_sin_suavizado_2026-11-11.json), [contratos históricos](HOMOLOGACION_HISTORICA.md), [indicadores](INDICADORES_SEMANALES.md), [selección](SELECCION_INDICADORES.md).

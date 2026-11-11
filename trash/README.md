@@ -30,3 +30,20 @@ después de comprobar que no vas a sobrescribir una versión vigente.
 
 Los CSV canónicos, los TXT históricos de Medios y los registros de exclusión
 con valor de auditoría **no** se archivan aquí.
+
+## Limpieza del 11 de noviembre de 2026
+
+`manifest_limpieza_2026-11-11.json` registra el archivo íntegro de los diez scripts
+experimentales de NLP, tres propuestas históricas, las cinco
+pruebas de la partición antigua de TXT, metadatos del sistema y bytecode regenerable.
+El generador de conjuntos se conserva activo con su partición vigente de indicadores;
+su versión anterior, con las funciones sustituidas, queda respaldada.
+
+Se preservan también las declaraciones anteriores del entorno. Los datos del corpus,
+las tablas vigentes, los diccionarios, las sesiones y la configuración de extracción
+no se retiran. La reutilización autorizada incluye código y reglas de procesamiento;
+las rutinas adaptadas que usa el flujo actual permanecen activas.
+
+El notebook `scr/nlp/Anaisis_Polaridad_ML_MV.ipynb` se restauró íntegro por indicación
+del usuario: será referencia para emular el modelo y la tabla de salida del tablero,
+sin reutilizar datos o resultados antiguos. El manifiesto registra esa restauración.

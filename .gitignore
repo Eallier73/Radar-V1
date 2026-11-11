@@ -15,3 +15,7 @@
 # Cache de Python regenerable.
 __pycache__/
 *.py[cod]
+
+# Metadatos del sistema operativo sin uso por el pipeline.
+.DS_Store
+._*

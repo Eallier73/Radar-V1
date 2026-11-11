@@ -1,0 +1,282 @@
+{
+  "date": "2026-11-11",
+  "archive_root": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2",
+  "user_authorization": "Limpiar todo lo que no se use; conservar íntegro y recuperable en trash",
+  "source_data_files_protected": 1057,
+  "protected_data_hashes": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/datos_protegidos_sha256.json",
+  "records": [
+    {
+      "original": "scr/nlp/Anaisis_Polaridad_ML_MV.ipynb",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/nlp/Anaisis_Polaridad_ML_MV.ipynb",
+      "bytes": 261952,
+      "sha256": "8f8933704533d119bb352e7f19a8e8a480303ab5efeb4d8875aa360457a59b03",
+      "reason": "El usuario conserva el notebook para emular modelo y salida de tabla para tablero; no reutilizar datos/resultados anteriores",
+      "operation": "restored_reference",
+      "restored_to": "scr/nlp/Anaisis_Polaridad_ML_MV.ipynb"
+    },
+    {
+      "original": "scr/nlp/Lageado_Datos_ML.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/nlp/Lageado_Datos_ML.py",
+      "bytes": 10844,
+      "sha256": "acb2715df8a12e42239306e3dece7bbd0e8a6e5f44dfe97ca3e338d2f3fa2017",
+      "reason": "Experimento heredado sin consumidores en el flujo actual; rutas/contratos anteriores o dependencias inexistentes",
+      "operation": "move"
+    },
+    {
+      "original": "scr/nlp/aceptación_digital_redes_ponderacion_medios.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/nlp/aceptación_digital_redes_ponderacion_medios.py",
+      "bytes": 11066,
+      "sha256": "2f98a0b5192a1ea675ede2e9f85fe57b7133971a59b8b347b9e4b5b8f0bdebab",
+      "reason": "Experimento heredado sin consumidores en el flujo actual; rutas/contratos anteriores o dependencias inexistentes",
+      "operation": "move"
+    },
+    {
+      "original": "scr/nlp/clasificacion_temas.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/nlp/clasificacion_temas.py",
+      "bytes": 13290,
+      "sha256": "2c8986dfc77d5aa7fb68a376595f65e05b45d5366d88e3b37b07917ac64eb206",
+      "reason": "Experimento heredado sin consumidores en el flujo actual; rutas/contratos anteriores o dependencias inexistentes",
+      "operation": "move"
+    },
+    {
+      "original": "scr/nlp/clasificacion_temas_pmi_confianza.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/nlp/clasificacion_temas_pmi_confianza.py",
+      "bytes": 18347,
+      "sha256": "bebe1e84f6793bc8a2246afee3603670255b0077ed53910d1cf94f9bbd8ffb29",
+      "reason": "Experimento heredado sin consumidores en el flujo actual; rutas/contratos anteriores o dependencias inexistentes",
+      "operation": "move"
+    },
+    {
+      "original": "scr/nlp/diccionario_temas_pmi.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/nlp/diccionario_temas_pmi.py",
+      "bytes": 13376,
+      "sha256": "e3d4fd988cfe67f03f507de2ccfc2e4ffcd51cc49c4ac7b9421337e49ab766f4",
+      "reason": "Experimento heredado sin consumidores en el flujo actual; rutas/contratos anteriores o dependencias inexistentes",
+      "operation": "move"
+    },
+    {
+      "original": "scr/nlp/diccionario_temas_pmi_confianza.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/nlp/diccionario_temas_pmi_confianza.py",
+      "bytes": 16570,
+      "sha256": "ba2fd15c51273576551cd4580f7f365c20534516c500df9e7838bf8778842084",
+      "reason": "Experimento heredado sin consumidores en el flujo actual; rutas/contratos anteriores o dependencias inexistentes",
+      "operation": "move"
+    },
+    {
+      "original": "scr/nlp/diccionario_temas_wpmi.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/nlp/diccionario_temas_wpmi.py",
+      "bytes": 18681,
+      "sha256": "fbd1da2b8ee86c2f179cc6766aa2dd998c8bc4624ba62100c7974b74563d990a",
+      "reason": "Experimento heredado sin consumidores en el flujo actual; rutas/contratos anteriores o dependencias inexistentes",
+      "operation": "move"
+    },
+    {
+      "original": "scr/nlp/ejemplo_registro_grid.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/nlp/ejemplo_registro_grid.py",
+      "bytes": 6304,
+      "sha256": "5c3900e3615c89fa771db349e22e58fd5e06a0742228dbb5f13fb1fbb7b3f51b",
+      "reason": "Experimento heredado sin consumidores en el flujo actual; rutas/contratos anteriores o dependencias inexistentes",
+      "operation": "move"
+    },
+    {
+      "original": "scr/nlp/experiment_logger.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/nlp/experiment_logger.py",
+      "bytes": 1111,
+      "sha256": "26599fb93a13f9b4586b605e383e2b5c489b66f430d0c006b0cdfae37f0b34e4",
+      "reason": "Experimento heredado sin consumidores en el flujo actual; rutas/contratos anteriores o dependencias inexistentes",
+      "operation": "move"
+    },
+    {
+      "original": "scr/nlp/forecast_datos.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/nlp/forecast_datos.py",
+      "bytes": 14176,
+      "sha256": "5886c6ed5704bcfb381119b5ca1cebb4570e2b8dff8f6c311850f5c68fe90969",
+      "reason": "Experimento heredado sin consumidores en el flujo actual; rutas/contratos anteriores o dependencias inexistentes",
+      "operation": "move"
+    },
+    {
+      "original": "documentos/Sugerencias_ChatGPT.md",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/documentos/Sugerencias_ChatGPT.md",
+      "bytes": 6298,
+      "sha256": "004e86b0f36c935a806fe61c4e61e349c4e77f61f8123428a495caddac883856",
+      "reason": "Propuesta anterior no adoptada como contrato operativo; se conserva como referencia histórica",
+      "operation": "move"
+    },
+    {
+      "original": "documentos/Sugerencias_Claude.md",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/documentos/Sugerencias_Claude.md",
+      "bytes": 12877,
+      "sha256": "f6c446b4f53a6426f3baed2e47b37e2c25c658451f50deabbb057853b836a228",
+      "reason": "Propuesta anterior no adoptada como contrato operativo; se conserva como referencia histórica",
+      "operation": "move"
+    },
+    {
+      "original": "documentos/Sugerencias_MiniMax.md",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/documentos/Sugerencias_MiniMax.md",
+      "bytes": 13051,
+      "sha256": "2e7600a4ec12d25b81ac63fde9442f722a55a9df68a75334b94ecaee08718ddb",
+      "reason": "Propuesta anterior no adoptada como contrato operativo; se conserva como referencia histórica",
+      "operation": "move"
+    },
+    {
+      "original": "tests/test_generar_conjuntos_temporales.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/tests/test_generar_conjuntos_temporales.py",
+      "bytes": 5970,
+      "sha256": "794631f7b344c7c20b0562e5a8ae0dbfc7ae1adb3aa973457b9fcee5275d833c",
+      "reason": "Pruebas de la partición antigua de TXT: implementación sustituida por la partición de indicadores",
+      "operation": "move"
+    },
+    {
+      "original": "scr/operaciones/generar_conjuntos_temporales.py",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/version_anterior/scr/operaciones/generar_conjuntos_temporales.py",
+      "bytes": 18186,
+      "sha256": "eb56231d857c0311819b52596d557c184e332d460d5da4e0d19f87255fecfceb",
+      "reason": "Copia previa al retiro de funciones o dependencias sin uso",
+      "operation": "snapshot"
+    },
+    {
+      "original": "environment-radar-v1.yml",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/version_anterior/environment-radar-v1.yml",
+      "bytes": 469,
+      "sha256": "9528fcd5c4083e8a55672208796b9fcac3f5c3c3509482cd4aa08d7c2e2cf91f",
+      "reason": "Copia previa al retiro de funciones o dependencias sin uso",
+      "operation": "snapshot"
+    },
+    {
+      "original": ".DS_Store",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/.DS_Store",
+      "bytes": 8196,
+      "sha256": "f98e6c483f3c846cda124c1dc29db6ff520197592e7b5cfad0208826742e9c44",
+      "reason": "Metadato del sistema operativo sin uso por el pipeline",
+      "operation": "move"
+    },
+    {
+      "original": "._.DS_Store",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/._.DS_Store",
+      "bytes": 4096,
+      "sha256": "7d08a9fcff3175f341e4ff3e2d36faefe08bac19f65ed9b49b975bb5d13ff2aa",
+      "reason": "Metadato del sistema operativo sin uso por el pipeline",
+      "operation": "move"
+    },
+    {
+      "original": "datos/.DS_Store",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/datos/.DS_Store",
+      "bytes": 8196,
+      "sha256": "ba83909d8eb6bcd623e02de6eb3b9ca12907059131080d676c65d61f481b6697",
+      "reason": "Metadato del sistema operativo sin uso por el pipeline",
+      "operation": "move"
+    },
+    {
+      "original": "datos/._.DS_Store",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/datos/._.DS_Store",
+      "bytes": 4096,
+      "sha256": "7d08a9fcff3175f341e4ff3e2d36faefe08bac19f65ed9b49b975bb5d13ff2aa",
+      "reason": "Metadato del sistema operativo sin uso por el pipeline",
+      "operation": "move"
+    },
+    {
+      "original": "scr/compartido/__pycache__/00_gui_orquestador.cpython-312.pyc",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/compartido/__pycache__/00_gui_orquestador.cpython-312.pyc",
+      "bytes": 30089,
+      "sha256": "3fd8b3b401394732f20d3e499e27b0cf27691188ab96ab2d2a6696f0c26c1036",
+      "reason": "Bytecode regenerable; el código fuente vigente se conserva",
+      "operation": "move"
+    },
+    {
+      "original": "scr/compartido/__pycache__/00_orquestador_general.cpython-312.pyc",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/compartido/__pycache__/00_orquestador_general.cpython-312.pyc",
+      "bytes": 21004,
+      "sha256": "8fae85a8d2cf90e2076dea66b391e3f94884acdd8956116cc1286782b5fd2d89",
+      "reason": "Bytecode regenerable; el código fuente vigente se conserva",
+      "operation": "move"
+    },
+    {
+      "original": "scr/compartido/__pycache__/facebook_data_contract.cpython-311.pyc",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/compartido/__pycache__/facebook_data_contract.cpython-311.pyc",
+      "bytes": 13848,
+      "sha256": "64da8dfabeb7b6d095f91d3e6f084a1f6cca20a882fe132f57927e8c11e9eda8",
+      "reason": "Bytecode regenerable; el código fuente vigente se conserva",
+      "operation": "move"
+    },
+    {
+      "original": "scr/compartido/__pycache__/medios_data_contract.cpython-311.pyc",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/compartido/__pycache__/medios_data_contract.cpython-311.pyc",
+      "bytes": 8239,
+      "sha256": "1c8910297480cadc03fd3ddf45074e8ee917c8675f9089a735b22922a2a8f0c6",
+      "reason": "Bytecode regenerable; el código fuente vigente se conserva",
+      "operation": "move"
+    },
+    {
+      "original": "scr/compartido/__pycache__/output_naming.cpython-311.pyc",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/compartido/__pycache__/output_naming.cpython-311.pyc",
+      "bytes": 5999,
+      "sha256": "d89f5039d2ce036a44b89e43834aaa99b60f5de3e1e12132b6b50b9f1bdfbd22",
+      "reason": "Bytecode regenerable; el código fuente vigente se conserva",
+      "operation": "move"
+    },
+    {
+      "original": "scr/compartido/__pycache__/output_naming.cpython-312.pyc",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/compartido/__pycache__/output_naming.cpython-312.pyc",
+      "bytes": 5509,
+      "sha256": "41d714ff27f22ba42d3fac23095d6aedc02f82ec31d972f6144399fe3c554731",
+      "reason": "Bytecode regenerable; el código fuente vigente se conserva",
+      "operation": "move"
+    },
+    {
+      "original": "scr/compartido/__pycache__/radar_paths.cpython-311.pyc",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/compartido/__pycache__/radar_paths.cpython-311.pyc",
+      "bytes": 1968,
+      "sha256": "700bdd7ae629cd1d46eac4b7942678bea4372cb8fd5d039aff405e13f359aa3b",
+      "reason": "Bytecode regenerable; el código fuente vigente se conserva",
+      "operation": "move"
+    },
+    {
+      "original": "scr/compartido/__pycache__/radar_paths.cpython-312.pyc",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/compartido/__pycache__/radar_paths.cpython-312.pyc",
+      "bytes": 1806,
+      "sha256": "6a071d5694f4323c998b60f6e07dc300ce009ed0fa2d68b9e4e9b11324137607",
+      "reason": "Bytecode regenerable; el código fuente vigente se conserva",
+      "operation": "move"
+    },
+    {
+      "original": "scr/compartido/__pycache__/twitter_data_contract.cpython-311.pyc",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/compartido/__pycache__/twitter_data_contract.cpython-311.pyc",
+      "bytes": 16282,
+      "sha256": "41c6d64d1e8439c7af456058b83054db8c8dc5cf958a9e1c719729a4dbcc5eb9",
+      "reason": "Bytecode regenerable; el código fuente vigente se conserva",
+      "operation": "move"
+    },
+    {
+      "original": "scr/compartido/__pycache__/youtube_data_contract.cpython-311.pyc",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/compartido/__pycache__/youtube_data_contract.cpython-311.pyc",
+      "bytes": 5423,
+      "sha256": "bf42c3fa625855213f83010cb39c93f3098added96f74ce4aa96153ca1c94c5c",
+      "reason": "Bytecode regenerable; el código fuente vigente se conserva",
+      "operation": "move"
+    },
+    {
+      "original": "scr/compartido/__pycache__/youtube_data_contract.cpython-312.pyc",
+      "archived": "trash/respaldos/limpieza_codigo_2026-11-11_paz04zz2/scr/compartido/__pycache__/youtube_data_contract.cpython-312.pyc",
+      "bytes": 4537,
+      "sha256": "a6174b235a50a1ed1630d6fa15865ffae68c6d2247322a44f5e1731073b3d085",
+      "reason": "Bytecode regenerable; el código fuente vigente se conserva",
+      "operation": "move"
+    }
+  ],
+  "original_project_reuse": "Dictionaries, processing code and methodological rules authorized; corpus and numeric results excluded",
+  "notebook_reference_retained": "scr/nlp/Anaisis_Polaridad_ML_MV.ipynb",
+  "legacy_functions_removed": [
+    "assign",
+    "generate",
+    "cargar_corpus_desarrollo"
+  ],
+  "verification": {
+    "protected_data_files_unchanged": 1057,
+    "archive_hashes_verified": true,
+    "notebook_restored_unchanged": true,
+    "active_tests_passed": 103,
+    "obsolete_tests_archived": 5,
+    "test_log": "/tmp/radar-tests-limpieza-2026-11-11.log",
+    "installed_packages_modified": false
+  }
+}
