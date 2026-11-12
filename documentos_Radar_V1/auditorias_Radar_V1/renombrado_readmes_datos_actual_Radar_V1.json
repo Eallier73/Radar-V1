@@ -1,0 +1,7 @@
+{
+  "executed": true,
+  "mapping": {
+    "datos_Radar_V1/recursos_indicadores_Radar_V1/README_Radar_V1.md": "datos_Radar_V1/recursos_indicadores_Radar_V1/README_recursos_indicadores_Radar_V1.md",
+    "datos_Radar_V1/radar_historico_reincorporado_Radar_V1/facebook_Radar_V1/README_Radar_V1.md": "datos_Radar_V1/radar_historico_reincorporado_Radar_V1/facebook_Radar_V1/README_facebook_Radar_V1.md"
+  }
+}

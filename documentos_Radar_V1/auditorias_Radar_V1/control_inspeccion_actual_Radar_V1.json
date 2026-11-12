@@ -1,0 +1,20 @@
+{
+  "run_id": "20261112T172210_34faa3b6",
+  "stage": "inspeccion",
+  "mode": "dry_run",
+  "runner_sha256": "8eba5173a541ad0d5b6c21207e0b022d81450ac67c947e71a9c372d8cb5da546",
+  "status": "simulated",
+  "label": "Inspección estadística",
+  "updated_at": "2026-11-12T23:22:10.999595+00:00",
+  "commands": [
+    [
+      "/home/emilio/anaconda3/envs/radar-v1/bin/python3.11",
+      "/home/emilio/Documentos/Radar V1/scr_Radar_V1/operaciones_Radar_V1/inspeccionar_indicadores_Radar_V1.py",
+      "--development-dir",
+      "/home/emilio/Documentos/Radar V1/datos_Radar_V1/radar_modelado_Radar_V1/desarrollo_Radar_V1",
+      "--output-dir",
+      "/home/emilio/Documentos/Radar V1/datos_Radar_V1/radar_analisis_Radar_V1/inspeccion_indicadores_Radar_V1"
+    ]
+  ],
+  "input_validation": "existing"
+}

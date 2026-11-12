@@ -1,0 +1,43 @@
+{
+  "status": "ok",
+  "scope": "csv_to_txt",
+  "nonempty_text_required": true,
+  "root": "/home/emilio/Documentos/Radar V1/datos_Radar_V1/radar_semanal_procesado_Radar_V1",
+  "summary": {
+    "youtube": {
+      "weeks": 83,
+      "nonempty_weeks": 83,
+      "empty_weeks": 0,
+      "empty_text_weeks": 0,
+      "rows": 76986
+    },
+    "twitter": {
+      "weeks": 83,
+      "nonempty_weeks": 83,
+      "empty_weeks": 0,
+      "empty_text_weeks": 0,
+      "rows": 9391
+    },
+    "medios": {
+      "weeks": 83,
+      "nonempty_weeks": 83,
+      "empty_weeks": 0,
+      "empty_text_weeks": 0,
+      "words": 3869708,
+      "structured_weeks": 0,
+      "text_only_weeks": 83,
+      "historical_txt_accepted": true,
+      "csv_content_checked": false
+    },
+    "facebook": {
+      "weeks": 83,
+      "nonempty_weeks": 83,
+      "empty_weeks": 0,
+      "empty_text_weeks": 0,
+      "rows": 10027,
+      "historical_unverified_date_rows": 6789,
+      "historical_date_exception_weeks": 20
+    }
+  },
+  "errors": []
+}

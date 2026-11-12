@@ -1,0 +1,11 @@
+{
+  "run_id": "20261112T171925_c97f14b0",
+  "stage": "pruebas",
+  "mode": "execution",
+  "runner_sha256": "1fc867c89b41e5a38ac79e1fd92433b7dd5896cd7f099be97d0cb96867087b3d",
+  "status": "completed",
+  "label": "Pruebas del panel y pipeline",
+  "updated_at": "2026-11-12T23:19:27.465980+00:00",
+  "started_at": "2026-11-12T23:19:25.320706+00:00",
+  "finished_at": "2026-11-12T23:19:27.465955+00:00"
+}

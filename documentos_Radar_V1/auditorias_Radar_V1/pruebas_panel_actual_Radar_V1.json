@@ -1,0 +1,10 @@
+{
+  "performed": true,
+  "native_tk": true,
+  "button": "Pruebas del panel y pipeline",
+  "tests_passed": 119,
+  "status": "completed",
+  "run_id": "20261112T171925_c97f14b0",
+  "log_path": "/home/emilio/Documentos/Radar V1/state/ejecuciones_Radar_V1/20261112T171925_c97f14b0_Radar_V1.log",
+  "monitor_state": "Terminada"
+}

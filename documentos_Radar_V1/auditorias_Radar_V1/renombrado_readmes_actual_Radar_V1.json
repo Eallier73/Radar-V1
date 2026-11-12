@@ -1,0 +1,14 @@
+{
+  "operation": "rename_readmes",
+  "executed": true,
+  "mapping": {
+    "scr_Radar_V1/operaciones_Radar_V1/README_Radar_V1.md": "scr_Radar_V1/operaciones_Radar_V1/README_operaciones_Radar_V1.md",
+    "scr_Radar_V1/nlp_Radar_V1/README_Radar_V1.md": "scr_Radar_V1/nlp_Radar_V1/README_nlp_Radar_V1.md",
+    "scr_Radar_V1/preprocesamiento_Radar_V1/README_Radar_V1.md": "scr_Radar_V1/preprocesamiento_Radar_V1/README_preprocesamiento_Radar_V1.md",
+    "scr_Radar_V1/extraccion_Radar_V1/README_Radar_V1.md": "scr_Radar_V1/extraccion_Radar_V1/README_extraccion_Radar_V1.md",
+    "scr_Radar_V1/preprocesamiento_Radar_V1/README_promocion_csv_a_texto_Radar_V1.md": "scr_Radar_V1/preprocesamiento_Radar_V1/preprocesamiento_promocion_csv_a_texto_Radar_V1.md",
+    "trash_Radar_V1/README_historico_Radar_V1.md": "trash_Radar_V1/README_trash_historico_Radar_V1.md"
+  },
+  "architecture_backup": "trash_Radar_V1/respaldos_historico_Radar_V1/ARQUITECTURA_antes_panel_maestro_2026-11-12_historico_Radar_V1.md",
+  "sha256": "f96ddfa858c94f0d29461316a21a4c258018bf5d057f6bafc5e8f239b9e74c75"
+}

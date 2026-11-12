@@ -1,0 +1,22 @@
+{
+  "run_id": "20261112T172210_34faa3b6",
+  "stage": "particion",
+  "mode": "dry_run",
+  "runner_sha256": "5694bc37d5cef2f455522751be8b362f7e588347291e724d0cee5d01eee59ad4",
+  "status": "simulated",
+  "label": "Separar 56 / 14 / 13",
+  "updated_at": "2026-11-12T23:22:10.998220+00:00",
+  "commands": [
+    [
+      "/home/emilio/anaconda3/envs/radar-v1/bin/python3.11",
+      "/home/emilio/Documentos/Radar V1/scr_Radar_V1/operaciones_Radar_V1/generar_conjuntos_temporales_Radar_V1.py",
+      "--table",
+      "/home/emilio/Documentos/Radar V1/datos_Radar_V1/radar_indicadores_Radar_V1/archivo_Radar_V1/tabla_analisis_completa_83_semanas_Radar_V1.csv",
+      "--weights",
+      "/home/emilio/Documentos/Radar V1/datos_Radar_V1/radar_indicadores_Radar_V1/pesos_fuentes_entrenamiento_Radar_V1.json",
+      "--output-dir",
+      "/home/emilio/Documentos/Radar V1/datos_Radar_V1/radar_modelado_Radar_V1"
+    ]
+  ],
+  "input_validation": "existing"
+}

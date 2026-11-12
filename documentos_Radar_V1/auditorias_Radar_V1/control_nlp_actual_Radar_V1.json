@@ -1,0 +1,23 @@
+{
+  "run_id": "20261112T172210_34faa3b6",
+  "stage": "nlp",
+  "mode": "dry_run",
+  "runner_sha256": "f7a269ea41206ca6833df67bf202e4a5e2958c2ed9de402e730e984e64193ff2",
+  "status": "simulated",
+  "label": "NLP · tabla de indicadores",
+  "updated_at": "2026-11-12T23:22:10.996754+00:00",
+  "commands": [
+    [
+      "/home/emilio/anaconda3/envs/radar-v1/bin/python3.11",
+      "/home/emilio/Documentos/Radar V1/scr_Radar_V1/nlp_Radar_V1/construir_tabla_indicadores_Radar_V1.py",
+      "--processed-dir",
+      "/home/emilio/Documentos/Radar V1/datos_Radar_V1/radar_semanal_procesado_Radar_V1",
+      "--resources-dir",
+      "/home/emilio/Documentos/Radar V1/datos_Radar_V1/recursos_indicadores_Radar_V1",
+      "--output-dir",
+      "/home/emilio/Documentos/Radar V1/datos_Radar_V1/radar_indicadores_Radar_V1",
+      "--reuse-existing"
+    ]
+  ],
+  "input_validation": "existing"
+}

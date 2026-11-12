@@ -3,14 +3,15 @@
 
 # Archivo de variables de entorno
 .env
+.env.local
 
 # Sesiones autenticadas locales (Playwright/Twitter)
 /state/*.json
 
 # Archivos retirados: respaldo local, nunca entrada del pipeline ni publicacion.
-/trash/*
-!/trash/README.md
-!/trash/manifest_*.json
+/trash_Radar_V1/*
+!/trash_Radar_V1/README_trash_historico_Radar_V1.md
+!/trash_Radar_V1/manifest_*.json
 
 # Cache de Python regenerable.
 __pycache__/
@@ -19,3 +20,6 @@ __pycache__/
 # Metadatos del sistema operativo sin uso por el pipeline.
 .DS_Store
 ._*
+
+# Estados y terminales del panel; no son fuentes del corpus.
+/state/ejecuciones_Radar_V1/

@@ -1,0 +1,43 @@
+{
+  "executed": true,
+  "date": "2026-11-12",
+  "test_command": "python -m unittest discover -s tests_Radar_V1 -v (servidor Tk disponible)",
+  "tests_passed": 121,
+  "native_gui": {
+    "performed": true,
+    "native_tk": true,
+    "visible_pipeline_stages": 13,
+    "simulated_available_stages": 9,
+    "subprocesses_started": 0,
+    "future_stages_blocked": 4,
+    "resume_checked": true,
+    "products_checked": true,
+    "run_id": "20261112T172210_34faa3b6",
+    "documentation_button_completed": true
+  },
+  "gui_test_button": {
+    "performed": true,
+    "native_tk": true,
+    "button": "Pruebas del panel y pipeline",
+    "tests_passed": 119,
+    "status": "completed",
+    "run_id": "20261112T171925_c97f14b0",
+    "log_path": "/home/emilio/Documentos/Radar V1/state/ejecuciones_Radar_V1/20261112T171925_c97f14b0_Radar_V1.log",
+    "monitor_state": "Terminada"
+  },
+  "data_files_renamed": 1168,
+  "all_data_names_branded": true,
+  "numeric_values_unchanged": true,
+  "text_values_unchanged": true,
+  "primary_table_byte_identical": true,
+  "secrets_session_and_notebook_unchanged": true,
+  "weeks_per_source": 83,
+  "empty_txt": 0,
+  "historical_registry_not_loaded_by_new_facebook_processing": true,
+  "readmes_named_by_folder": true,
+  "local_doc_links_valid": true,
+  "git_hook_path": "githooks_Radar_V1",
+  "live_downloads": false,
+  "model_training": false,
+  "tests_log_sha256": "ee34e922c53b138ce269051e4f549583b3d8957441dcf56737a85c0230b1b79a"
+}

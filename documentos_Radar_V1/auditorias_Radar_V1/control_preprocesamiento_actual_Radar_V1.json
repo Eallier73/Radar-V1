@@ -1,0 +1,24 @@
+{
+  "run_id": "20261112T172210_34faa3b6",
+  "stage": "preprocesamiento",
+  "mode": "dry_run",
+  "runner_sha256": "9481f294c440cd90b071a31785854635b9a554ee0123bc1d0d772894c5e038a9",
+  "status": "simulated",
+  "label": "CSV → TXT",
+  "updated_at": "2026-11-12T23:22:10.992787+00:00",
+  "commands": [
+    [
+      "/home/emilio/anaconda3/envs/radar-v1/bin/python3.11",
+      "/home/emilio/Documentos/Radar V1/scr_Radar_V1/preprocesamiento_Radar_V1/promover_csv_a_texto_Radar_V1.py",
+      "--processed-dir",
+      "/home/emilio/Documentos/Radar V1/datos_Radar_V1/radar_semanal_procesado_Radar_V1",
+      "--all-weeks",
+      "--sources",
+      "youtube",
+      "twitter",
+      "medios",
+      "facebook"
+    ]
+  ],
+  "input_validation": "existing"
+}
